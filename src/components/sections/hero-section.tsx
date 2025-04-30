@@ -1,3 +1,4 @@
+
 "use client";
 
 import { motion } from "framer-motion";
@@ -100,7 +101,7 @@ export function HeroSection() {
           {/* Text Content and CTA */}
           <div className="space-y-6 text-center md:text-left">
             <motion.h1
-              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight"
+              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight font-heading" // Explicitly use heading font if needed
               variants={itemVariants}
             >
                Where Scents{" "}
@@ -109,7 +110,8 @@ export function HeroSection() {
                </span>
             </motion.h1>
             <motion.p
-              className="max-w-lg text-lg text-muted-foreground/90 md:text-xl mx-auto md:mx-0"
+              // Apply font-light (Lato 300) and potentially slightly more leading
+              className="max-w-lg text-lg text-muted-foreground/90 md:text-xl mx-auto md:mx-0 font-light leading-relaxed" // Added font-light, kept leading-relaxed
               variants={itemVariants}
             >
               Indulge in handcrafted scented candles made with love, designed to brighten your space and soothe your soul.
@@ -145,3 +147,4 @@ export function HeroSection() {
     </section>
   );
 }
+
