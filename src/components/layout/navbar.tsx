@@ -66,27 +66,26 @@ export function Navbar() {
                  textShadow: "0 0 8px hsla(var(--primary-hsl), 0.6)" // Use primary HSL with transparency
                }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              className="relative group"
+              className="relative group" // group is used for the underline animation
             >
               <Link
                 href={item.href}
-                className="text-sm font-medium text-foreground/90 transition-colors hover:text-primary"
+                className="text-sm font-medium text-foreground/90 transition-colors hover:text-primary relative z-10" // Ensure link is clickable
               >
                 {item.name}
-              </Link>
-               {/* Underline Ripple Animation */}
-               <motion.span
-                 layoutId={`underline-${item.name}`} // Unique layoutId per item
-                 className="absolute left-0 -bottom-1 block h-[2px] w-full bg-primary origin-center"
-                 initial={{ scaleX: 0 }}
-                 whileHover={{ scaleX: 1, transition: { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] } }} // Animate scaleX on hover
-                 style={{ transformOrigin: 'center' }} // Ensure scaling from center
-               />
-                {/* Invisible span for exit animation area - prevents flicker when moving between link and underline */}
-                <motion.span
-                    className="absolute inset-x-0 -bottom-1 h-4" // Cover link and space below
+                 {/* Underline Ripple Animation - positioned below the link */}
+                 <motion.span
+                   className="absolute left-0 -bottom-1 block h-[2px] w-full bg-primary origin-center"
+                   initial={{ scaleX: 0 }}
+                   // Animate scaleX on group hover (parent motion.div)
+                   variants={{ // Define variants for group hover state
+                     hover: { scaleX: 1 },
+                     rest: { scaleX: 0 }
+                   }}
+                   transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
+                   style={{ transformOrigin: 'center' }} // Ensure scaling from center
                  />
-
+              </Link>
             </motion.div>
           ))}
            {/* Optional Cart Icon */}
@@ -125,7 +124,7 @@ export function Navbar() {
                     key={item.name}
                     href={item.href}
                     className="text-base font-medium text-foreground transition-colors hover:text-primary py-1"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => setIsOpen(false)} // Close sheet on navigation
                   >
                     {item.name}
                   </Link>
