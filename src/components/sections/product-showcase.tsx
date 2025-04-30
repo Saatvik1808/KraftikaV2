@@ -70,7 +70,7 @@ export function ProductShowcase() {
          >
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {/* Placeholder for actual filter buttons/dropdown */}
-                <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10">
+                <Button variant="outline" size="sm" className="border-primary/30 text-primary-foreground/90 hover:bg-primary/10 hover:text-primary-foreground">
                     <ListFilter className="mr-2 h-4 w-4" /> Filter Scents
                 </Button>
             </div>
@@ -108,7 +108,7 @@ export function ProductShowcase() {
              transition={{ duration: 0.5, delay: 0.3 }}
              className="mt-12 text-center"
          >
-          <Button asChild variant="outline" size="lg" className="group border-primary/50 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/70 transition-all duration-300">
+          <Button asChild variant="outline" size="lg" className="group border-primary/50 text-primary-foreground hover:bg-primary/10 hover:text-primary-foreground hover:border-primary/70 transition-all duration-300">
             <Link href="/products">
               View All Products
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
