@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="py-16 md:py-24">
-       {/* You can add more content specific to the About page here if needed */}
-       {/* For now, we reuse the AboutSection component */}
+    // Removed py-16 md:py-24 padding from this wrapper
+    <div>
+       {/* The AboutSection component now solely controls the top/bottom padding */}
       <AboutSection />
       {/* Example: Add a team section or more details */}
       {/* <section className="container mx-auto max-w-5xl px-4 md:px-6 mt-16">
