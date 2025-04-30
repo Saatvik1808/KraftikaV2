@@ -11,7 +11,8 @@ export default {
   theme: {
   	extend: {
       fontFamily: {
-        sans: ["var(--font-poppins)", ...fontFamily.sans], // Add Poppins as default sans-serif
+        sans: ["var(--font-lato)", ...fontFamily.sans], // Use Lato for body text
+        heading: ["var(--font-forum)", ...fontFamily.serif], // Add Forum for headings (optional, CSS handles this too)
       },
   		colors: {
         // Theme HSL variables defined in globals.css
