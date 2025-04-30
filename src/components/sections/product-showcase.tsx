@@ -1,5 +1,7 @@
+
 "use client";
 
+import * as React from "react"; // Added React import
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ListFilter } from "lucide-react";

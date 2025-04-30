@@ -1,9 +1,30 @@
+"use client"; // Added "use client" directive
+
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Github, Twitter, Instagram, Facebook, Pinterest } from "lucide-react"; // Added FB, Pinterest
+import { Twitter, Instagram, Facebook } from "lucide-react"; // Removed Pinterest and Github
+
+// Inline SVG for Pinterest
+const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="0" // Adjust stroke width if needed, often brands prefer fill
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M12 1.013c-5.89 0-10.654 4.764-10.654 10.654 0 4.48 2.806 8.517 6.778 9.967.094-.424.157-1.15.157-1.15s-.22-.882-.22-1.947c0-1.816 1.047-3.172 2.35-3.172 1.11 0 1.65.834 1.65 1.833 0 1.11-.706 2.77-1.07 4.314-.296 1.25.62 2.26 1.855 2.26 2.22 0 3.92-2.88 3.92-6.945 0-3.62-2.61-6.166-6.02-6.166-4.037 0-6.43 3.02-6.43 5.96 0 1.13.346 2.33.78 3.06.085.14.1.27.07.41-.09.38-.3.12-.3.12s-.94-.376-.94-1.485c0-1.8.98-3.87 2.98-3.87 2.37 0 4.23 1.71 4.23 4.06 0 2.68-1.42 4.83-3.48 4.83-1.37 0-2.52-1.09-2.19-2.38.4-1.6 1.17-3.3 1.17-4.49 0-.93-.5-1.71-1.56-1.71-1.23 0-2.16 1.25-2.16 2.85 0 1.05.39 1.78.39 1.78s-1.26 5.34-1.49 6.29c-.46 1.86-.02 4.07-.02 4.07.02.11.2.18.3.15.1-.03 1.49-1.07 1.87-2.15.13-.37.79-3.16.79-3.16.26.5.98.92 1.79.92 2.26 0 3.79-2.4 3.79-5.61 0-2.67-2.08-4.89-4.93-4.89z"/>
+  </svg>
+);
+
 
 export function Footer() {
   const iconVariants = {
@@ -30,7 +51,7 @@ export function Footer() {
                  {/* Social Icons with Animation */}
                  {[
                     { Icon: Instagram, label: "Instagram", href: "#" },
-                    { Icon: Pinterest, label: "Pinterest", href: "#" },
+                    { Icon: PinterestIcon, label: "Pinterest", href: "#" }, // Use SVG Component
                     { Icon: Facebook, label: "Facebook", href: "#" },
                     { Icon: Twitter, label: "Twitter", href: "#" },
                  ].map(({ Icon, label, href }) => (
