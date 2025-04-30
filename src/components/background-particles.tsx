@@ -2,35 +2,45 @@
 
 import React, { useRef, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
-import { Citrus, Leaf, Flower } from 'lucide-react'; // Using lucide icons as placeholders
+import { Leaf, Citrus, Flower2 } from 'lucide-react'; // Using Mint (Leaf), Orange (Citrus), Lavender (Flower2)
 
-// Define particle types and their properties
+// Define particle types relevant to fruity/floral scents
 const particleTypes = [
-  { Icon: Citrus, color: 'hsl(var(--accent))', sizeRange: [8, 16] },
-  { Icon: Leaf, color: 'hsl(var(--secondary))', sizeRange: [10, 18] },
-  { Icon: Flower, color: 'hsl(var(--primary))', sizeRange: [12, 20] },
+  { Icon: Citrus, color: 'hsl(var(--secondary-hsl))', sizeRange: [8, 15] }, // Peach/Orange
+  { Icon: Leaf, color: 'hsl(var(--primary-hsl))', sizeRange: [10, 18] }, // Mint/Green Leaf
+  { Icon: Flower2, color: 'hsl(var(--lilac-hsl))', sizeRange: [9, 16] }, // Lavender/Lilac
 ];
 
-const numParticles = 30; // Number of particles
+const numParticles = 25; // Reduced number for subtlety
 
 export function BackgroundParticles() {
   const containerRef = useRef<HTMLDivElement>(null);
   const controls = useAnimation();
 
   useEffect(() => {
-    controls.start(i => ({
-      x: Math.random() * (containerRef.current?.offsetWidth || window.innerWidth),
-      y: Math.random() * (containerRef.current?.offsetHeight || window.innerHeight),
-      opacity: [0, Math.random() * 0.4 + 0.1, 0], // Fade in and out
-      scale: [0, Math.random() * 0.5 + 0.5, 0], // Scale animation
-      transition: {
-        duration: Math.random() * 15 + 10, // Longer, varied duration
-        repeat: Infinity,
-        repeatType: 'loop',
-        ease: "linear",
-        delay: Math.random() * 5, // Random delay
-      },
-    }));
+    const animateParticles = () => {
+        controls.start(i => ({
+          // More dynamic movement - drift across screen slowly
+          x: [Math.random() * (containerRef.current?.offsetWidth || window.innerWidth) - 50, Math.random() * (containerRef.current?.offsetWidth || window.innerWidth) + 50],
+          y: [Math.random() * (containerRef.current?.offsetHeight || window.innerHeight) - 50, Math.random() * (containerRef.current?.offsetHeight || window.innerHeight) + 50],
+          rotate: [0, Math.random() * 180 - 90], // Gentle rotation
+          opacity: [0, Math.random() * 0.3 + 0.05, 0], // Very subtle fade
+          scale: [0.5, Math.random() * 0.4 + 0.6, 0.5], // Subtle scale pulse
+          transition: {
+            duration: Math.random() * 25 + 15, // Slower, more varied duration
+            repeat: Infinity,
+            repeatType: 'loop',
+            ease: "linear",
+            delay: Math.random() * 10, // Random start delay
+          },
+        }));
+    }
+    animateParticles();
+
+    // Optional: Re-trigger animation on window resize
+    // window.addEventListener('resize', animateParticles);
+    // return () => window.removeEventListener('resize', animateParticles);
+
   }, [controls]);
 
 
@@ -45,12 +55,13 @@ export function BackgroundParticles() {
         animate={controls}
         className="absolute"
         style={{
-           left: `${Math.random() * 100}%`, // Initial random position
-           top: `${Math.random() * 100}%`,
+           // Start particles off-screen or near edges for smoother entrance
+           left: `${Math.random() > 0.5 ? Math.random() * 20 - 10 : Math.random() * 20 + 90}%`,
+           top: `${Math.random() > 0.5 ? Math.random() * 20 - 10 : Math.random() * 20 + 90}%`,
            opacity: 0, // Start invisible
         }}
       >
-        <type.Icon style={{ color: type.color }} width={size} height={size} strokeWidth={1.5} />
+        <type.Icon style={{ color: type.color }} width={size} height={size} strokeWidth={1.2} />
       </motion.div>
     );
   });

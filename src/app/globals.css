@@ -4,87 +4,108 @@
 
 @layer base {
   :root {
-    /* Fruity Light Theme */
-    --background: 0 0% 98%; /* Slightly off-white */
-    --foreground: 240 10% 3.9%; /* Dark grayish blue */
+    /* Playful Fruity Light Theme */
+    --background: 0 0% 99%; /* Very light base */
+    --foreground: 220 10% 25%; /* Softer dark gray */
 
-    --card: 30 100% 97%; /* Soft Peach */
-    --card-foreground: 240 10% 3.9%;
+    /* Primary: Pastel Green */
+    --primary-hsl: 145 50% 80%; /* Raw HSL for shadows/gradients */
+    --primary: var(--primary-hsl); /* Pastel Green */
+    --primary-foreground: 145 50% 20%; /* Darker green for text on primary */
 
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 240 10% 3.9%;
+    /* Secondary & Accent colors for sections/gradients */
+    --secondary-hsl: 25 100% 88%; /* Soft Peach */
+    --secondary: var(--secondary-hsl);
+    --secondary-foreground: 25 50% 30%;
 
-    --primary: 330 80% 70%; /* Baby Pink */
-    --primary-foreground: 0 0% 100%; /* White */
+    --accent-hsl: 55 100% 85%; /* Lemon Yellow */
+    --accent: var(--accent-hsl);
+    --accent-foreground: 55 50% 30%;
 
-    --secondary: 180 70% 85%; /* Mint */
-    --secondary-foreground: 240 10% 3.9%;
+    --muted-hsl: 340 100% 92%; /* Blush Pink */
+    --muted: var(--muted-hsl);
+    --muted-foreground: 340 30% 50%;
 
-    --muted: 270 70% 92%; /* Lavender */
-    --muted-foreground: 240 5% 64.9%; /* Lighter gray */
+    --lilac-hsl: 275 60% 90%; /* Lilac */
+    --lilac: var(--lilac-hsl);
+    --lilac-foreground: 275 30% 45%;
 
-    --accent: 45 100% 75%; /* Mango Yellow */
-    --accent-foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%; /* White cards */
+    --card-foreground: 220 10% 25%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 25%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 0 0% 90%; /* Soft Gray Border */
-    --input: 0 0% 92%; /* Lighter gray for inputs */
-    --ring: 330 80% 70%; /* Baby Pink for focus rings */
+    --input: 0 0% 95%; /* Slightly lighter gray for inputs */
+    --ring: var(--primary); /* Use primary pastel green for focus rings */
 
-    --radius: 0.75rem; /* Slightly more rounded corners */
+    --radius: 0.75rem;
 
-    /* Glassmorphism Variables */
-    --glass-bg: hsla(0, 0%, 100%, 0.4);
-    --glass-border: hsla(0, 0%, 100%, 0.2);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-    --glass-blur: 10px;
+    /* Refined Glassmorphism Variables */
+    --glass-bg: hsla(0, 0%, 100%, 0.45); /* Slightly less transparent white */
+    --glass-border: hsla(0, 0%, 100%, 0.25); /* Soft white border */
+    --glass-shadow: 0 6px 24px 0 hsla(220, 10%, 25%, 0.08); /* Softer shadow */
+    --glass-blur: 8px; /* Slightly less blur */
 
-    /* Chart colors (can be adjusted if charts are used) */
-    --chart-1: 30 90% 70%; /* Peach */
-    --chart-2: 45 100% 75%; /* Mango Yellow */
-    --chart-3: 270 80% 80%; /* Lavender */
-    --chart-4: 180 70% 85%; /* Mint */
-    --chart-5: 330 80% 70%; /* Baby Pink */
+    /* Chart colors - using the theme accents */
+    --chart-1: var(--primary);
+    --chart-2: var(--secondary);
+    --chart-3: var(--accent);
+    --chart-4: var(--muted);
+    --chart-5: var(--lilac);
+
+     /* Font Variable */
+     --font-poppins: "Poppins", sans-serif;
   }
 
   .dark {
-    /* Optional: Define dark theme colors if needed */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* Optional: Define a dark theme if needed, maintaining the playful vibe */
+    --background: 220 15% 12%;
+    --foreground: 0 0% 95%;
 
-    --card: 240 4% 12%;
-    --card-foreground: 0 0% 98%;
+    --primary-hsl: 145 40% 50%;
+    --primary: var(--primary-hsl);
+    --primary-foreground: 145 20% 95%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --secondary-hsl: 25 60% 60%;
+    --secondary: var(--secondary-hsl);
+    --secondary-foreground: 25 30% 95%;
 
-    --primary: 330 70% 60%; /* Darker Pink */
-    --primary-foreground: 0 0% 98%;
+    --accent-hsl: 55 70% 60%;
+    --accent: var(--accent-hsl);
+    --accent-foreground: 55 30% 95%;
 
-    --secondary: 180 50% 40%; /* Darker Mint */
-    --secondary-foreground: 0 0% 98%;
+    --muted-hsl: 340 50% 65%;
+    --muted: var(--muted-hsl);
+    --muted-foreground: 340 30% 85%;
 
-    --muted: 270 40% 25%; /* Darker Lavender */
-    --muted-foreground: 0 0% 63.9%;
+    --lilac-hsl: 275 45% 68%;
+    --lilac: var(--lilac-hsl);
+    --lilac-foreground: 275 30% 90%;
 
-    --accent: 45 80% 65%; /* Darker Mango */
-    --accent-foreground: 0 0% 98%;
+    --card: 220 10% 18%;
+    --card-foreground: 0 0% 95%;
 
-    --destructive: 0 62.8% 30.6%;
+    --popover: 220 15% 15%;
+    --popover-foreground: 0 0% 95%;
+
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 4% 15%;
-    --input: 240 4% 15%;
-    --ring: 330 70% 60%; /* Darker Pink */
+    --border: 220 10% 30%;
+    --input: 220 10% 25%;
+    --ring: var(--primary);
 
     /* Glassmorphism Dark */
-    --glass-bg: hsla(240, 10%, 10%, 0.5);
+    --glass-bg: hsla(220, 15%, 15%, 0.6);
     --glass-border: hsla(0, 0%, 100%, 0.1);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
     --glass-blur: 10px;
-
   }
 }
 
@@ -94,12 +115,10 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-geist-sans), sans-serif;
-     /* Subtle background texture/gradient */
-    @apply bg-gradient-to-br from-background via-muted to-secondary/30;
-
+    font-family: var(--font-poppins), sans-serif; /* Use Poppins font */
+     /* Base background gradient */
+    @apply bg-gradient-to-br from-background via-primary/10 to-secondary/10;
   }
-  /* Add base styles for common elements */
    h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
   }
@@ -110,24 +129,71 @@
 }
 
 @layer components {
+  /* Glassmorphism component */
   .glassmorphism {
     background: var(--glass-bg);
-    @apply rounded-[var(--radius)] border shadow-lg backdrop-blur-[var(--glass-blur)];
+    @apply rounded-[var(--radius)] border shadow-glass backdrop-blur-[var(--glass-blur)];
     border-color: var(--glass-border);
-    box-shadow: var(--glass-shadow);
   }
 
-  .glassmorphism-dark {
+   .glassmorphism-dark {
      background: var(--glass-bg);
-    @apply dark:rounded-[var(--radius)] dark:border dark:shadow-lg dark:backdrop-blur-[var(--glass-blur)];
+     @apply dark:rounded-[var(--radius)] dark:border dark:shadow-glass dark:backdrop-blur-[var(--glass-blur)];
      border-color: var(--glass-border);
-     box-shadow: var(--glass-shadow);
-  }
+   }
+
+   /* Base button styling enhancement */
+    .btn-primary {
+        @apply bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-primary/40 transition-all duration-300;
+    }
+    .btn-secondary {
+        @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-md hover:shadow-secondary/30 transition-all duration-300;
+    }
+     .btn-accent {
+        @apply bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-accent/30 transition-all duration-300;
+    }
+
 }
 
 @layer utilities {
-  /* Add utility classes if needed, e.g., for specific gradients */
-  .bg-fruity-gradient {
-    @apply bg-gradient-to-r from-primary via-accent to-secondary;
+  /* Example gradient utility for specific sections */
+  .bg-gradient-peach {
+    @apply bg-gradient-to-br from-secondary/20 via-secondary/50 to-secondary/30;
+  }
+   .bg-gradient-lavender {
+    @apply bg-gradient-to-br from-lilac/20 via-lilac/40 to-lilac/20;
+  }
+   .bg-gradient-pink {
+      @apply bg-gradient-to-br from-muted/20 via-muted/40 to-muted/20;
+   }
+    .bg-gradient-yellow {
+        @apply bg-gradient-to-br from-accent/20 via-accent/40 to-accent/20;
+    }
+
+  /* Smooth Scroll */
+  html {
+     scroll-behavior: smooth;
+  }
+
+  /* Section Divider Base */
+  .section-divider {
+      position: relative;
+      height: 80px; /* Adjust height as needed */
+      overflow: hidden;
+      margin-top: -1px; /* Overlap slightly to prevent gaps */
+      margin-bottom: -1px;
+  }
+  .section-divider::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: inherit; /* Inherit background from parent section */
+      /* Example curved shape using SVG or clip-path */
+      /* This is a basic example, customize as needed */
+      clip-path: ellipse(100% 50% at 50% 0%); /* Top curve */
+       /* clip-path: ellipse(100% 50% at 50% 100%); */ /* Bottom curve */
+
   }
 }

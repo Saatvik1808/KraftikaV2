@@ -1,16 +1,21 @@
 import type { Metadata } from 'next';
-import { GeistSans } from 'geist/font/sans'; // Corrected import path for GeistSans
+import { Poppins } from 'next/font/google'; // Import Poppins
 import './globals.css';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster'; // Import Toaster
 import { Providers } from './providers'; // Import Providers
 
-const geistSans = GeistSans; // Use the imported font object directly
+// Configure Poppins font
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'], // Include necessary weights
+  variable: '--font-poppins', // Define CSS variable
+});
 
 export const metadata: Metadata = {
   title: 'Kraftika Scents - Handcrafted Scented Candles',
-  description: 'Light up your life with premium, handcrafted scented candles from Kraftika.',
+  description: 'Where Scents Spark Joy. Premium, handcrafted scented candles from Kraftika.',
 };
 
 export default function RootLayout({
@@ -20,7 +25,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} antialiased flex flex-col min-h-screen`}>
+      {/* Apply the font variable to the body */}
+      <body className={`${poppins.variable} font-sans antialiased flex flex-col min-h-screen`}>
         <Providers>
           <Navbar />
           <main className="flex-grow">{children}</main>

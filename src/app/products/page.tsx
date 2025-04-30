@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,9 +10,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ListFilter, X } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"; // Import Sheet components
 
-// Sample Product Data (Replace with actual data fetching and state management)
+// Sample Product Data
 const allProducts: Candle[] = [
     { id: '1', name: 'Sunrise Citrus', scentCategory: 'Citrus', price: 28, imageUrl: 'https://picsum.photos/seed/candle1/400/500', description: 'Zesty lemon and sweet orange.', scentNotes: 'Lemon, Orange, Bergamot', burnTime: '40 hours', ingredients: 'Soy Wax, Essential Oils' },
     { id: '2', name: 'Lavender Dreams', scentCategory: 'Floral', price: 32, imageUrl: 'https://picsum.photos/seed/candle2/400/500', description: 'Calming lavender fields.', scentNotes: 'Lavender, Chamomile, Vanilla', burnTime: '45 hours', ingredients: 'Soy Wax, Natural Fragrance' },
@@ -36,8 +36,13 @@ const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.05 } // Faster stagger for grid
+      transition: { staggerChildren: 0.06 } // Slightly faster stagger
     }
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 12 } }
 };
 
 
@@ -45,33 +50,22 @@ export default function ProductsPage() {
   const [filteredProducts, setFilteredProducts] = React.useState<Candle[]>(allProducts);
   const [selectedScent, setSelectedScent] = React.useState<string>("All");
   const [sortBy, setSortBy] = React.useState<string>("popularity");
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = React.useState(false);
 
   React.useEffect(() => {
     let products = [...allProducts];
 
-    // Filter by scent
+    // Filter
     if (selectedScent !== "All") {
       products = products.filter(p => p.scentCategory === selectedScent);
     }
 
-    // Sort products
+    // Sort
     switch (sortBy) {
-      case "price-asc":
-        products.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        products.sort((a, b) => b.price - a.price);
-        break;
-       case "newest":
-         // Assuming higher ID means newer for sample data
-         products.sort((a, b) => parseInt(b.id) - parseInt(a.id));
-         break;
-      // Add popularity logic if available, otherwise default sort (or keep as is)
-      case "popularity":
-      default:
-        // Default sort (e.g., by ID or name if no popularity data)
-        products.sort((a, b) => parseInt(a.id) - parseInt(b.id));
-        break;
+      case "price-asc": products.sort((a, b) => a.price - b.price); break;
+      case "price-desc": products.sort((a, b) => b.price - a.price); break;
+      case "newest": products.sort((a, b) => parseInt(b.id) - parseInt(a.id)); break;
+      case "popularity": default: products.sort((a, b) => parseInt(a.id) - parseInt(b.id)); break;
     }
 
     setFilteredProducts(products);
@@ -80,21 +74,21 @@ export default function ProductsPage() {
   const FilterControls = () => (
     <>
         <div className="space-y-4">
-            <Label className="text-lg font-semibold text-foreground">Filter by Scent</Label>
-            <RadioGroup value={selectedScent} onValueChange={setSelectedScent} className="space-y-2">
+            <Label className="text-lg font-semibold text-foreground/90">Filter by Scent</Label>
+            <RadioGroup value={selectedScent} onValueChange={setSelectedScent} className="space-y-2.5">
                 {scentCategories.map((category) => (
-                <div key={category} className="flex items-center space-x-2">
-                    <RadioGroupItem value={category} id={`scent-${category.toLowerCase()}`} />
-                    <Label htmlFor={`scent-${category.toLowerCase()}`} className="font-normal text-foreground/80 cursor-pointer">{category}</Label>
+                <div key={category} className="flex items-center space-x-3">
+                    <RadioGroupItem value={category} id={`scent-${category.toLowerCase()}`} className="border-primary/40 data-[state=checked]:border-primary" />
+                    <Label htmlFor={`scent-${category.toLowerCase()}`} className="font-normal text-foreground/80 hover:text-foreground cursor-pointer transition-colors">{category}</Label>
                 </div>
                 ))}
             </RadioGroup>
         </div>
-        <Separator className="my-6" />
+        <Separator className="my-6 bg-border/30" />
         <div className="space-y-2">
-            <Label htmlFor="sort-by" className="text-lg font-semibold text-foreground">Sort By</Label>
+            <Label htmlFor="sort-by" className="text-lg font-semibold text-foreground/90">Sort By</Label>
             <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger id="sort-by" className="w-full">
+            <SelectTrigger id="sort-by" className="w-full border-border/40 focus:border-primary/50 focus:ring-primary/50">
                 <SelectValue placeholder="Select sorting" />
             </SelectTrigger>
             <SelectContent>
@@ -110,41 +104,54 @@ export default function ProductsPage() {
   )
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-16">
-      <h1 className="mb-8 text-center text-4xl font-bold tracking-tight text-primary sm:text-5xl">
+    <div className="container mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-16"> {/* Base theme background from body */}
+       <motion.h1
+         initial={{ opacity: 0, y: -20 }}
+         animate={{ opacity: 1, y: 0 }}
+         transition={{ duration: 0.5 }}
+         className="mb-10 text-center text-4xl font-bold tracking-tight text-primary sm:text-5xl"
+       >
         Our Candle Collection
-      </h1>
+      </motion.h1>
 
-        <div className="mb-6 flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Showing {filteredProducts.length} products</span>
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-6 flex justify-between items-center"
+         >
+            <span className="text-sm text-muted-foreground/90">Showing {filteredProducts.length} products</span>
              {/* Mobile Filter Trigger */}
-            <Sheet>
+            <Sheet open={isMobileFiltersOpen} onOpenChange={setIsMobileFiltersOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-primary/40 text-primary/90 hover:bg-primary/10">
                   <ListFilter className="mr-2 h-4 w-4" />
-                  Filters
+                  Filters & Sort
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] glassmorphism p-6">
-                 <div className="flex justify-between items-center mb-4">
-                     <h3 className="text-xl font-semibold">Filters</h3>
-                     <SheetTrigger asChild>
-                         <Button variant="ghost" size="icon">
-                             <X className="h-5 w-5"/>
-                         </Button>
-                     </SheetTrigger>
-                 </div>
+              <SheetContent side="left" className="w-[300px] glassmorphism p-6 border-r border-[hsl(var(--border)/0.2)]">
+                 <SheetHeader className="mb-6 flex flex-row justify-between items-center text-left">
+                    <SheetTitle className="text-xl font-semibold">Filters & Sort</SheetTitle>
+                     <Button variant="ghost" size="icon" onClick={() => setIsMobileFiltersOpen(false)} aria-label="Close Filters">
+                        <X className="h-5 w-5 text-foreground/70 hover:text-primary"/>
+                     </Button>
+                 </SheetHeader>
                  <FilterControls />
               </SheetContent>
             </Sheet>
-        </div>
+        </motion.div>
 
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
         {/* Desktop Filters */}
-        <aside className="hidden md:block md:col-span-1 space-y-6 p-6 glassmorphism h-fit sticky top-24">
+         <motion.aside
+             initial={{ opacity: 0, x: -30 }}
+             animate={{ opacity: 1, x: 0 }}
+             transition={{ duration: 0.5, delay: 0.2 }}
+             className="hidden md:block md:col-span-1 space-y-6 p-6 glassmorphism h-fit sticky top-24 border border-[hsl(var(--border)/0.2)]"
+         >
             <FilterControls/>
-        </aside>
+        </motion.aside>
 
         {/* Product Grid */}
         <motion.div
@@ -153,17 +160,27 @@ export default function ProductsPage() {
           initial="hidden"
           animate="visible"
         >
-          {filteredProducts.length > 0 ? (
+          <AnimatePresence>
+             {filteredProducts.length > 0 ? (
              filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-             <p className="col-span-full text-center text-muted-foreground py-10">No products found matching your criteria.</p>
-          )}
+                 <motion.div key={product.id} variants={itemVariants} layout>
+                     <ProductCard product={product} />
+                 </motion.div>
+             ))
+             ) : (
+                 <motion.p
+                     initial={{ opacity: 0 }}
+                     animate={{ opacity: 1 }}
+                     exit={{ opacity: 0 }}
+                     className="col-span-full text-center text-muted-foreground py-16"
+                 >
+                    No candles found matching your criteria. Try adjusting the filters!
+                 </motion.p>
+             )}
+         </AnimatePresence>
 
         </motion.div>
       </div>
     </div>
   );
 }
-
