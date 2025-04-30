@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -40,6 +41,7 @@ export function Navbar() {
           ? "bg-[hsla(0,0%,100%,0.6)] dark:bg-[hsla(220,15%,15%,0.6)] border-[hsl(var(--border)/0.2)] shadow-sm"
           : "bg-[hsla(0,0%,100%,0.3)] dark:bg-[hsla(220,15%,15%,0.3)]"
       )}
+      style={{ '--navbar-height': '4rem' } as React.CSSProperties} // Define navbar height for layout calculations
     >
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center space-x-2 group" aria-label="Kraftika Homepage">
@@ -48,7 +50,7 @@ export function Navbar() {
             whileHover={{ scale: 1.1, filter: 'brightness(1.1)' }}
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
            >
-            <Logo className="h-8 w-auto transition-all duration-300 group-hover:animate-glow" />
+            <Logo className="h-8 w-auto transition-all duration-300 group-hover:animate-glow text-primary" />
            </motion.div>
            <span className="font-semibold text-lg text-primary transition-colors group-hover:text-primary/80">Kraftika</span>
         </Link>
@@ -58,7 +60,11 @@ export function Navbar() {
           {navItems.map((item) => (
             <motion.div
               key={item.name}
-              whileHover={{ y: -2 }} // Slight lift on hover
+              whileHover={{
+                 y: -2,
+                 // Add text glow effect
+                 textShadow: "0 0 8px hsla(var(--primary-hsl), 0.6)" // Use primary HSL with transparency
+               }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
               className="relative group"
             >
@@ -76,10 +82,9 @@ export function Navbar() {
                  whileHover={{ scaleX: 1, transition: { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] } }} // Animate scaleX on hover
                  style={{ transformOrigin: 'center' }} // Ensure scaling from center
                />
-                <motion.span // Invisible span for exit animation area
-                    className="absolute inset-0"
-                    onHoverEnd={() => {}} // Placeholder for exit animation trigger if needed
-                    transition={{ duration: 0.3 }}
+                {/* Invisible span for exit animation area - prevents flicker when moving between link and underline */}
+                <motion.span
+                    className="absolute inset-x-0 -bottom-1 h-4" // Cover link and space below
                  />
 
             </motion.div>
@@ -106,7 +111,7 @@ export function Navbar() {
             <SheetContent side="right" className="w-[280px] p-6 glassmorphism border-l border-[hsl(var(--border)/0.2)]">
               <div className="mb-6 flex justify-between items-center">
                  <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                     <Logo className="h-7 w-auto" />
+                     <Logo className="h-7 w-auto text-primary" />
                      <span className="font-semibold text-md text-primary">Kraftika</span>
                  </Link>
                  <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} aria-label="Close Menu" className="hover:bg-primary/10">
