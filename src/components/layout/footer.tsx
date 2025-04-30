@@ -1,3 +1,4 @@
+
 "use client"; // Added "use client" directive
 
 import Link from "next/link";
@@ -86,7 +87,7 @@ export function Footer() {
           <div className="md:justify-self-center">
              <h4 className="mb-4 font-semibold text-foreground/90">Support</h4>
              <ul className="space-y-2.5 text-sm">
-               <li><Link href="#" className="text-muted-foreground/80 hover:text-primary transition-colors">FAQ</Link></li>
+               <li><Link href="/faq" className="text-muted-foreground/80 hover:text-primary transition-colors">FAQ</Link></li>
                <li><Link href="#" className="text-muted-foreground/80 hover:text-primary transition-colors">Shipping & Returns</Link></li>
                <li><Link href="#" className="text-muted-foreground/80 hover:text-primary transition-colors">Privacy Policy</Link></li>
                <li><Link href="#" className="text-muted-foreground/80 hover:text-primary transition-colors">Terms of Service</Link></li>
