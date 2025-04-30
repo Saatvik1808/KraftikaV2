@@ -1,17 +1,12 @@
 import type { Metadata } from 'next';
-import { GeistSans as Geist } from 'next/font/google'; // Updated import
+import { GeistSans } from 'geist/font/sans'; // Corrected import path for GeistSans
 import './globals.css';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster'; // Import Toaster
 import { Providers } from './providers'; // Import Providers
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-// No need for geistMono if not used
+const geistSans = GeistSans; // Use the imported font object directly
 
 export const metadata: Metadata = {
   title: 'Kraftika Scents - Handcrafted Scented Candles',
