@@ -70,7 +70,7 @@ export function ProductShowcase() {
          >
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {/* Placeholder for actual filter buttons/dropdown */}
-                <Button variant="outline" size="sm" className="border-primary/30 text-primary/80 hover:bg-primary/10">
+                <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10">
                     <ListFilter className="mr-2 h-4 w-4" /> Filter Scents
                 </Button>
             </div>
@@ -119,3 +119,4 @@ export function ProductShowcase() {
     </section>
   );
 }
+
