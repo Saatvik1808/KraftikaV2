@@ -101,17 +101,16 @@ export function HeroSection() {
           {/* Text Content and CTA */}
           <div className="space-y-6 text-center md:text-left">
             <motion.h1
-              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight font-heading" // Explicitly use heading font if needed
+              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight font-heading" // Use Forum font
               variants={itemVariants}
             >
-               Where Scents{" "}
-               <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent">
+               Where Scents{' '}
+               <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent filter brightness-90">
                  Spark Joy
                </span>
             </motion.h1>
             <motion.p
-              // Apply font-light (Lato 300) and potentially slightly more leading
-              className="max-w-lg text-lg text-muted-foreground/90 md:text-xl mx-auto md:mx-0 font-light leading-relaxed" // Added font-light, kept leading-relaxed
+              className="max-w-lg text-lg text-foreground/80 md:text-xl mx-auto md:mx-0 leading-relaxed font-sans" // Use Lato font, softer color
               variants={itemVariants}
             >
               Indulge in handcrafted scented candles made with love, designed to brighten your space and soothe your soul.
@@ -134,7 +133,14 @@ export function HeroSection() {
                  whileTap={{ scale: 0.95 }}
                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                 <Button asChild size="lg" variant="outline" className="px-8 py-3 w-full sm:w-auto border-primary/50 text-primary hover:bg-primary/10 hover:text-primary">
+                 {/* Updated Explore Kraftika Button Styling */}
+                 <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    // Change text color to darker primary-foreground and adjust hover state
+                    className="px-8 py-3 w-full sm:w-auto border-primary/70 text-primary-foreground hover:bg-primary/10 hover:text-primary-foreground/80 hover:border-primary font-medium"
+                 >
                     <Link href="/about">Explore Kraftika</Link>
                  </Button>
               </motion.div>
@@ -147,4 +153,3 @@ export function HeroSection() {
     </section>
   );
 }
-
