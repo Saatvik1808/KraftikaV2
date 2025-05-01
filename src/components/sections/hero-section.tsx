@@ -110,8 +110,8 @@ export function HeroSection() {
                </span>
             </motion.h1>
             <motion.p
-              // Apply font-light (Lato 300) and potentially slightly more leading
-              className="max-w-lg text-lg text-muted-foreground/90 md:text-xl mx-auto md:mx-0 font-light leading-relaxed font-sans" // Added font-light, kept leading-relaxed, explicitly font-sans
+              // Adjusted: Removed font-light, changed color to foreground/80
+              className="max-w-lg text-lg text-foreground/80 md:text-xl mx-auto md:mx-0 leading-relaxed font-sans"
               variants={itemVariants}
             >
               Indulge in handcrafted scented candles made with love, designed to brighten your space and soothe your soul.
@@ -147,4 +147,3 @@ export function HeroSection() {
     </section>
   );
 }
-
