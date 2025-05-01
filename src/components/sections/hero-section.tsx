@@ -104,14 +104,14 @@ export function HeroSection() {
               className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight font-heading" // Explicitly use heading font if needed
               variants={itemVariants}
             >
-               Where Scents{" "}
-               <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent">
+               Where Scents{' '}
+               <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent filter brightness-90">
                  Spark Joy
                </span>
             </motion.h1>
             <motion.p
               // Apply font-light (Lato 300) and potentially slightly more leading
-              className="max-w-lg text-lg text-muted-foreground/90 md:text-xl mx-auto md:mx-0 font-light leading-relaxed" // Added font-light, kept leading-relaxed
+              className="max-w-lg text-lg text-muted-foreground/90 md:text-xl mx-auto md:mx-0 font-light leading-relaxed font-sans" // Added font-light, kept leading-relaxed, explicitly font-sans
               variants={itemVariants}
             >
               Indulge in handcrafted scented candles made with love, designed to brighten your space and soothe your soul.
