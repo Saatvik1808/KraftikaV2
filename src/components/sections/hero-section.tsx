@@ -101,7 +101,7 @@ export function HeroSection() {
           {/* Text Content and CTA */}
           <div className="space-y-6 text-center md:text-left">
             <motion.h1
-              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight font-heading" // Explicitly use heading font if needed
+              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight font-heading" // Use Forum font
               variants={itemVariants}
             >
                Where Scents{' '}
@@ -138,7 +138,8 @@ export function HeroSection() {
                     asChild
                     size="lg"
                     variant="outline"
-                    className="px-8 py-3 w-full sm:w-auto border-primary/70 text-primary/90 hover:bg-primary/10 hover:text-primary hover:border-primary font-medium" // Increased border/text opacity, bolder hover
+                    // Change text color to darker primary-foreground and adjust hover state
+                    className="px-8 py-3 w-full sm:w-auto border-primary/70 text-primary-foreground hover:bg-primary/10 hover:text-primary-foreground/80 hover:border-primary font-medium"
                  >
                     <Link href="/about">Explore Kraftika</Link>
                  </Button>
