@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "@/components/logo";
+import { usePathname } from 'next/navigation'; // Import usePathname
+
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -22,6 +24,7 @@ export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { scrollY } = useScroll();
+  const pathname = usePathname(); // Get current path
 
   // Update scrolled state based on scroll position
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -52,7 +55,8 @@ export function Navbar() {
            >
             <Logo className="h-8 w-auto transition-all duration-300 group-hover:animate-glow text-primary" />
            </motion.div>
-           <span className="font-semibold text-lg text-primary transition-colors group-hover:text-primary/80">Kraftika</span>
+           {/* Changed text color to primary-foreground for darker appearance */}
+           <span className="font-semibold text-lg text-primary-foreground transition-colors group-hover:text-primary-foreground/80">Kraftika</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -60,27 +64,32 @@ export function Navbar() {
           {navItems.map((item) => (
             <motion.div
               key={item.name}
-              whileHover={{
-                 y: -2,
-                 // Add text glow effect
-                 textShadow: "0 0 8px hsla(var(--primary-hsl), 0.6)" // Use primary HSL with transparency
+              whileHover="hover"
+              animate={pathname === item.href ? "hover" : "rest"} // Keep underline if active
+              variants={{ // Define variants for hover state
+                 hover: { y: -2 },
+                 rest: { y: 0 }
                }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
               className="relative group" // group is used for the underline animation
             >
               <Link
                 href={item.href}
-                className="text-sm font-medium text-foreground/90 transition-colors hover:text-primary relative z-10" // Ensure link is clickable
-              >
-                {item.name}
+                className={cn(
+                    "text-sm font-medium transition-colors relative z-10",
+                     pathname === item.href ? "text-primary font-semibold" : "text-foreground/90 hover:text-primary" // Style active link
+                 )}
+                 style={pathname === item.href ? { textShadow: "0 0 8px hsla(var(--primary-hsl), 0.6)" } : {}} // Apply shadow if active
+               >
+                 {item.name}
                  {/* Underline Ripple Animation - positioned below the link */}
                  <motion.span
                    className="absolute left-0 -bottom-1 block h-[2px] w-full bg-primary origin-center"
                    initial={{ scaleX: 0 }}
-                   // Animate scaleX on group hover (parent motion.div)
-                   variants={{ // Define variants for group hover state
+                   // Animate scaleX on group hover (parent motion.div) or if active
+                   variants={{
                      hover: { scaleX: 1 },
-                     rest: { scaleX: 0 }
+                     rest: { scaleX: pathname === item.href ? 1 : 0 } // Keep scaled if active
                    }}
                    transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
                    style={{ transformOrigin: 'center' }} // Ensure scaling from center
@@ -111,7 +120,7 @@ export function Navbar() {
               <div className="mb-6 flex justify-between items-center">
                  <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
                      <Logo className="h-7 w-auto text-primary" />
-                     <span className="font-semibold text-md text-primary">Kraftika</span>
+                     <span className="font-semibold text-md text-primary-foreground">Kraftika</span>
                  </Link>
                  <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} aria-label="Close Menu" className="hover:bg-primary/10">
                      <X className="h-5 w-5 text-foreground/80 hover:text-primary" />
@@ -123,7 +132,10 @@ export function Navbar() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="text-base font-medium text-foreground transition-colors hover:text-primary py-1"
+                    className={cn(
+                        "text-base font-medium transition-colors py-1",
+                        pathname === item.href ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+                    )}
                     onClick={() => setIsOpen(false)} // Close sheet on navigation
                   >
                     {item.name}
