@@ -43,15 +43,15 @@ export function HeroSection() {
     }),
     float: (i: number) => ({
         y: [0, -8, 0, 8, 0], // Reduced float range
-        // More varied horizontal float based on index
-        x: [0, (i % 3 - 1) * (4 + Math.floor(i/2)), (i % 3 - 1) * -(3 + Math.floor(i/2)), 0, (i % 3 - 1) * (4 + Math.floor(i/2)) * 0.5],
+        // More varied and pronounced horizontal float based on index for scattering
+        x: [0, (i % 2 === 0 ? 1 : -1) * (8 + i * 2), (i % 2 === 0 ? -1.5 : 1.5) * (6 + i * 1.5), 0, (i % 2 === 0 ? 0.5 : -0.5) * (10 + i)],
         rotate: [0, 1.5, -1.5, 0, 1.5], // Reduced rotation
       transition: {
-        duration: 6 + i * 1.5, // Slightly faster base duration
+        duration: 7 + i * 1.8, // Slightly more varied duration
         repeat: Infinity,
         repeatType: "mirror",
         ease: "easeInOut",
-        delay: i * 0.3, // Stagger float start
+        delay: i * 0.35, // Stagger float start
       },
     }),
   };
@@ -61,9 +61,9 @@ export function HeroSection() {
   const themeColorHslVars = ['primary-hsl', 'accent-hsl', 'secondary-hsl', 'muted-hsl', 'lilac-hsl'];
 
 
-  // Varied positions for candles to make them look more random
-  const topPositions = ['20%', '45%', '15%', '50%', '30%', '60%'];
-  const leftPositions = ['15%', '50%', '75%', '25%', '60%', '40%'];
+  // More scattered positions for candles
+  const topPositions = ['15%', '25%', '50%', '40%', '65%', '30%'];
+  const leftPositions = ['20%', '75%', '10%', '85%', '35%', '60%'];
 
 
   return (
@@ -88,9 +88,9 @@ export function HeroSection() {
               const colorIndex = i % themeColorClasses.length;
               const colorClass = themeColorClasses[colorIndex];
               const colorHslVar = themeColorHslVars[colorIndex];
-              const currentZIndex = 5 - i; 
-              const topPosition = topPositions[i % topPositions.length]; 
-              const leftPosition = leftPositions[i % leftPositions.length];
+              const currentZIndex = 5 - (i % 3); // Vary zIndex more simply for depth
+              const topPosition = topPositions[i]; 
+              const leftPosition = leftPositions[i];
 
               return (
                 <motion.div
