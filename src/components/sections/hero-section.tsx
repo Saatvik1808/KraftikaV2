@@ -44,7 +44,7 @@ export function HeroSection() {
     float: (i: number) => ({
         y: [0, -8, 0, 8, 0], // Reduced float range
         // More varied horizontal float based on index
-        x: [0, (i % 3 - 1) * (3 + Math.floor(i/2)), (i % 3 - 1) * -(2 + Math.floor(i/2)), 0, (i % 3 - 1) * (3 + Math.floor(i/2)) * 0.5],
+        x: [0, (i % 3 - 1) * (4 + Math.floor(i/2)), (i % 3 - 1) * -(3 + Math.floor(i/2)), 0, (i % 3 - 1) * (4 + Math.floor(i/2)) * 0.5],
         rotate: [0, 1.5, -1.5, 0, 1.5], // Reduced rotation
       transition: {
         duration: 6 + i * 1.5, // Slightly faster base duration
@@ -56,12 +56,14 @@ export function HeroSection() {
     }),
   };
 
-  const themeColorClasses = ['text-primary', 'text-accent', 'text-secondary'];
-  const themeColorHslVars = ['primary-hsl', 'accent-hsl', 'secondary-hsl'];
+  // Expanded color palette for candles
+  const themeColorClasses = ['text-primary', 'text-accent', 'text-secondary', 'text-muted', 'text-lilac'];
+  const themeColorHslVars = ['primary-hsl', 'accent-hsl', 'secondary-hsl', 'muted-hsl', 'lilac-hsl'];
 
-  // More random positions for candles
-  const topPositions = ['20%', '40%', '15%', '55%', '25%', '50%'];
-  const leftPositions = ['15%', '40%', '65%', '20%', '50%', '75%'];
+
+  // Varied positions for candles to make them look more random
+  const topPositions = ['20%', '45%', '15%', '50%', '30%', '60%'];
+  const leftPositions = ['15%', '50%', '75%', '25%', '60%', '40%'];
 
 
   return (
@@ -81,13 +83,14 @@ export function HeroSection() {
             className="relative flex h-64 w-full justify-center items-center md:h-96"
             aria-hidden="true"
           >
-            {/* Staggered SVG Candles - Now 6 candles */}
+            {/* Staggered SVG Candles - Now 6 candles with more color variety */}
             {[0, 1, 2, 3, 4, 5].map((i) => {
-              const colorClass = themeColorClasses[i % 3];
-              const colorHslVar = themeColorHslVars[i % 3];
-              const currentZIndex = 5 - i; // Keep z-index logic
-              const topPosition = topPositions[i % topPositions.length]; // Use predefined random top
-              const leftPosition = leftPositions[i % leftPositions.length]; // Use predefined random left
+              const colorIndex = i % themeColorClasses.length;
+              const colorClass = themeColorClasses[colorIndex];
+              const colorHslVar = themeColorHslVars[colorIndex];
+              const currentZIndex = 5 - i; 
+              const topPosition = topPositions[i % topPositions.length]; 
+              const leftPosition = leftPositions[i % leftPositions.length];
 
               return (
                 <motion.div
