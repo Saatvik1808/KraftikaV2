@@ -113,7 +113,7 @@ export default function ProductsPage() {
          initial={{ opacity: 0, y: -20 }}
          animate={{ opacity: 1, y: 0 }}
          transition={{ duration: 0.5 }}
-         className="mb-10 text-center text-4xl font-bold tracking-tight sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent"
+         className="mb-10 text-center text-4xl font-bold tracking-tight sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent filter brightness-80"
        >
         Our Candle Collection
       </motion.h1>
