@@ -1,3 +1,4 @@
+
 'use client';
 
 import { motion } from 'framer-motion';
@@ -40,7 +41,7 @@ const features = [
     icon: Sparkles, // Changed icon
     title: 'Hand-Poured in India', // Highlight origin
     description: 'Lovingly crafted by hand in small batches for unique quality.',
-     color: 'text-accent',
+     color: 'text-accent-foreground', // Changed from text-accent to text-accent-foreground
   },
   {
     icon: Droplet, // Keep Droplet for scent
