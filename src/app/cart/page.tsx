@@ -80,7 +80,7 @@ export default function CartPage() {
                   <div className="flex-grow text-center sm:text-left">
                     <h3 className="text-lg font-semibold text-foreground">{item.name}</h3>
                     <p className="text-sm text-muted-foreground">{item.scentCategory}</p>
-                    <p className="text-md font-semibold text-primary mt-1">${item.price.toFixed(2)}</p>
+                    <p className="text-md font-semibold text-primary mt-1">₹{item.price.toFixed(2)}</p>
                   </div>
                   <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:ml-auto">
                     {/* In a real app, quantity controls and remove button would be here */}
@@ -103,16 +103,16 @@ export default function CartPage() {
               <CardContent className="p-0 space-y-3">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Shipping</span>
-                  <span>{shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}</span>
+                  <span>{shippingCost === 0 ? "Free" : `₹${shippingCost.toFixed(2)}`}</span>
                 </div>
                 <Separator className="my-2 bg-border/30" />
                 <div className="flex justify-between text-lg font-semibold text-foreground">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>₹{total.toFixed(2)}</span>
                 </div>
               </CardContent>
               <CardFooter className="p-0 mt-6">

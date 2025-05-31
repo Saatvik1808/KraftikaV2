@@ -156,7 +156,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 {product.name}
             </h1>
             <p className="text-2xl font-semibold text-primary">
-                ${product.price.toFixed(2)}
+                ₹{product.price.toFixed(2)}
             </p>
             <Separator className="bg-border/30" />
 

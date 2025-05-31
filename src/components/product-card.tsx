@@ -76,7 +76,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </h3>
             {/* Adjusted font size and margin for mobile */}
             <p className="text-base sm:text-lg font-bold text-primary mb-1 sm:mb-2">
-              ${product.price.toFixed(2)}
+              ₹{product.price.toFixed(2)}
             </p>
         </div>
 
