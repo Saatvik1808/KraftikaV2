@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -118,7 +119,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
-            className="w-full sticky top-24" // Make image sticky on scroll
+            className="w-full md:sticky md:top-24" // Make image sticky on scroll only on md and up
             >
             <Carousel className="w-full rounded-lg overflow-hidden shadow-xl glassmorphism p-2 border border-[hsl(var(--border)/0.1)]">
                 <CarouselContent>
@@ -132,6 +133,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                         className="object-cover rounded-md"
                         priority={index === 0}
+                        data-ai-hint={`${product.scentCategory} candle scene ${index + 1}`}
                         />
                     </div>
                     </CarouselItem>
@@ -241,3 +243,5 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     </div>
   );
 }
+
+    

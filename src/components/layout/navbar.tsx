@@ -100,18 +100,24 @@
                </Link>
              </motion.div>
            ))}
-            {/* Optional Cart Icon */}
-            <Button variant="ghost" size="icon" className="relative hover:bg-primary/10" aria-label="Shopping Cart">
-              <ShoppingBag className="h-5 w-5 text-foreground/80 hover:text-primary" />
-              {/* <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">3</span> */}
+            {/* Cart Icon Link */}
+            <Button asChild variant="ghost" size="icon" className="relative hover:bg-primary/10" aria-label="Shopping Cart">
+              <Link href="/cart">
+                <ShoppingBag className="h-5 w-5 text-foreground/80 hover:text-primary" />
+                {/* TODO: Add item count badge dynamically */}
+                {/* <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">0</span> */}
+              </Link>
             </Button>
          </div>
 
 
          {/* Mobile Navigation Trigger */}
          <div className="flex items-center md:hidden">
-          <Button variant="ghost" size="icon" className="relative mr-2 hover:bg-primary/10" aria-label="Shopping Cart">
+          <Button asChild variant="ghost" size="icon" className="relative mr-2 hover:bg-primary/10" aria-label="Shopping Cart">
+            <Link href="/cart">
               <ShoppingBag className="h-5 w-5 text-foreground/80 hover:text-primary" />
+              {/* TODO: Add item count badge dynamically */}
+            </Link>
           </Button>
            <Sheet open={isOpen} onOpenChange={setIsOpen}>
              <SheetTrigger asChild>
@@ -152,5 +158,5 @@
      </motion.nav>
    );
  }
- 
+
     
