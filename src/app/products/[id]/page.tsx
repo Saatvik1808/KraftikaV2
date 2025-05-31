@@ -11,7 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
-import { ShoppingCart, Heart, Share2, Zap } from "lucide-react"; // Added Zap for ripple effect indication
+import { ShoppingCart, Heart, Share2, Zap } from "lucide-react";
+import { cn } from "@/lib/utils"; // Import cn utility
+import { useToast } from "@/hooks/use-toast"; // Import useToast
 
 // Sample Product Data - In a real app, fetch this based on ID
 const allProducts: Candle[] = [
@@ -37,15 +39,14 @@ async function getRelatedProducts(currentCategory: string, currentId: string): P
    return allProducts.filter(p => p.scentCategory === currentCategory && p.id !== currentId).slice(0, 4);
 }
 
-// Function to get gradient based on category (example)
 const getGradientClass = (category: Candle['scentCategory']): string => {
     switch (category) {
-        case 'Citrus': return 'bg-gradient-to-br from-accent/20 via-background to-accent/10'; // Yellowish
-        case 'Floral': return 'bg-gradient-to-br from-muted/20 via-background to-muted/10'; // Pinkish
-        case 'Sweet': return 'bg-gradient-to-br from-secondary/20 via-background to-secondary/10'; // Peachish
-        case 'Fresh': return 'bg-gradient-to-br from-primary/20 via-background to-primary/10'; // Greenish
-        case 'Fruity': return 'bg-gradient-to-br from-secondary/20 via-background to-accent/10'; // Peach/Yellow
-        default: return 'bg-gradient-to-br from-background via-gray-100 to-background'; // Default
+        case 'Citrus': return 'bg-gradient-to-br from-accent/20 via-background to-accent/10';
+        case 'Floral': return 'bg-gradient-to-br from-muted/20 via-background to-muted/10';
+        case 'Sweet': return 'bg-gradient-to-br from-secondary/20 via-background to-secondary/10';
+        case 'Fresh': return 'bg-gradient-to-br from-primary/20 via-background to-primary/10';
+        case 'Fruity': return 'bg-gradient-to-br from-secondary/20 via-background to-accent/10';
+        default: return 'bg-gradient-to-br from-background via-gray-100 to-background';
     }
 };
 
@@ -55,6 +56,21 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [relatedProducts, setRelatedProducts] = React.useState<Candle[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [ripple, setRipple] = React.useState({ x: -1, y: -1, show: false });
+  const { toast } = useToast();
+
+  const [wishlistedItems, setWishlistedItems] = React.useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const storedWishlist = localStorage.getItem('kraftikaWishlist');
+      return storedWishlist ? JSON.parse(storedWishlist) : [];
+    }
+    return [];
+  });
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('kraftikaWishlist', JSON.stringify(wishlistedItems));
+    }
+  }, [wishlistedItems]);
 
   React.useEffect(() => {
     async function fetchData() {
@@ -72,44 +88,63 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     fetchData();
   }, [params.id]);
 
-
-   // Ripple effect handler for Add to Cart button
    const handleAddToCartClick = (event: React.MouseEvent<HTMLButtonElement>) => {
        const rect = event.currentTarget.getBoundingClientRect();
        const x = event.clientX - rect.left;
        const y = event.clientY - rect.top;
        setRipple({ x, y, show: true });
-       // Remove ripple after animation (adjust timing as needed)
        setTimeout(() => setRipple(prev => ({ ...prev, show: false })), 600);
-       // Add actual cart logic here
-       console.log(`Add ${product?.id} to cart`);
+       // TODO: Add actual cart logic here
+       console.log(`Add ${product?.name} to cart`);
+       toast({
+         title: "Added to Cart!",
+         description: `${product?.name} is now in your shopping bag.`,
+       });
    };
 
+  const isWishlisted = product ? wishlistedItems.includes(product.id) : false;
+
+  const toggleWishlist = () => {
+    if (!product) return;
+    const wasWishlisted = wishlistedItems.includes(product.id);
+    setWishlistedItems(prevItems => {
+      if (prevItems.includes(product.id)) {
+        return prevItems.filter((id: string) => id !== product.id);
+      } else {
+        return [...prevItems, product.id];
+      }
+    });
+    if (wasWishlisted) {
+      toast({
+        title: "Removed from Wishlist",
+        description: `${product.name} has been removed from your wishlist.`,
+      });
+    } else {
+      toast({
+        title: "Added to Wishlist!",
+        description: `${product.name} has been added to your wishlist.`,
+      });
+    }
+  };
 
   if (isLoading) {
     return <div className="container mx-auto max-w-7xl px-4 py-16 text-center min-h-screen flex items-center justify-center">Loading product details...</div>;
   }
 
   if (!product) {
-     return notFound(); // Ensure notFound is called if product is null after loading
+     return notFound();
   }
 
   const gradientClass = getGradientClass(product.scentCategory);
-
-  // Sample images for carousel
-  // For Unsplash, we can generate variations by appending a query param like `&random=1`, `&random=2`
-  // Or, if the Unsplash URLs provided are specific variations, use those directly.
-  // For now, we'll use variations of the main image URL if they are generic.
-  // If specific Unsplash URLs for carousel items are needed, they should be added to the product data.
   const images = [
     product.imageUrl,
-    product.imageUrl.includes('unsplash.com') ? `${product.imageUrl}&random=1` : `https://images.unsplash.com/photo-1612199113196-8918ccba0111?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjYW5kbGUlMjBsaWZlc3R5bGV8ZW58MHx8fHwxNzQ4NjkxNzA0fDA&ixlib=rb-4.1.0&q=80&w=800`, // Example generic lifestyle
-    product.imageUrl.includes('unsplash.com') ? `${product.imageUrl}&random=2` : `https://images.unsplash.com/photo-1587190008733-da3930e91cff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjYW5kbGUlMjBwYWNrYWdpbmd8ZW58MHx8fHwxNzQ4NjkxNzA0fDA&ixlib=rb-4.1.0&q=80&w=800`, // Example generic packaging
-    product.imageUrl.includes('unsplash.com') ? `${product.imageUrl}&random=3` : `https://images.unsplash.com/photo-1515277927504-60732d80260d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzMHx8Y2FuZGxlJTIwZGV0YWlsfGVufDB8fHx8MTc0ODY5MTcwNXww&ixlib=rb-4.1.0&q=80&w=800`, // Example generic detail
+    product.imageUrl.includes('unsplash.com') ? `${product.imageUrl}&random=1` : `https://images.unsplash.com/photo-1612199113196-8918ccba0111?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjYW5kbGUlMjBsaWZlc3R5bGV8ZW58MHx8fHwxNzQ4NjkxNzA0fDA&ixlib=rb-4.1.0&q=80&w=800`,
+    product.imageUrl.includes('unsplash.com') ? `${product.imageUrl}&random=2` : `https://images.unsplash.com/photo-1587190008733-da3930e91cff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjYW5kbGUlMjBwYWNrYWdpbmd8ZW58MHx8fHwxNzQ4NjkxNzA0fDA&ixlibrb-4.1.0&q=80&w=800`,
+    product.imageUrl.includes('unsplash.com') ? `${product.imageUrl}&random=3` : `https://images.unsplash.com/photo-1515277927504-60732d80260d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzMHx8Y2FuZGxlJTIwZGV0YWlsfGVufDB8fHx8MTc0ODY5MTcwNXww&ixlib.rb-4.1.0&q=80&w=800`,
   ];
 
   return (
-    <div className={`w-full min-h-screen ${gradientClass}`}> {/* Apply gradient to the whole page */}
+    <div className={`w-full min-h-screen ${gradientClass}`}>
         <div className="container mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-16">
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -117,18 +152,17 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12 lg:gap-16 items-start"
         >
-            {/* Image Carousel */}
             <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
-            className="w-full md:sticky md:top-24" // Make image sticky on scroll only on md and up
+            className="w-full md:sticky md:top-24"
             >
             <Carousel className="w-full rounded-lg overflow-hidden shadow-xl glassmorphism p-2 border border-[hsl(var(--border)/0.1)]">
                 <CarouselContent>
                 {images.map((imgUrl, index) => (
                     <CarouselItem key={index}>
-                    <div className="aspect-[4/5] relative"> {/* Slightly taller aspect ratio */}
+                    <div className="aspect-[4/5] relative">
                         <Image
                         src={imgUrl}
                         alt={`${product.name} - view ${index + 1}`}
@@ -147,7 +181,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </Carousel>
             </motion.div>
 
-            {/* Product Details in Glass Card */}
             <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -186,12 +219,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
             <Separator className="bg-border/30" />
 
-            {/* Action Buttons */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 pt-2">
-                 {/* Add to Cart Button with Ripple */}
                  <Button
                     size="lg"
-                    className="relative w-full sm:flex-1 btn-primary overflow-hidden px-4 sm:px-8" // Ensure overflow hidden for ripple
+                    className="relative w-full sm:flex-1 btn-primary overflow-hidden px-4 sm:px-8"
                     onClick={handleAddToCartClick}
                  >
                     <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
@@ -200,17 +231,31 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                             className="absolute block rounded-full bg-primary-foreground/30 pointer-events-none"
                             style={{ left: ripple.x, top: ripple.y, x: '-50%', y: '-50%' }}
                             initial={{ width: 0, height: 0, opacity: 0.5 }}
-                            animate={{ width: '200%', height: '200%', opacity: 0 }} // Expand ripple
+                            animate={{ width: '200%', height: '200%', opacity: 0 }}
                             transition={{ duration: 0.6 }}
                         />
                     )}
                  </Button>
 
                 <div className="flex items-center justify-center gap-2">
-                    <Button variant="outline" size="icon" aria-label="Add to Wishlist" className="border-border/30 hover:bg-muted/50 hover:text-muted-foreground">
-                        <Heart className="h-5 w-5" />
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+                        className={cn(
+                            "border-border/30 transition-colors duration-200",
+                            isWishlisted
+                              ? "border-destructive/40 bg-destructive/5 hover:bg-destructive/10 text-destructive"
+                              : "hover:bg-muted/50 hover:text-muted-foreground text-muted-foreground"
+                          )}
+                        onClick={toggleWishlist}
+                    >
+                        <Heart
+                          className={cn("h-5 w-5")}
+                          fill={isWishlisted ? "currentColor" : "none"}
+                        />
                     </Button>
-                    <Button variant="outline" size="icon" aria-label="Share Product" className="border-border/30 hover:bg-muted/50 hover:text-muted-foreground">
+                    <Button variant="outline" size="icon" aria-label="Share Product" className="border-border/30 hover:bg-muted/50 text-muted-foreground hover:text-muted-foreground">
                         <Share2 className="h-5 w-5" />
                     </Button>
                 </div>
@@ -218,7 +263,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </motion.div>
         </motion.div>
 
-        {/* Related Products Section */}
         {relatedProducts.length > 0 && (
             <div className="mt-16 md:mt-24 pt-10 border-t border-border/20">
             <h2 className="mb-8 text-2xl font-bold tracking-tight text-center text-foreground sm:text-3xl">
@@ -247,3 +291,5 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   );
 }
 
+
+    
