@@ -43,7 +43,8 @@ export function HeroSection() {
     }),
     float: (i: number) => ({
         y: [0, -8, 0, 8, 0], // Reduced float range
-        x: [0, (i % 3 - 1) * 4, (i % 3 - 1) * -4, 0, (i % 3 - 1) * 4], // Varied horizontal float based on position
+        // More varied horizontal float based on index
+        x: [0, (i % 3 - 1) * (3 + Math.floor(i/2)), (i % 3 - 1) * -(2 + Math.floor(i/2)), 0, (i % 3 - 1) * (3 + Math.floor(i/2)) * 0.5],
         rotate: [0, 1.5, -1.5, 0, 1.5], // Reduced rotation
       transition: {
         duration: 6 + i * 1.5, // Slightly faster base duration
@@ -57,6 +58,11 @@ export function HeroSection() {
 
   const themeColorClasses = ['text-primary', 'text-accent', 'text-secondary'];
   const themeColorHslVars = ['primary-hsl', 'accent-hsl', 'secondary-hsl'];
+
+  // More random positions for candles
+  const topPositions = ['20%', '40%', '15%', '55%', '25%', '50%'];
+  const leftPositions = ['15%', '40%', '65%', '20%', '50%', '75%'];
+
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-br from-primary/30 via-primary/10 to-background py-28 md:py-36 lg:py-48">
@@ -79,17 +85,9 @@ export function HeroSection() {
             {[0, 1, 2, 3, 4, 5].map((i) => {
               const colorClass = themeColorClasses[i % 3];
               const colorHslVar = themeColorHslVars[i % 3];
-              const currentZIndex = 5 - i;
-              const topPosition = `${20 + (i % 2 === 0 ? 5 : 25)}%`; // e.g. 25% or 45%
-
-              let leftPosition;
-              if (i % 2 === 0) { // Upper visual row (i=0, 2, 4)
-                const horizontalSlot = i / 2; // 0, 1, 2
-                leftPosition = `${20 + horizontalSlot * 25}%`; // 20%, 45%, 70%
-              } else { // Lower visual row (i=1, 3, 5)
-                const horizontalSlot = (i - 1) / 2; // 0, 1, 2
-                leftPosition = `${30 + horizontalSlot * 25}%`; // 30%, 55%, 80%
-              }
+              const currentZIndex = 5 - i; // Keep z-index logic
+              const topPosition = topPositions[i % topPositions.length]; // Use predefined random top
+              const leftPosition = leftPositions[i % leftPositions.length]; // Use predefined random left
 
               return (
                 <motion.div
