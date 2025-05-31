@@ -191,7 +191,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                  {/* Add to Cart Button with Ripple */}
                  <Button
                     size="lg"
-                    className="relative flex-1 btn-primary overflow-hidden" // Ensure overflow hidden for ripple
+                    className="relative w-full sm:flex-1 btn-primary overflow-hidden px-4 sm:px-8" // Ensure overflow hidden for ripple
                     onClick={handleAddToCartClick}
                  >
                     <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
@@ -246,3 +246,4 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     </div>
   );
 }
+
