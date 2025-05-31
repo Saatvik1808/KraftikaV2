@@ -80,7 +80,7 @@
                  href={item.href}
                  className={cn(
                      "font-sans text-sm font-medium transition-colors relative z-10",
-                      pathname === item.href ? "text-primary font-semibold" : "text-foreground/90 hover:text-primary" // Style active link
+                      pathname === item.href ? "text-primary font-semibold" : "text-foreground/90 hover:text-foreground" // Style active link
                   )}
                   style={pathname === item.href ? { textShadow: "0 0 8px hsla(var(--primary-hsl), 0.6)" } : {}} // Apply shadow if active
                 >
@@ -143,7 +143,7 @@
                      href={item.href}
                      className={cn(
                          "font-sans text-base font-medium transition-colors py-1",
-                         pathname === item.href ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+                         pathname === item.href ? "text-primary font-semibold" : "text-foreground hover:text-foreground"
                      )}
                      onClick={() => setIsOpen(false)} // Close sheet on navigation
                    >
