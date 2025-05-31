@@ -43,7 +43,7 @@ export function HeroSection() {
     }),
     float: (i: number) => ({
         y: [0, -8, 0, 8, 0], // Reduced float range
-        x: [0, 4, -4, 0, 4],
+        x: [0, (i % 3 - 1) * 4, (i % 3 - 1) * -4, 0, (i % 3 - 1) * 4], // Varied horizontal float based on position
         rotate: [0, 1.5, -1.5, 0, 1.5], // Reduced rotation
       transition: {
         duration: 6 + i * 1.5, // Slightly faster base duration
@@ -54,6 +54,9 @@ export function HeroSection() {
       },
     }),
   };
+
+  const themeColorClasses = ['text-primary', 'text-accent', 'text-secondary'];
+  const themeColorHslVars = ['primary-hsl', 'accent-hsl', 'secondary-hsl'];
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-br from-primary/30 via-primary/10 to-background py-28 md:py-36 lg:py-48">
@@ -72,36 +75,50 @@ export function HeroSection() {
             className="relative flex h-64 w-full justify-center items-center md:h-96"
             aria-hidden="true"
           >
-            {/* Staggered SVG Candles */}
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="absolute"
-                style={{
-                  // Adjust positioning for a pleasing staggered arrangement
-                  left: `${25 + i * 25}%`,
-                  top: `${20 + (i % 2 === 0 ? 5 : 20)}%`,
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 3 - i,
-                }}
-                variants={candleVariants}
-                initial="initial"
-                animate={["animate", "float"]} // Combine entrance and float animations
-                custom={i}
-              >
-                <CandleIcon
-                  className={`h-28 w-28 lg:h-36 lg:w-36 opacity-90 filter drop-shadow-lg
-                    ${i === 0 ? 'text-primary' : i === 1 ? 'text-accent' : 'text-secondary'}`} // Use theme colors
-                  style={{ filter: `drop-shadow(0 5px 15px hsla(var(--${i === 0 ? 'primary' : i === 1 ? 'accent' : 'secondary'}-hsl), 0.25))` }}
-                 />
-              </motion.div>
-            ))}
+            {/* Staggered SVG Candles - Now 6 candles */}
+            {[0, 1, 2, 3, 4, 5].map((i) => {
+              const colorClass = themeColorClasses[i % 3];
+              const colorHslVar = themeColorHslVars[i % 3];
+              const currentZIndex = 5 - i;
+              const topPosition = `${20 + (i % 2 === 0 ? 5 : 25)}%`; // e.g. 25% or 45%
+
+              let leftPosition;
+              if (i % 2 === 0) { // Upper visual row (i=0, 2, 4)
+                const horizontalSlot = i / 2; // 0, 1, 2
+                leftPosition = `${20 + horizontalSlot * 25}%`; // 20%, 45%, 70%
+              } else { // Lower visual row (i=1, 3, 5)
+                const horizontalSlot = (i - 1) / 2; // 0, 1, 2
+                leftPosition = `${30 + horizontalSlot * 25}%`; // 30%, 55%, 80%
+              }
+
+              return (
+                <motion.div
+                  key={i}
+                  className="absolute"
+                  style={{
+                    left: leftPosition,
+                    top: topPosition,
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: currentZIndex,
+                  }}
+                  variants={candleVariants}
+                  initial="initial"
+                  animate={["animate", "float"]} 
+                  custom={i}
+                >
+                  <CandleIcon
+                    className={`h-28 w-28 lg:h-36 lg:w-36 opacity-90 filter drop-shadow-lg ${colorClass}`}
+                    style={{ filter: `drop-shadow(0 5px 15px hsla(var(--${colorHslVar}), 0.25))` }}
+                   />
+                </motion.div>
+              );
+            })}
           </motion.div>
 
           {/* Text Content and CTA */}
           <div className="space-y-6 text-center md:text-left">
             <motion.h1
-              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight font-heading" // Use Forum font
+              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight font-heading"
               variants={itemVariants}
             >
                Where Scents{' '}
@@ -110,7 +127,7 @@ export function HeroSection() {
                </span>
             </motion.h1>
             <motion.p
-              className="max-w-lg text-lg text-foreground/80 md:text-xl mx-auto md:mx-0 leading-relaxed font-sans" // Use Lato font, softer color
+              className="max-w-lg text-lg text-foreground/80 md:text-xl mx-auto md:mx-0 leading-relaxed font-sans"
               variants={itemVariants}
             >
               Indulge in handcrafted scented candles made with love, designed to brighten your space and soothe your soul.
@@ -133,12 +150,10 @@ export function HeroSection() {
                  whileTap={{ scale: 0.95 }}
                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                 {/* Updated Explore Kraftika Button Styling */}
                  <Button
                     asChild
                     size="lg"
                     variant="outline"
-                    // Change text color to darker primary-foreground and adjust hover state
                     className="px-8 py-3 w-full sm:w-auto border-primary/70 text-primary-foreground hover:bg-primary/10 hover:text-primary-foreground/80 hover:border-primary font-medium"
                  >
                     <Link href="/about">Explore Kraftika</Link>
@@ -148,8 +163,6 @@ export function HeroSection() {
           </div>
         </motion.div>
       </div>
-       {/* Optional: Add a subtle curved divider at the bottom */}
-       {/* <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-background to-transparent section-divider"></div> */}
     </section>
   );
 }
