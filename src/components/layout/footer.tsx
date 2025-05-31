@@ -44,7 +44,7 @@
                    {/* Provide width/height for the logo */}
                    <Logo width={32} height={32} className="group-hover:animate-glow" />
                 </motion.div>
-                <span className="font-semibold text-lg text-primary group-hover:text-primary/80 transition-colors">Kraftika</span>
+                <span className="font-heading font-semibold text-lg text-primary-foreground group-hover:text-primary-foreground/80 transition-colors">Kraftika</span>
               </Link>
              <p className="text-sm text-muted-foreground/90">
                Handcrafted scents to spark joy in your everyday moments.
