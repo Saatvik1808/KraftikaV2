@@ -6,7 +6,7 @@
  import { Logo } from "@/components/logo";
  import { Button } from "@/components/ui/button";
  import { Input } from "@/components/ui/input";
- import { Twitter, Instagram, Facebook } from "lucide-react"; // Removed Pinterest and Github
+ import { Instagram, Facebook } from "lucide-react"; // Removed Twitter
 
  // Inline SVG for Pinterest
  const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -55,8 +55,7 @@
                      { Icon: Instagram, label: "Instagram", href: "#" },
                      { Icon: PinterestIcon, label: "Pinterest", href: "#" }, // Use SVG Component
                      { Icon: Facebook, label: "Facebook", href: "#" },
-                     { Icon: Twitter, label: "Twitter", href: "#" },
-                  ].map(({ Icon, label, href }) => (
+                  ].map(({ Icon, label, href }) => ( // Removed Twitter from this array
                      <motion.a
                          key={label}
                          href={href}
