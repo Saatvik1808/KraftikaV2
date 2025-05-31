@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Candle } from "@/types/candle";
 import { ShoppingCart, Eye } from "lucide-react";
+import { useToast } from "@/hooks/use-toast"; // Import useToast
 
 interface ProductCardProps {
   product: Candle;
@@ -35,6 +36,18 @@ const imageVariants = {
 };
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { toast } = useToast(); // Initialize useToast
+
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); // Prevent link navigation if card itself is a link
+    console.log(`Add ${product.id} to cart`);
+    toast({
+      title: "Added to Cart!",
+      description: `${product.name} has been added to your cart.`,
+    });
+    // In a real app, you would dispatch an action to add the item to the cart state here.
+  };
+
   return (
     <motion.div
       variants={cardVariants}
@@ -80,7 +93,7 @@ export function ProductCard({ product }: ProductCardProps) {
              variant="default"
              className="flex-1 btn-primary h-8 text-xs group-hover:scale-[1.03] transform transition-transform duration-200"
              aria-label={`Add ${product.name} to cart`}
-             onClick={(e) => { e.stopPropagation(); console.log(`Add ${product.id} to cart`); }} 
+             onClick={handleAddToCart}
            >
             <ShoppingCart className="mr-1 h-3.5 w-3.5" /> Add
           </Button>
