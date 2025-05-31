@@ -93,11 +93,11 @@ export function AboutSection() {
                  transition={{ type: "spring", stiffness: 300 }}
               >
                    <Avatar className="h-24 w-24 border-2 border-primary/30 shadow-sm">
-                       <AvatarImage src="https://picsum.photos/seed/owner/200" alt="Saatvik Shrivastava" data-ai-hint="person portrait founder" />
-                       <AvatarFallback>SS</AvatarFallback>
+                       <AvatarImage src="https://picsum.photos/seed/owner/200" alt="Anamika Sinha" data-ai-hint="person portrait founder" />
+                       <AvatarFallback>AS</AvatarFallback>
                    </Avatar>
                    <div className="text-center sm:text-left">
-                       <h4 className="text-xl font-medium font-heading text-foreground mb-1">Saatvik Shrivastava</h4>
+                       <h4 className="text-xl font-medium font-heading text-foreground mb-1">Anamika Sinha</h4>
                        <p className="text-sm font-semibold text-primary mb-2">Founder & Candlemaker</p>
                        <p className="text-sm text-muted-foreground/90 font-sans leading-snug">
                            "I started Kraftika to share the simple joy a beautiful scent can bring. It's about creating moments of peace and warmth, sustainably and with love."
