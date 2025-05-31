@@ -59,9 +59,7 @@
     --chart-4: var(--muted);
     --chart-5: var(--lilac);
 
-     /* Font Variables */
-     --font-lato: "Lato", sans-serif; /* Body font */
-     --font-forum: "Forum", serif; /* Heading font */
+     /* Font Variables - Removed Lato and Forum */
   }
 
   .dark {
@@ -115,20 +113,17 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-lato); /* Use Lato for body */
+    @apply bg-background text-foreground font-sans; /* font-sans will now use Regalia Monarch */
      /* Base background gradient */
     @apply bg-gradient-to-br from-background via-primary/10 to-secondary/10;
   }
    h1, h2, h3, h4, h5, h6 {
-     font-family: var(--font-forum); /* Use Forum for headings */
-     @apply font-normal tracking-tight font-heading; /* Forum is typically regular weight, add font-heading class */
+     @apply font-heading font-normal tracking-tight; /* font-heading will now use Regalia Monarch */
    }
    h1 { @apply text-4xl lg:text-5xl; }
    h2 { @apply text-3xl lg:text-4xl; }
    h3 { @apply text-2xl lg:text-3xl; }
-   /* Adjust paragraph leading if needed with Lato */
-   p { @apply leading-relaxed font-sans; /* Add font-sans class */}
+   p { @apply leading-relaxed font-sans; /* font-sans will now use Regalia Monarch */}
 }
 
 @layer components {
@@ -147,7 +142,7 @@
 
    /* Base button styling enhancement */
     .btn-primary {
-        @apply bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-primary/40 transition-all duration-300 font-semibold; /* Ensure buttons use appropriate font weight if needed */
+        @apply bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-primary/40 transition-all duration-300 font-semibold;
     }
     .btn-secondary {
         @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-md hover:shadow-secondary/30 transition-all duration-300 font-semibold;
