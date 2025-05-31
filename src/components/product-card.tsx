@@ -40,6 +40,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent link navigation if card itself is a link
+    e.preventDefault(); // Also prevent default link behavior
     console.log(`Add ${product.id} to cart`);
     toast({
       title: "Added to Cart!",
@@ -101,12 +102,12 @@ export function ProductCard({ product }: ProductCardProps) {
              size="icon"
              variant="outline"
              className="h-8 w-8 border-border/30 hover:bg-primary/10 hover:border-primary/40 group-hover:scale-[1.03] transform transition-transform duration-200 shrink-0"
-              aria-label={`Quick view ${product.name}`}
-              onClick={(e) => { e.stopPropagation(); console.log(`Quick view ${product.id}`); }}
-              asChild
+             aria-label={`View ${product.name} details`}
+             // onClick handler removed as navigation is handled by the Link
+             asChild
            >
               <Link href={`/products/${product.id}`}>
-                 <Eye className="h-3.5 w-3.5 text-foreground/60 group-hover:text-primary" />
+                 <Eye className="h-4 w-4 text-foreground/70 group-hover:text-primary" />
              </Link>
           </Button>
         </div>
