@@ -44,7 +44,7 @@ export function HeroSection() {
     float: (i: number) => ({
         y: [0, -8, 0, 8, 0], // Reduced float range
         // More varied and pronounced horizontal float based on index for scattering
-        x: [0, (i % 2 === 0 ? 1 : -1) * (8 + i * 2), (i % 2 === 0 ? -1.5 : 1.5) * (6 + i * 1.5), 0, (i % 2 === 0 ? 0.5 : -0.5) * (10 + i)],
+        x: [0, (i % 2 === 0 ? 1 : -1) * (6 + i * 1.5), (i % 2 === 0 ? -1.2 : 1.2) * (5 + i * 1.2), 0, (i % 2 === 0 ? 0.4 : -0.4) * (8 + i*0.5)],
         rotate: [0, 1.5, -1.5, 0, 1.5], // Reduced rotation
       transition: {
         duration: 7 + i * 1.8, // Slightly more varied duration
@@ -59,9 +59,10 @@ export function HeroSection() {
   const themeColorClasses = ['text-primary', 'text-accent', 'text-secondary', 'text-muted', 'text-lilac'];
   const themeColorHslVars = ['primary-hsl', 'accent-hsl', 'secondary-hsl', 'muted-hsl', 'lilac-hsl'];
 
-  // Adjusted positions for 4 candles to be more scattered
-  const topPositions = ['20%', '65%', '45%', '30%'];
-  const leftPositions = ['15%', '80%', '60%', '35%'];
+  // Curated positions for 4 candles for a "better format"
+  const topPositions = ['20%', '50%', '35%', '65%'];
+  const leftPositions = ['15%', '30%', '45%', '10%'];
+  const zIndexValues = [3, 4, 2, 3]; // Specific z-index for each candle
 
 
   return (
@@ -80,12 +81,13 @@ export function HeroSection() {
             className="relative flex h-64 w-full justify-center items-center md:h-96"
             aria-hidden="true"
           >
-            {/* Updated to 4 candles */}
+            {/* Updated to 4 candles with curated positions */}
             {[0, 1, 2, 3].map((i) => {
               const colorIndex = i % themeColorClasses.length;
               const colorClass = themeColorClasses[colorIndex];
               const colorHslVar = themeColorHslVars[colorIndex];
-              const currentZIndex = 4 - (i % 2); // Simpler zIndex for 4 candles (e.g., 4, 3, 4, 3)
+              const currentZIndex = zIndexValues[i];
+              
               const topPosition = topPositions[i]; 
               const leftPosition = leftPositions[i];
 
