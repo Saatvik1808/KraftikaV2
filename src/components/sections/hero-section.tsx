@@ -56,19 +56,16 @@ export function HeroSection() {
     }),
   };
 
-  // Expanded color palette for candles
   const themeColorClasses = ['text-primary', 'text-accent', 'text-secondary', 'text-muted', 'text-lilac'];
   const themeColorHslVars = ['primary-hsl', 'accent-hsl', 'secondary-hsl', 'muted-hsl', 'lilac-hsl'];
 
-
-  // More scattered positions for candles
-  const topPositions = ['15%', '25%', '50%', '40%', '65%', '30%'];
-  const leftPositions = ['20%', '75%', '10%', '85%', '35%', '60%'];
+  // Adjusted positions for 4 candles to be more scattered
+  const topPositions = ['20%', '65%', '45%', '30%'];
+  const leftPositions = ['15%', '80%', '60%', '35%'];
 
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-br from-primary/30 via-primary/10 to-background py-28 md:py-36 lg:py-48">
-       {/* Background Particles - Ensure they use appropriate fruity icons */}
       <BackgroundParticles />
 
       <div className="container mx-auto max-w-7xl px-4 md:px-6 z-10 relative">
@@ -83,12 +80,12 @@ export function HeroSection() {
             className="relative flex h-64 w-full justify-center items-center md:h-96"
             aria-hidden="true"
           >
-            {/* Staggered SVG Candles - Now 6 candles with more color variety */}
-            {[0, 1, 2, 3, 4, 5].map((i) => {
+            {/* Updated to 4 candles */}
+            {[0, 1, 2, 3].map((i) => {
               const colorIndex = i % themeColorClasses.length;
               const colorClass = themeColorClasses[colorIndex];
               const colorHslVar = themeColorHslVars[colorIndex];
-              const currentZIndex = 5 - (i % 3); // Vary zIndex more simply for depth
+              const currentZIndex = 4 - (i % 2); // Simpler zIndex for 4 candles (e.g., 4, 3, 4, 3)
               const topPosition = topPositions[i]; 
               const leftPosition = leftPositions[i];
 
