@@ -41,13 +41,14 @@ export function ProductCard({ product }: ProductCardProps) {
       initial="rest"
       whileHover="hover"
       animate="rest"
-      // Apply glassmorphism, slightly reduced padding, ensure full height for grid layout
+      // Apply glassmorphism, ensure full height for grid layout
       className="group relative flex flex-col overflow-hidden rounded-lg border border-[hsl(var(--border)/0.15)] glassmorphism h-full shadow-sm hover:shadow-md transition-shadow duration-300"
     >
       <Link href={`/products/${product.id}`} className="absolute inset-0 z-10" aria-label={`View details for ${product.name}`}>
-        <span className="sr-only">View details for {product.name}</span>
+        <span className="sr-only">View details for ${product.name}</span>
       </Link>
-      <div className="relative overflow-hidden aspect-[4/4.5] rounded-t-lg"> {/* Adjusted aspect ratio slightly */}
+      {/* Adjusted aspect ratio for mobile (square) and kept original for sm+ */}
+      <div className="relative overflow-hidden aspect-square sm:aspect-[4/4.5] rounded-t-lg">
           <motion.div variants={imageVariants} className="h-full w-full">
              <Image
                src={product.imageUrl}
@@ -55,6 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
                fill
                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
                className="object-cover transition-transform duration-500 ease-in-out"
+               data-ai-hint={`${product.scentCategory.toLowerCase()} candle`}
              />
            </motion.div>
         {/* Badge slightly smaller and positioned */}
@@ -63,25 +65,26 @@ export function ProductCard({ product }: ProductCardProps) {
         </Badge>
       </div>
 
-      {/* Reduced padding in the content area */}
-      <div className="flex flex-1 flex-col p-3 justify-between">
+      {/* Reduced padding in the content area for mobile, original for sm+ */}
+      <div className="flex flex-1 flex-col p-2 sm:p-3 justify-between">
         <div>
-            <h3 className="text-base font-semibold leading-tight text-foreground mb-0.5 group-hover:text-primary transition-colors"> {/* Slightly smaller heading */}
+            {/* Adjusted font size for mobile */}
+            <h3 className="text-sm sm:text-base font-semibold leading-tight text-foreground mb-0.5 group-hover:text-primary transition-colors">
                 <Link href={`/products/${product.id}`} className="focus:outline-none relative z-20 before:absolute before:inset-0">
                     {product.name}
                  </Link>
             </h3>
-            <p className="text-lg font-bold text-primary mb-2"> {/* Slightly smaller price */}
+            {/* Adjusted font size and margin for mobile */}
+            <p className="text-base sm:text-lg font-bold text-primary mb-1 sm:mb-2">
               ${product.price.toFixed(2)}
             </p>
         </div>
 
-        {/* Buttons - made slightly more visible initially, enhanced on hover */}
-        <div className="mt-1.5 flex justify-between items-center space-x-2 relative z-20 opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+        {/* Adjusted top margin for mobile */}
+        <div className="mt-1 sm:mt-1.5 flex justify-between items-center space-x-2 relative z-20 opacity-90 group-hover:opacity-100 transition-opacity duration-300">
           <Button
              size="sm"
              variant="default"
-             // Use primary button style, slightly smaller text/padding via size="sm"
              className="flex-1 btn-primary h-8 text-xs group-hover:scale-[1.03] transform transition-transform duration-200"
              aria-label={`Add ${product.name} to cart`}
              onClick={(e) => { e.stopPropagation(); console.log(`Add ${product.id} to cart`); }} // Prevent link navigation
@@ -89,9 +92,8 @@ export function ProductCard({ product }: ProductCardProps) {
             <ShoppingCart className="mr-1 h-3.5 w-3.5" /> Add
           </Button>
            <Button
-             size="icon" // Keep icon size
+             size="icon"
              variant="outline"
-              // Adjusted border/hover, size="sm", height="h-8"
              className="h-8 w-8 border-border/30 hover:bg-primary/10 hover:border-primary/40 group-hover:scale-[1.03] transform transition-transform duration-200 shrink-0"
               aria-label={`Quick view ${product.name}`}
               onClick={(e) => { e.stopPropagation(); console.log(`Quick view ${product.id}`); }}
