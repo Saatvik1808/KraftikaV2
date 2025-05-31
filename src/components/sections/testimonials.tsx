@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Star, Sparkles } from "lucide-react"; // Added Sparkles for effect
@@ -10,10 +11,10 @@ import { motion } from "framer-motion";
 
 // Sample Testimonial Data
 const testimonials = [
-  { name: "Alice L.", quote: "Kraftika candles smell absolutely divine! The Sunrise Citrus brightens my whole morning. ✨", avatar: "https://picsum.photos/seed/avatar1/100", rating: 5 },
-  { name: "Ben C.", quote: "The Lavender Dreams candle is so calming. Perfect for winding down after a long day. 💜", avatar: "https://picsum.photos/seed/avatar2/100", rating: 5 },
-  { name: "Chloe D.", quote: "Beautiful packaging and even better scents. Vanilla Bean Bliss is my favorite! Highly recommend. 😊", avatar: "https://picsum.photos/seed/avatar3/100", rating: 4 },
-  { name: "David F.", quote: "High-quality candles with unique scents. The Mint Mojito is incredibly refreshing. Will buy again! 🌿", avatar: "https://picsum.photos/seed/avatar4/100", rating: 5 },
+  { name: "Priya S.", quote: "Kraftika candles smell absolutely divine! The Sunrise Citrus brightens my whole morning. ✨", avatar: "https://picsum.photos/seed/avatar1/100", rating: 5, fallback: "PS" },
+  { name: "Rohan K.", quote: "The Lavender Dreams candle is so calming. Perfect for winding down after a long day. 💜", avatar: "https://picsum.photos/seed/avatar2/100", rating: 5, fallback: "RK" },
+  { name: "Aisha M.", quote: "Beautiful packaging and even better scents. Vanilla Bean Bliss is my favorite! Highly recommend. 😊", avatar: "https://picsum.photos/seed/avatar3/100", rating: 4, fallback: "AM" },
+  { name: "Vikram P.", quote: "High-quality candles with unique scents. The Mint Mojito is incredibly refreshing. Will buy again! 🌿", avatar: "https://picsum.photos/seed/avatar4/100", rating: 5, fallback: "VP" },
 ];
 
 export function Testimonials() {
@@ -65,7 +66,7 @@ export function Testimonials() {
                       <CardHeader className="flex flex-row items-center space-x-4 pb-3 pt-5 px-5">
                          <Avatar className="h-12 w-12 border-2 border-primary/30">
                              <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
-                             <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                             <AvatarFallback>{testimonial.fallback}</AvatarFallback>
                          </Avatar>
                          <div>
                             <CardTitle className="text-md font-semibold text-foreground/90">{testimonial.name}</CardTitle>
