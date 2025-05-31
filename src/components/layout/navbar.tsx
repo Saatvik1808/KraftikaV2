@@ -59,7 +59,7 @@
              <Logo width={32} height={32} priority className="transition-all duration-300 group-hover:animate-glow" />
             </motion.div>
             {/* Changed text color to primary-foreground for darker appearance */}
-            <span className="font-semibold text-lg text-primary-foreground transition-colors group-hover:text-primary-foreground/80">Kraftika</span>
+            <span className="font-heading font-semibold text-lg text-primary-foreground transition-colors group-hover:text-primary-foreground/80">Kraftika</span>
          </Link>
 
          {/* Desktop Navigation */}
@@ -79,7 +79,7 @@
                <Link
                  href={item.href}
                  className={cn(
-                     "text-sm font-medium transition-colors relative z-10",
+                     "font-sans text-sm font-medium transition-colors relative z-10",
                       pathname === item.href ? "text-primary font-semibold" : "text-foreground/90 hover:text-primary" // Style active link
                   )}
                   style={pathname === item.href ? { textShadow: "0 0 8px hsla(var(--primary-hsl), 0.6)" } : {}} // Apply shadow if active
@@ -129,7 +129,7 @@
                <div className="mb-6 flex justify-between items-center">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
                       <Logo width={28} height={28} className="text-primary" /> {/* Slightly smaller logo for mobile */}
-                      <span className="font-semibold text-md text-primary-foreground">Kraftika</span>
+                      <span className="font-heading font-semibold text-md text-primary-foreground">Kraftika</span>
                   </Link>
                   <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} aria-label="Close Menu" className="hover:bg-primary/10">
                       <X className="h-5 w-5 text-foreground/80 hover:text-primary" />
@@ -142,7 +142,7 @@
                      key={item.name}
                      href={item.href}
                      className={cn(
-                         "text-base font-medium transition-colors py-1",
+                         "font-sans text-base font-medium transition-colors py-1",
                          pathname === item.href ? "text-primary font-semibold" : "text-foreground hover:text-primary"
                      )}
                      onClick={() => setIsOpen(false)} // Close sheet on navigation
@@ -158,5 +158,4 @@
      </motion.nav>
    );
  }
-
     
