@@ -11,8 +11,8 @@ import { motion } from "framer-motion";
 
 // Mock cart items - in a real app, this would come from state management
 const mockCartItems = [
-  { id: '1', name: 'Sunrise Citrus', price: 28, quantity: 1, imageUrl: 'https://picsum.photos/seed/candle1/100/125', scentCategory: 'Citrus' },
-  { id: '2', name: 'Lavender Dreams', price: 32, quantity: 2, imageUrl: 'https://picsum.photos/seed/candle2/100/125', scentCategory: 'Floral' },
+  { id: '1', name: 'Sunrise Citrus', price: 28, quantity: 1, imageUrl: 'https://images.unsplash.com/photo-1697587454797-8644fcb7e242?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjaXRydXMlMjBjYW5kbGV8ZW58MHx8fHwxNzQ4NjkxNTA0fDA&ixlib=rb-4.1.0&q=80&w=100', scentCategory: 'Citrus' },
+  { id: '2', name: 'Lavender Dreams', price: 32, quantity: 2, imageUrl: 'https://images.unsplash.com/photo-1619799360851-a143fbc240b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmbG9yYWwlMjBjYW5kbGV8ZW58MHx8fHwxNzQ4NjkxNTA0fDA&ixlib=rb-4.1.0&q=80&w=100', scentCategory: 'Floral' },
 ];
 
 // Set to true to simulate an empty cart, false to show mock items
@@ -74,7 +74,7 @@ export default function CartPage() {
                       fill
                       sizes="(max-width: 640px) 80px, 96px"
                       className="object-cover"
-                      data-ai-hint={`${item.scentCategory} candle`}
+                      data-ai-hint={`${item.scentCategory.toLowerCase()} candle`}
                     />
                   </div>
                   <div className="flex-grow text-center sm:text-left">
@@ -127,5 +127,3 @@ export default function CartPage() {
     </motion.div>
   );
 }
-
-    
