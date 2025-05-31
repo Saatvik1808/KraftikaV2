@@ -89,9 +89,9 @@
               <h4 className="mb-4 font-semibold text-foreground/90">Support</h4>
               <ul className="space-y-2.5 text-sm">
                 <li><Link href="/faq" className="text-muted-foreground/80 hover:text-primary transition-colors">FAQ</Link></li>
-                <li><Link href="#" className="text-muted-foreground/80 hover:text-primary transition-colors">Shipping & Returns</Link></li>
-                <li><Link href="#" className="text-muted-foreground/80 hover:text-primary transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="text-muted-foreground/80 hover:text-primary transition-colors">Terms of Service</Link></li>
+                <li><Link href="/shipping-returns" className="text-muted-foreground/80 hover:text-primary transition-colors">Shipping & Returns</Link></li>
+                <li><Link href="/privacy-policy" className="text-muted-foreground/80 hover:text-primary transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms-of-service" className="text-muted-foreground/80 hover:text-primary transition-colors">Terms of Service</Link></li>
               </ul>
            </div>
 
