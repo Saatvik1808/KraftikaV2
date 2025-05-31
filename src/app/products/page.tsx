@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -9,8 +10,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ListFilter, X } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"; // Import Sheet components
+import { ListFilter, X, Info } from "lucide-react"; // Added Info icon
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 // Sample Product Data
 const allProducts: Candle[] = [
@@ -36,7 +37,7 @@ const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.06 } // Slightly faster stagger
+      transition: { staggerChildren: 0.06 } 
     }
 };
 
@@ -64,8 +65,8 @@ export default function ProductsPage() {
     switch (sortBy) {
       case "price-asc": products.sort((a, b) => a.price - b.price); break;
       case "price-desc": products.sort((a, b) => b.price - a.price); break;
-      case "newest": products.sort((a, b) => parseInt(b.id) - parseInt(a.id)); break;
-      case "popularity": default: products.sort((a, b) => parseInt(a.id) - parseInt(b.id)); break;
+      case "newest": products.sort((a, b) => parseInt(b.id) - parseInt(a.id)); break; // Assuming IDs are numeric strings for newest
+      case "popularity": default: products.sort((a, b) => parseInt(a.id) - parseInt(b.id)); break; // Placeholder for popularity
     }
 
     setFilteredProducts(products);
@@ -88,7 +89,10 @@ export default function ProductsPage() {
         <div className="space-y-2">
             <Label htmlFor="sort-by" className="text-lg font-semibold text-foreground/90">Sort By</Label>
             <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger id="sort-by" className="w-full border-border/40 focus:border-primary/50 focus:ring-primary/50">
+            <SelectTrigger 
+                id="sort-by" 
+                className="w-full border-border/50 bg-background/60 hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:border-primary/70 transition-colors duration-200"
+            >
                 <SelectValue placeholder="Select sorting" />
             </SelectTrigger>
             <SelectContent>
@@ -104,12 +108,12 @@ export default function ProductsPage() {
   )
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-16"> {/* Base theme background from body */}
+    <div className="container mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-16">
        <motion.h1
          initial={{ opacity: 0, y: -20 }}
          animate={{ opacity: 1, y: 0 }}
          transition={{ duration: 0.5 }}
-         className="mb-10 text-center text-4xl font-bold tracking-tight text-primary sm:text-5xl"
+         className="mb-10 text-center text-4xl font-bold tracking-tight sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent"
        >
         Our Candle Collection
       </motion.h1>
@@ -121,7 +125,6 @@ export default function ProductsPage() {
             className="mb-6 flex justify-between items-center"
          >
             <span className="text-sm text-muted-foreground/90">Showing {filteredProducts.length} products</span>
-             {/* Mobile Filter Trigger */}
             <Sheet open={isMobileFiltersOpen} onOpenChange={setIsMobileFiltersOpen}>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="outline" size="sm" className="border-primary/40 text-primary/90 hover:bg-primary/10">
@@ -143,7 +146,6 @@ export default function ProductsPage() {
 
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-        {/* Desktop Filters */}
          <motion.aside
              initial={{ opacity: 0, x: -30 }}
              animate={{ opacity: 1, x: 0 }}
@@ -153,7 +155,6 @@ export default function ProductsPage() {
             <FilterControls/>
         </motion.aside>
 
-        {/* Product Grid */}
         <motion.div
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 md:col-span-3"
           variants={containerVariants}
@@ -168,14 +169,17 @@ export default function ProductsPage() {
                  </motion.div>
              ))
              ) : (
-                 <motion.p
-                     initial={{ opacity: 0 }}
-                     animate={{ opacity: 1 }}
+                 <motion.div
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
                      exit={{ opacity: 0 }}
-                     className="col-span-full text-center text-muted-foreground py-16"
+                     transition={{ duration: 0.3 }}
+                     className="col-span-full flex flex-col items-center justify-center text-center py-16 space-y-3"
                  >
-                    No candles found matching your criteria. Try adjusting the filters!
-                 </motion.p>
+                    <Info className="h-12 w-12 text-muted-foreground/60" />
+                    <p className="text-lg text-foreground/80">No candles match your filters.</p>
+                    <p className="text-sm text-muted-foreground">Try adjusting your search or explore all our scents!</p>
+                 </motion.div>
              )}
          </AnimatePresence>
 
@@ -184,3 +188,4 @@ export default function ProductsPage() {
     </div>
   );
 }
+
