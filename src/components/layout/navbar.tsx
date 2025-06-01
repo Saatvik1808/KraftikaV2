@@ -49,7 +49,7 @@
              transition={{ type: "spring", stiffness: 300, damping: 10 }}
             >
             <Logo 
-              width={90} 
+              width={60} 
               height={16} 
               className="text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow" 
             />
@@ -131,7 +131,7 @@
              <SheetContent side="right" className="w-[280px] p-6 glassmorphism border-l border-[hsl(var(--border)/0.2)]">
                <div className="mb-6 flex justify-between items-center">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                      <Logo width={80} height={14} className="text-primary-foreground" />
+                      <Logo width={60} height={14} className="text-primary-foreground" />
                       <span className="font-heading font-bold text-lg tracking-wide text-primary-foreground">
                           KRAFTIKA
                       </span>
