@@ -38,7 +38,7 @@ export function HeroSection() {
         className="absolute inset-0 w-full h-full object-cover -z-10"
         poster="/images/products/kraftika-bowl-candle.jpg" // Optional: a poster image while video loads
       >
-        <source src="/videos/hero-background.mp4" type="video/mp4" />
+        <source src="/KraftikaHero.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       
