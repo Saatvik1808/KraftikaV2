@@ -211,7 +211,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 <Badge variant="secondary" className="w-fit bg-secondary/80 text-secondary-foreground">{product.scentCategory}</Badge>
                 {reviews.length > 0 && (
                   <div className="flex items-center gap-1">
-                    <Star className="h-5 w-5 text-accent fill-accent" />
+                    <Star className="h-5 w-5 text-accent-foreground fill-accent-foreground" />
                     <span className="font-semibold text-foreground/90">{averageRating.toFixed(1)}</span>
                     <span className="text-sm text-muted-foreground/80">({reviews.length} reviews)</span>
                   </div>
@@ -311,7 +311,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                             key={i}
                             className={cn(
                                 "h-6 w-6",
-                                i < Math.round(averageRating) ? "text-accent fill-accent" : "text-muted-foreground/30"
+                                i < Math.round(averageRating) ? "text-accent-foreground fill-accent-foreground" : "text-muted-foreground/50"
                             )}
                             />
                         ))}
@@ -361,7 +361,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                                             key={i}
                                             className={cn(
                                             "h-4 w-4",
-                                            i < review.rating ? "text-accent fill-accent" : "text-muted-foreground/30"
+                                            i < review.rating ? "text-accent-foreground fill-accent-foreground" : "text-muted-foreground/50"
                                             )}
                                         />
                                         ))}
@@ -417,4 +417,3 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     </div>
   );
 }
-

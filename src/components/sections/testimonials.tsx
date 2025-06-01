@@ -72,7 +72,7 @@ export function Testimonials() {
                             <CardTitle className="text-md font-semibold text-foreground/90">{testimonial.name}</CardTitle>
                             <div className="flex items-center mt-1">
                                 {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`h-4 w-4 ${i < testimonial.rating ? 'text-accent fill-accent' : 'text-muted-foreground/30'}`} />
+                                <Star key={i} className={`h-4 w-4 ${i < testimonial.rating ? 'text-accent-foreground fill-accent-foreground' : 'text-muted-foreground/50'}`} />
                                 ))}
                             </div>
                          </div>
