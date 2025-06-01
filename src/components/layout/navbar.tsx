@@ -4,7 +4,7 @@
  import * as React from "react";
  import Link from "next/link";
  import { motion, useScroll, useMotionValueEvent } from "framer-motion";
- import { Menu, X, ShoppingBag, Heart } from "lucide-react"; // Added Heart
+ import { Menu, X, ShoppingBag, Heart } from "lucide-react";
 
  import { cn } from "@/lib/utils";
  import { Button } from "@/components/ui/button";
@@ -33,7 +33,6 @@
 
    return (
      <motion.nav
-       // Removed initial, animate, and transition props for the entry animation
        className={cn(
          "sticky top-0 z-50 w-full transition-all duration-300",
          "glassmorphism border-b border-transparent",
@@ -44,22 +43,19 @@
        style={{ '--navbar-height': '4rem' } as React.CSSProperties}
      >
        <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
-         <Link href="/" className="flex items-center space-x-2 group" aria-label="Kraftika Homepage">
+         <Link href="/" className="flex items-center group" aria-label="Kraftika Homepage">
             <motion.div
-             whileHover={{ scale: 1.1, filter: 'brightness(1.1)' }}
+             whileHover={{ scale: 1.05 }}
              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-             className="flex items-center justify-center"
             >
-        <div className="px-3 py-5">
-        <Logo
-              width={62}
-              height={22}
+            <Logo
+              width={135} // Adjusted for SVG aspect ratio 198x35
+              height={24} // Adjusted for SVG aspect ratio
               priority
-              className="transition-all duration-300 group-hover:animate-glow"
+              className="text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow"
             />
-          </div>
             </motion.div>
-            <span className="font-heading font-semibold text-lg text-primary-foreground transition-colors group-hover:text-primary-foreground/80">Kraftika</span>
+            {/* Removed redundant Kraftika text span as logo SVG contains it */}
          </Link>
 
          {/* Desktop Navigation */}
@@ -133,9 +129,13 @@
              </SheetTrigger>
              <SheetContent side="right" className="w-[280px] p-6 glassmorphism border-l border-[hsl(var(--border)/0.2)]">
                <div className="mb-6 flex justify-between items-center">
-                  <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                      <Logo width={28} height={28} className="text-primary" />
-                      <span className="font-heading font-semibold text-md text-primary-foreground">Kraftika</span>
+                  <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
+                      <Logo 
+                        width={113} // Adjusted for SVG aspect ratio (198x35) and desired height (e.g., 20px)
+                        height={20} 
+                        className="text-primary-foreground" 
+                      />
+                      {/* Removed redundant Kraftika text span */}
                   </Link>
                   <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} aria-label="Close Menu" className="hover:bg-primary/10">
                       <X className="h-5 w-5 text-foreground/80 hover:text-primary" />
