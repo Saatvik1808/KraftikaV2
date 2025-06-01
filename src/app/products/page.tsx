@@ -12,22 +12,11 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ListFilter, X, Info } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import allProductsData from "@/data/products.json"; // Import the centralized product data
 
-const localProductImage = "/images/products/kraftika-bowl-candle.jpg";
+const allProducts: Candle[] = allProductsData;
 
-// Sample Product Data
-const allProducts: Candle[] = [
-    { id: '1', name: 'Sunrise Citrus', scentCategory: 'Citrus', price: 28, imageUrl: localProductImage, description: 'Zesty lemon and sweet orange.', scentNotes: 'Lemon, Orange, Bergamot', burnTime: '40 hours', ingredients: 'Soy Wax, Essential Oils' },
-    { id: '2', name: 'Lavender Dreams', scentCategory: 'Floral', price: 32, imageUrl: localProductImage, description: 'Calming lavender fields.', scentNotes: 'Lavender, Chamomile, Vanilla', burnTime: '45 hours', ingredients: 'Soy Wax, Natural Fragrance' },
-    { id: '3', name: 'Vanilla Bean Bliss', scentCategory: 'Sweet', price: 30, imageUrl: localProductImage, description: 'Warm and comforting vanilla.', scentNotes: 'Vanilla Bean, Sugar, Buttercream', burnTime: '50 hours', ingredients: 'Coconut Wax Blend, Fragrance Oil' },
-    { id: '4', name: 'Mint Mojito', scentCategory: 'Fresh', price: 29, imageUrl: localProductImage, description: 'Cool mint and zesty lime.', scentNotes: 'Mint, Lime, Sugar', burnTime: '40 hours', ingredients: 'Soy Wax, Essential Oils' },
-    { id: '5', name: 'Rose Garden', scentCategory: 'Floral', price: 35, imageUrl: localProductImage, description: 'Delicate rose petals.', scentNotes: 'Rose, Geranium, Musk', burnTime: '45 hours', ingredients: 'Soy Wax, Natural Fragrance' },
-    { id: '6', name: 'Spiced Apple', scentCategory: 'Fruity', price: 31, imageUrl: localProductImage, description: 'Warm apple and cinnamon.', scentNotes: 'Apple, Cinnamon, Clove', burnTime: '48 hours', ingredients: 'Soy Wax Blend, Fragrance Oil' },
-    { id: '7', name: 'Ocean Breeze', scentCategory: 'Fresh', price: 33, imageUrl: localProductImage, description: 'Crisp sea salt air.', scentNotes: 'Sea Salt, Ozone, Jasmine', burnTime: '42 hours', ingredients: 'Soy Wax, Fragrance Oil' },
-    { id: '8', name: 'Peach Paradise', scentCategory: 'Fruity', price: 27, imageUrl: localProductImage, description: 'Juicy peach nectar.', scentNotes: 'Peach, Mango, Coconut', burnTime: '38 hours', ingredients: 'Soy Wax, Fragrance Oil' },
-];
-
-const scentCategories = ["All", "Citrus", "Floral", "Sweet", "Fresh", "Fruity"];
+const scentCategories = ["All", "Citrus", "Floral", "Sweet", "Fresh", "Fruity"]; // Consider deriving from allProducts
 const sortOptions = [
   { value: "popularity", label: "Popularity" },
   { value: "price-asc", label: "Price: Low to High" },
@@ -67,8 +56,8 @@ export default function ProductsPage() {
     switch (sortBy) {
       case "price-asc": products.sort((a, b) => a.price - b.price); break;
       case "price-desc": products.sort((a, b) => b.price - a.price); break;
-      case "newest": products.sort((a, b) => parseInt(b.id) - parseInt(a.id)); break; // Assuming IDs are numeric strings for newest
-      case "popularity": default: products.sort((a, b) => parseInt(a.id) - parseInt(b.id)); break; // Placeholder for popularity
+      case "newest": products.sort((a, b) => parseInt(b.id) - parseInt(a.id)); break; 
+      case "popularity": default: products.sort((a, b) => parseInt(a.id) - parseInt(b.id)); break; 
     }
 
     setFilteredProducts(products);

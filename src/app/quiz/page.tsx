@@ -11,17 +11,11 @@ import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
 import { Wand2, RotateCcw, CheckCircle, Sparkles, ArrowLeft, ArrowRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import allProductsData from "@/data/products.json"; // Import the centralized product data
 
-const localProductImage = "/images/products/kraftika-bowl-candle.jpg";
+// Sample products for recommendation - now taken from the centralized data
+const sampleCandles: Candle[] = allProductsData.filter(c => ['1', '2', '3', '4', '6'].includes(c.id));
 
-// Sample products for recommendation
-const sampleCandles: Candle[] = [
-    { id: '1', name: 'Sunrise Citrus', scentCategory: 'Citrus', price: 28, imageUrl: localProductImage, description: 'Zesty lemon and sweet orange.', scentNotes: 'Lemon, Orange, Bergamot', burnTime: '40 hours', ingredients: 'Soy Wax, Essential Oils' },
-    { id: '2', name: 'Lavender Dreams', scentCategory: 'Floral', price: 32, imageUrl: localProductImage, description: 'Calming lavender fields.', scentNotes: 'Lavender, Chamomile, Vanilla', burnTime: '45 hours', ingredients: 'Soy Wax, Natural Fragrance' },
-    { id: '3', name: 'Vanilla Bean Bliss', scentCategory: 'Sweet', price: 30, imageUrl: localProductImage, description: 'Warm and comforting vanilla.', scentNotes: 'Vanilla Bean, Sugar, Buttercream', burnTime: '50 hours', ingredients: 'Coconut Wax Blend, Fragrance Oil' },
-    { id: '4', name: 'Mint Mojito', scentCategory: 'Fresh', price: 29, imageUrl: localProductImage, description: 'Cool mint and zesty lime.', scentNotes: 'Mint, Lime, Sugar', burnTime: '40 hours', ingredients: 'Soy Wax, Essential Oils' },
-    { id: '6', name: 'Spiced Apple', scentCategory: 'Fruity', price: 31, imageUrl: localProductImage, description: 'Warm apple and cinnamon.', scentNotes: 'Apple, Cinnamon, Clove', burnTime: '48 hours', ingredients: 'Soy Wax Blend, Fragrance Oil' },
-];
 
 const quizQuestions = [
   { id: 'mood', text: 'What kind of mood are you looking for?', options: ['Relaxing', 'Energizing', 'Cozy', 'Romantic'] },
@@ -50,7 +44,7 @@ const questionContainerVariants = {
     transition: { duration: 0.4, ease: [0.43, 0.13, 0.23, 0.96] },
   },
   exit: (direction: string) => ({
-    x: direction === 'left' ? '100%' : '-100%', // Corrected: exit to left means positive x
+    x: direction === 'left' ? '100%' : '-100%', 
     opacity: 0,
     transition: { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] },
   }),
@@ -73,7 +67,7 @@ const glowVariants = {
     },
 };
 
-const itemVariants = { // For result cards
+const itemVariants = { 
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 12 } }
 };
@@ -95,25 +89,28 @@ export default function ScentQuizPage() {
     const { mood, scentType } = currentAnswers;
     let recommended: Candle[] = [];
 
+    // Ensure sampleCandles are available before trying to find products
+    const findCandle = (name: string) => sampleCandles.find(c => c.name === name);
+
     if (mood === 'Relaxing') {
-      if (scentType === 'Floral') recommended.push(sampleCandles.find(c => c.name === 'Lavender Dreams')!);
-      else if (scentType === 'Sweet') recommended.push(sampleCandles.find(c => c.name === 'Vanilla Bean Bliss')!);
-      else recommended.push(sampleCandles.find(c => c.name === 'Lavender Dreams')!);
+      if (scentType === 'Floral') recommended.push(findCandle('Lavender Dreams')!);
+      else if (scentType === 'Sweet') recommended.push(findCandle('Vanilla Bean Bliss')!);
+      else recommended.push(findCandle('Lavender Dreams')!);
     } else if (mood === 'Energizing') {
-      if (scentType === 'Citrus') recommended.push(sampleCandles.find(c => c.name === 'Sunrise Citrus')!);
-      else if (scentType === 'Fresh') recommended.push(sampleCandles.find(c => c.name === 'Mint Mojito')!);
-      else recommended.push(sampleCandles.find(c => c.name === 'Sunrise Citrus')!);
+      if (scentType === 'Citrus') recommended.push(findCandle('Sunrise Citrus')!);
+      else if (scentType === 'Fresh') recommended.push(findCandle('Mint Mojito')!);
+      else recommended.push(findCandle('Sunrise Citrus')!);
     } else if (mood === 'Cozy') {
-      if (scentType === 'Sweet') recommended.push(sampleCandles.find(c => c.name === 'Vanilla Bean Bliss')!);
-      else if (scentType === 'Fruity') recommended.push(sampleCandles.find(c => c.name === 'Spiced Apple')!);
-      else recommended.push(sampleCandles.find(c => c.name === 'Vanilla Bean Bliss')!);
+      if (scentType === 'Sweet') recommended.push(findCandle('Vanilla Bean Bliss')!);
+      else if (scentType === 'Fruity') recommended.push(findCandle('Spiced Apple')!);
+      else recommended.push(findCandle('Vanilla Bean Bliss')!);
     } else if (mood === 'Romantic') {
-         if (scentType === 'Floral') recommended.push(sampleCandles.find(c => c.name === 'Lavender Dreams')!);
-         else if (scentType === 'Sweet') recommended.push(sampleCandles.find(c => c.name === 'Vanilla Bean Bliss')!);
-         else recommended.push(sampleCandles.find(c => c.name === 'Lavender Dreams')!);
+         if (scentType === 'Floral') recommended.push(findCandle('Lavender Dreams')!);
+         else if (scentType === 'Sweet') recommended.push(findCandle('Vanilla Bean Bliss')!);
+         else recommended.push(findCandle('Lavender Dreams')!);
     }
 
-    if (recommended.length === 0) {
+    if (recommended.length === 0 && sampleCandles.length > 0) {
         recommended.push(sampleCandles[Math.floor(Math.random() * sampleCandles.length)]);
     }
     return [...new Set(recommended.filter(Boolean))].slice(0, 2);
@@ -142,7 +139,7 @@ export default function ScentQuizPage() {
   };
 
   const handleRetakeQuiz = () => {
-    setSlideDirection('right'); // Reset slide direction for re-entry
+    setSlideDirection('right'); 
     setCurrentQuestionIndex(0);
     setAnswers({});
     setShowResults(false);
@@ -173,7 +170,6 @@ export default function ScentQuizPage() {
         <p className="mt-3 text-lg text-muted-foreground/90">
           Answer a few questions and we'll recommend the ideal Kraftika candle for you!
         </p>
-         {/* Progress Indicator */}
         {!showResults && (
             <div className="mt-6 w-full max-w-md mx-auto">
                 <div className="flex justify-between text-sm text-muted-foreground mb-1">
@@ -201,7 +197,7 @@ export default function ScentQuizPage() {
               initial="enter"
               animate="center"
               exit="exit"
-              className="w-full max-w-xl" // Question card width
+              className="w-full max-w-xl"
             >
               <Card className="glassmorphism p-6 md:p-8 border border-[hsl(var(--border)/0.2)] shadow-xl w-full">
                 <CardHeader className="p-0 mb-5">
@@ -273,7 +269,7 @@ export default function ScentQuizPage() {
 
               {recommendations.length > 0 ? (
                 <motion.div
-                    variants={resultsVariants} // Use variants for staggering children
+                    variants={resultsVariants} 
                     className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 max-w-2xl mx-auto">
                   {recommendations.map((candle, index) => (
                      <motion.div
