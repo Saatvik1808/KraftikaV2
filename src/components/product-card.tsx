@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Candle } from "@/types/candle";
 import { ShoppingCart, Eye } from "lucide-react";
-import { useToast } from "@/hooks/use-toast"; // Import useToast
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   product: Candle;
@@ -95,7 +95,7 @@ export function ProductCard({ product }: ProductCardProps) {
                fill
                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
                className="object-cover transition-transform duration-500 ease-in-out"
-               data-ai-hint={`${product.scentCategory.toLowerCase()} candle`}
+               data-ai-hint="handcrafted candle"
              />
            </motion.div>
         <Badge variant="secondary" className="absolute top-2 right-2 z-20 bg-secondary/80 text-secondary-foreground backdrop-blur-sm shadow-sm text-[10px] px-2 py-0.5">
@@ -141,4 +141,3 @@ export function ProductCard({ product }: ProductCardProps) {
     </motion.div>
   );
 }
-    
