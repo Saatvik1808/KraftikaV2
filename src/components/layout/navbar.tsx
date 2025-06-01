@@ -9,7 +9,7 @@
  import { cn } from "@/lib/utils";
  import { Button } from "@/components/ui/button";
  import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
- import { CandleIcon } from "@/components/icons/candle-icon"; // Import CandleIcon
+ import { Logo } from "@/components/logo"; // Import Logo
  import { usePathname } from 'next/navigation';
 
 
@@ -48,7 +48,12 @@
              whileHover={{ rotate: [0, 8, -8, 0], scale: 1.1 }}
              transition={{ type: "spring", stiffness: 300, damping: 10 }}
             >
-            <CandleIcon className="h-7 w-7 text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow" />
+            {/* Replaced CandleIcon with Logo */}
+            <Logo 
+              width={112} 
+              height={20} 
+              className="text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow" 
+            />
             </motion.div>
             <span className="font-heading font-bold text-xl tracking-wide text-primary-foreground transition-colors duration-300 group-hover:text-primary">
                 KRAFTIKA
@@ -127,7 +132,8 @@
              <SheetContent side="right" className="w-[280px] p-6 glassmorphism border-l border-[hsl(var(--border)/0.2)]">
                <div className="mb-6 flex justify-between items-center">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                      <CandleIcon className="h-6 w-6 text-primary-foreground" />
+                      {/* Replaced CandleIcon with Logo for mobile sheet */}
+                      <Logo width={100} height={18} className="text-primary-foreground" />
                       <span className="font-heading font-bold text-lg tracking-wide text-primary-foreground">
                           KRAFTIKA
                       </span>
