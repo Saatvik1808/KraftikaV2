@@ -64,22 +64,44 @@ export default function CartPage() {
     setIsLoading(false);
   }, []);
 
-  const handleRemoveItem = (itemId: string) => {
-    const itemToRemove = cartItems.find(item => item.id === itemId);
-    const updatedCartItems = cartItems.filter(item => item.id !== itemId);
+  const handleDecreaseQuantityOrRemove = (itemId: string) => {
+    let itemUpdated = false;
+    let itemRemoved = false;
+    let itemName = "";
+
+    const updatedCartItems = cartItems.map(item => {
+      if (item.id === itemId) {
+        itemName = item.name;
+        if (item.quantity > 1) {
+          itemUpdated = true;
+          return { ...item, quantity: item.quantity - 1 };
+        } else {
+          itemRemoved = true;
+          return null; // Mark for removal
+        }
+      }
+      return item;
+    }).filter(item => item !== null) as CartItem[];
+
     setCartItems(updatedCartItems);
 
     try {
       const updatedStorageCart = updatedCartItems.map(item => ({ id: item.id, quantity: item.quantity }));
       localStorage.setItem('kraftikaCart', JSON.stringify(updatedStorageCart));
     } catch (error) {
-      console.error("Failed to update cart in localStorage after removal", error);
+      console.error("Failed to update cart in localStorage", error);
     }
 
-    if (itemToRemove) {
+    if (itemRemoved) {
       toast({
         title: "Item Removed",
-        description: `${itemToRemove.name} has been removed from your cart.`,
+        description: `${itemName} has been removed from your cart.`,
+      });
+    } else if (itemUpdated) {
+      const currentItem = updatedCartItems.find(i => i.id === itemId);
+      toast({
+        title: "Quantity Updated",
+        description: `Quantity for ${itemName} is now ${currentItem?.quantity || 0}.`,
       });
     }
   };
@@ -163,8 +185,8 @@ export default function CartPage() {
                       variant="outline"
                       size="icon"
                       className="text-destructive hover:bg-destructive/10 border-destructive/30 hover:border-destructive/50 h-8 w-8"
-                      onClick={() => handleRemoveItem(item.id)}
-                      aria-label={`Remove ${item.name} from cart`}
+                      onClick={() => handleDecreaseQuantityOrRemove(item.id)}
+                      aria-label={`Decrease quantity or remove ${item.name} from cart`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -207,3 +229,5 @@ export default function CartPage() {
     </motion.div>
   );
 }
+
+    
