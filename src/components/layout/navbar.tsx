@@ -33,9 +33,7 @@
 
    return (
      <motion.nav
-       initial={{ y: -100, opacity: 0 }}
-       animate={{ y: 0, opacity: 1 }}
-       transition={{ duration: 0.5, ease: "easeOut" }}
+       // Removed initial, animate, and transition props for the entry animation
        className={cn(
          "sticky top-0 z-50 w-full transition-all duration-300",
          "glassmorphism border-b border-transparent",
