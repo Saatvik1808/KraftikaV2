@@ -154,9 +154,9 @@ export default function ProductsPage() {
         >
           <AnimatePresence>
              {filteredProducts.length > 0 ? (
-             filteredProducts.map((product) => (
+             filteredProducts.map((product, index) => ( // Added index
                  <motion.div key={product.id} variants={itemVariants} layout>
-                     <ProductCard product={product} />
+                     <ProductCard product={product} priority={index < 4} /> {/* Prioritize first 4 images */}
                  </motion.div>
              ))
              ) : (

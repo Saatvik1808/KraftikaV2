@@ -85,7 +85,7 @@ export function ProductShowcase() {
           viewport={{ once: true, amount: 0.1 }} 
         >
           {featuredProducts.map((product) => (
-             <ProductCard key={product.id} product={product} />
+             <ProductCard key={product.id} product={product} priority={true} /> // Set priority to true for all featured products
           ))}
         </motion.div>
 

@@ -156,8 +156,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
   const gradientClass = getGradientClass(product.scentCategory);
   const images = [
-    product.imageUrl, // Use actual product image
-    product.imageUrl, // Placeholder, replace with more images if available
+    product.imageUrl, 
+    product.imageUrl, 
     product.imageUrl,
     product.imageUrl,
   ];
@@ -188,7 +188,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                         className="object-cover rounded-md"
-                        priority={index === 0}
+                        priority={index === 0} // Prioritize the first image in the carousel
                         data-ai-hint={`handcrafted candle ${index > 0 ? 'detail view' : 'main view'}`.trim()}
                         />
                     </div>
@@ -297,9 +297,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                  }}
                 className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
             >
-                {relatedProducts.map((relatedProduct) => (
+                {relatedProducts.map((relatedProduct, index) => ( // Added index
                  <motion.div key={relatedProduct.id} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-                     <ProductCard product={relatedProduct} />
+                     <ProductCard product={relatedProduct} priority={index < 2} /> {/* Prioritize first 2 related products */}
                  </motion.div>
                 ))}
             </motion.div>

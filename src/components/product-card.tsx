@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   product: Candle;
+  priority?: boolean; // Added priority prop
 }
 
 interface CartStorageItem {
@@ -40,7 +41,7 @@ const imageVariants = {
   hover: { scale: 1.04, transition: { duration: 0.4, ease: [0.43, 0.13, 0.23, 0.96] } },
 };
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, priority = false }: ProductCardProps) { // Destructure priority, default to false
   const { toast } = useToast();
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -96,6 +97,7 @@ export function ProductCard({ product }: ProductCardProps) {
                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
                className="object-cover transition-transform duration-500 ease-in-out"
                data-ai-hint="handcrafted candle"
+               priority={priority} // Pass priority to Image component
              />
            </motion.div>
         <Badge variant="secondary" className="absolute top-2 right-2 z-20 bg-secondary/80 text-secondary-foreground backdrop-blur-sm shadow-sm text-[10px] px-2 py-0.5">
