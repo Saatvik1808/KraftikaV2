@@ -1,0 +1,66 @@
+
+[
+  {
+    "id": "r1",
+    "productId": "1",
+    "authorName": "Elena R.",
+    "authorAvatarUrl": "https://picsum.photos/seed/elena/100",
+    "authorAvatarFallback": "ER",
+    "rating": 5,
+    "reviewText": "Absolutely love the Sunrise Citrus! It's so refreshing and fills my home with joy. The scent is perfectly balanced and not overpowering. A true morning delight!",
+    "reviewDate": "May 20, 2024",
+    "reviewImageUrl": "https://placehold.co/400x300.png"
+  },
+  {
+    "id": "r2",
+    "productId": "1",
+    "authorName": "Mark T.",
+    "authorAvatarUrl": "https://picsum.photos/seed/mark/100",
+    "authorAvatarFallback": "MT",
+    "rating": 4,
+    "reviewText": "Great zesty scent, very uplifting. The candle burns evenly. Wish the throw was a tiny bit stronger, but overall a fantastic product for my office.",
+    "reviewDate": "June 02, 2024"
+  },
+  {
+    "id": "r3",
+    "productId": "2",
+    "authorName": "Sophie B.",
+    "authorAvatarUrl": "https://picsum.photos/seed/sophie/100",
+    "authorAvatarFallback": "SB",
+    "rating": 5,
+    "reviewText": "Lavender Dreams is my go-to for relaxation. The chamomile and vanilla notes are so soothing. Burns beautifully and the scent lingers nicely. Highly recommend!",
+    "reviewDate": "April 10, 2024",
+    "reviewImageUrl": "https://placehold.co/400x300.png"
+  },
+  {
+    "id": "r4",
+    "productId": "3",
+    "authorName": "David K.",
+    "authorAvatarUrl": "https://picsum.photos/seed/david/100",
+    "authorAvatarFallback": "DK",
+    "rating": 5,
+    "reviewText": "Vanilla Bean Bliss is pure comfort in a jar. The wooden wick has a lovely crackle. My whole family enjoys this scent, it's warm and inviting.",
+    "reviewDate": "May 05, 2024"
+  },
+  {
+    "id": "r5",
+    "productId": "4",
+    "authorName": "Chloe L.",
+    "authorAvatarUrl": "https://picsum.photos/seed/chloe/100",
+    "authorAvatarFallback": "CL",
+    "rating": 4,
+    "reviewText": "Mint Mojito is super refreshing! Perfect for summer. The mint is crisp and the lime is just right. It's a bit smaller than I expected but packs a punch.",
+    "reviewDate": "June 15, 2024",
+    "reviewImageUrl": "https://placehold.co/400x300.png"
+  },
+  {
+    "id": "r6",
+    "productId": "2",
+    "authorName": "James P.",
+    "authorAvatarUrl": "https://picsum.photos/seed/james/100",
+    "authorAvatarFallback": "JP",
+    "rating": 4,
+    "reviewText": "A very pleasant lavender scent. Good for evenings. The packaging was also lovely, making it a great gift.",
+    "reviewDate": "May 28, 2024"
+  }
+]
