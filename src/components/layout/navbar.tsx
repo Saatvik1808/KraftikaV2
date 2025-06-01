@@ -48,10 +48,9 @@
              whileHover={{ rotate: [0, 8, -8, 0], scale: 1.1 }}
              transition={{ type: "spring", stiffness: 300, damping: 10 }}
             >
-            {/* Replaced CandleIcon with Logo */}
             <Logo 
-              width={112} 
-              height={20} 
+              width={90} 
+              height={16} 
               className="text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow" 
             />
             </motion.div>
@@ -132,8 +131,7 @@
              <SheetContent side="right" className="w-[280px] p-6 glassmorphism border-l border-[hsl(var(--border)/0.2)]">
                <div className="mb-6 flex justify-between items-center">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                      {/* Replaced CandleIcon with Logo for mobile sheet */}
-                      <Logo width={100} height={18} className="text-primary-foreground" />
+                      <Logo width={80} height={14} className="text-primary-foreground" />
                       <span className="font-heading font-bold text-lg tracking-wide text-primary-foreground">
                           KRAFTIKA
                       </span>
