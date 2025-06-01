@@ -52,7 +52,14 @@
              transition={{ type: "spring", stiffness: 300, damping: 15 }}
              className="flex items-center justify-center"
             >
-             <Logo width={32} height={32} priority className="transition-all duration-300 group-hover:animate-glow" />
+        <div className="px-3 py-5">
+        <Logo
+              width={62}
+              height={22}
+              priority
+              className="transition-all duration-300 group-hover:animate-glow"
+            />
+          </div>
             </motion.div>
             <span className="font-heading font-semibold text-lg text-primary-foreground transition-colors group-hover:text-primary-foreground/80">Kraftika</span>
          </Link>

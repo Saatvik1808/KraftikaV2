@@ -13,16 +13,12 @@ interface LogoProps extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
 }
 
 // Use the provided PNG image as the logo
-export function Logo({ className, priority, width = 32, height = 32, ...props }: LogoProps) {
+export function Logo({  ...props }: LogoProps) {
   return (
     // The className is applied to the wrapping div or directly to Image if no wrapper is needed
     <Image
-      src="/kraftika-logo.png" // Path relative to the 'public' directory
+      src="/Kraftika.svg" // Path relative to the 'public' directory
       alt="Kraftika Logo"
-      width={width} // Default width, can be overridden by className if using Tailwind size classes
-      height={height} // Default height
-      priority={priority} // Pass priority prop if provided
-      className={className} // Apply Tailwind classes passed via props
       {...props} // Pass any remaining div props (like aria-label if needed)
     />
   );
