@@ -9,10 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import type { Candle } from "@/types/candle";
 import { ShoppingCart, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 interface ProductCardProps {
   product: Candle;
-  priority?: boolean; // Added priority prop
+  priority?: boolean;
 }
 
 interface CartStorageItem {
@@ -30,9 +31,8 @@ const cardVariants = {
   hover: {
     scale: 1.02,
     rotateY: 2,
-    // Refined boxShadow for a softer "glow" effect
     boxShadow: `0 5px 22px 0px hsla(var(--primary-hsl), 0.35), 0 2px 10px -3px hsla(var(--primary-hsl), 0.3)`,
-    transition: { type: "spring", stiffness: 350, damping: 20 }, // Slightly adjusted spring
+    transition: { type: "spring", stiffness: 350, damping: 20 },
   },
 };
 
@@ -41,8 +41,9 @@ const imageVariants = {
   hover: { scale: 1.04, transition: { duration: 0.4, ease: [0.43, 0.13, 0.23, 0.96] } },
 };
 
-export function ProductCard({ product, priority = false }: ProductCardProps) { // Destructure priority, default to false
+export function ProductCard({ product, priority = false }: ProductCardProps) {
   const { toast } = useToast();
+  const router = useRouter(); // Initialize useRouter
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -65,6 +66,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) { /
       toast({
         title: "Added to Cart!",
         description: `${product.name} has been added to your cart.`,
+        onClick: () => router.push('/cart'), // Add onClick handler
       });
 
     } catch (error) {
@@ -97,7 +99,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) { /
                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
                className="object-cover transition-transform duration-500 ease-in-out"
                data-ai-hint="handcrafted candle"
-               priority={priority} // Pass priority to Image component
+               priority={priority}
              />
            </motion.div>
         <Badge variant="secondary" className="absolute top-2 right-2 z-20 bg-secondary/80 text-secondary-foreground backdrop-blur-sm shadow-sm text-[10px] px-2 py-0.5">

@@ -4,7 +4,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation"; // Import useRouter
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import type { Candle } from "@/types/candle";
 import { ShoppingCart, Heart, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import allProductsData from "@/data/products.json"; // Import the centralized product data
+import allProductsData from "@/data/products.json";
 
 const allProducts: Candle[] = allProductsData;
 
@@ -23,13 +23,11 @@ interface CartStorageItem {
   quantity: number;
 }
 
-// Fetch product data
 async function getProduct(id: string): Promise<Candle | undefined> {
-  await new Promise(resolve => setTimeout(resolve, 50)); // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 50));
   return allProducts.find(p => p.id === id);
 }
 
-// Fetch related products
 async function getRelatedProducts(currentCategory: string, currentId: string): Promise<Candle[]> {
    await new Promise(resolve => setTimeout(resolve, 50));
    return allProducts.filter(p => p.scentCategory === currentCategory && p.id !== currentId).slice(0, 4);
@@ -53,6 +51,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [isLoading, setIsLoading] = React.useState(true);
   const [ripple, setRipple] = React.useState({ x: -1, y: -1, show: false });
   const { toast } = useToast();
+  const router = useRouter(); // Initialize useRouter
 
   const [wishlistedItems, setWishlistedItems] = React.useState<string[]>(() => {
     if (typeof window !== 'undefined') {
@@ -109,6 +108,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
          toast({
            title: "Added to Cart!",
            description: `${product.name} has been added to your cart.`,
+           onClick: () => router.push('/cart'), // Add onClick handler
          });
 
        } catch (error) {
@@ -188,7 +188,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                         className="object-cover rounded-md"
-                        priority={index === 0} // Prioritize the first image in the carousel
+                        priority={index === 0} 
                         data-ai-hint={`handcrafted candle ${index > 0 ? 'detail view' : 'main view'}`.trim()}
                         />
                     </div>
@@ -297,9 +297,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                  }}
                 className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
             >
-                {relatedProducts.map((relatedProduct, index) => ( // Added index
+                {relatedProducts.map((relatedProduct, index) => (
                  <motion.div key={relatedProduct.id} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-                     <ProductCard product={relatedProduct} priority={index < 2} /> {/* Prioritize first 2 related products */}
+                     <ProductCard product={relatedProduct} priority={index < 2} />
                  </motion.div>
                 ))}
             </motion.div>
