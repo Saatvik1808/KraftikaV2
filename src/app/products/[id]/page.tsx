@@ -27,6 +27,11 @@ const allProducts: Candle[] = [
     { id: '8', name: 'Peach Paradise', scentCategory: 'Fruity', price: 27, imageUrl: 'https://images.unsplash.com/photo-1603959452586-78397d087b62?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZnJ1aXR5JTIwY2FuZGxlfGVufDB8fHx8MTc0ODY5MTUwNHww&ixlib=rb-4.1.0&q=80&w=1080', description: 'Escape to a tropical oasis with the sweet and juicy fragrance of ripe peaches, blended with exotic mango and creamy coconut.', scentNotes: 'Top: Ripe Peach, Bergamot | Middle: Mango, Coconut | Base: Vanilla, Sugar', burnTime: 'Approx. 38-42 hours', ingredients: 'Soy Wax, Phthalate-Free Fragrance Oils, Cotton Wick' },
 ];
 
+interface CartStorageItem {
+  id: string;
+  quantity: number;
+}
+
 // Fetch product data
 async function getProduct(id: string): Promise<Candle | undefined> {
   await new Promise(resolve => setTimeout(resolve, 50)); // Simulate API delay
@@ -89,17 +94,40 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   }, [params.id]);
 
    const handleAddToCartClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+       if (!product) return;
        const rect = event.currentTarget.getBoundingClientRect();
        const x = event.clientX - rect.left;
        const y = event.clientY - rect.top;
        setRipple({ x, y, show: true });
        setTimeout(() => setRipple(prev => ({ ...prev, show: false })), 600);
-       // TODO: Add actual cart logic here
-       console.log(`Add ${product?.name} to cart`);
-       toast({
-         title: "Added to Cart!",
-         description: `${product?.name} is now in your shopping bag.`,
-       });
+       
+       try {
+         const cartString = localStorage.getItem('kraftikaCart');
+         let currentCart: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+         
+         const existingItemIndex = currentCart.findIndex(item => item.id === product.id);
+
+         if (existingItemIndex > -1) {
+           currentCart[existingItemIndex].quantity += 1;
+         } else {
+           currentCart.push({ id: product.id, quantity: 1 });
+         }
+         
+         localStorage.setItem('kraftikaCart', JSON.stringify(currentCart));
+         
+         toast({
+           title: "Added to Cart!",
+           description: `${product.name} has been added to your cart.`,
+         });
+
+       } catch (error) {
+         console.error("Failed to update cart in localStorage", error);
+         toast({
+           title: "Error",
+           description: "Could not add item to cart. Please try again.",
+           variant: "destructive",
+         });
+       }
    };
 
   const isWishlisted = product ? wishlistedItems.includes(product.id) : false;

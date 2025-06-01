@@ -14,6 +14,11 @@ interface ProductCardProps {
   product: Candle;
 }
 
+interface CartStorageItem {
+  id: string;
+  quantity: number;
+}
+
 const cardVariants = {
   rest: {
       scale: 1,
@@ -36,17 +41,39 @@ const imageVariants = {
 };
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { toast } = useToast(); // Initialize useToast
+  const { toast } = useToast();
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Prevent link navigation if card itself is a link
-    e.preventDefault(); // Also prevent default link behavior
-    console.log(`Add ${product.id} to cart`);
-    toast({
-      title: "Added to Cart!",
-      description: `${product.name} has been added to your cart.`,
-    });
-    // In a real app, you would dispatch an action to add the item to the cart state here.
+    e.stopPropagation();
+    e.preventDefault();
+
+    try {
+      const cartString = localStorage.getItem('kraftikaCart');
+      let currentCart: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+      
+      const existingItemIndex = currentCart.findIndex(item => item.id === product.id);
+
+      if (existingItemIndex > -1) {
+        currentCart[existingItemIndex].quantity += 1;
+      } else {
+        currentCart.push({ id: product.id, quantity: 1 });
+      }
+      
+      localStorage.setItem('kraftikaCart', JSON.stringify(currentCart));
+      
+      toast({
+        title: "Added to Cart!",
+        description: `${product.name} has been added to your cart.`,
+      });
+
+    } catch (error) {
+      console.error("Failed to update cart in localStorage", error);
+      toast({
+        title: "Error",
+        description: "Could not add item to cart. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -103,7 +130,6 @@ export function ProductCard({ product }: ProductCardProps) {
              variant="outline"
              className="h-8 w-8 border-border/30 hover:bg-primary/10 hover:border-primary/40 group-hover:scale-[1.03] transform transition-transform duration-200 shrink-0"
              aria-label={`View ${product.name} details`}
-             // onClick handler removed as navigation is handled by the Link
              asChild
            >
               <Link href={`/products/${product.id}`}>
