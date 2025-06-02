@@ -1,10 +1,8 @@
-
 "use client";
 
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-// Removed CandleIcon and BackgroundParticles imports
 
 export function HeroSection() {
   const containerVariants = {
@@ -23,91 +21,156 @@ export function HeroSection() {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { type: "spring", stiffness: 80, damping: 12 },
+      transition: { 
+        type: "spring", 
+        stiffness: 80, 
+        damping: 12,
+        mass: 0.5 
+      },
     },
   };
 
   return (
-    <section className="relative w-full overflow-hidden py-28 md:py-36 lg:py-48">
+    <section className="relative w-full overflow-hidden h-screen min-h-[800px] max-h-[1200px] flex items-center">
       {/* Background Video */}
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover -z-10"
-        poster="/images/products/kraftika-bowl-candle.jpg" // Optional: a poster image while video loads
+        className="absolute inset-0 w-full h-full object-cover object-top -z-10"
+        poster="/images/products/kraftika-bowl-candle.jpg"
       >
         <source src="/KraftikaHero.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      
-      {/* Optional: Add a semi-transparent overlay if text readability is an issue over the video 
-      <div className="absolute inset-0 w-full h-full bg-black/30 -z-5"></div> 
-      */}
 
-      <div className="container mx-auto max-w-7xl px-4 md:px-6 z-10 relative">
+      
+      {/* Enhanced overlay for better contrast */}
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-black/70 via-black/20 to-transparent -z-5"></div>
+
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 z-10 relative">
         <motion.div
-          className="grid gap-10 md:grid-cols-2 md:items-center" // Keeping layout structure for content
+          className="grid gap-12 lg:gap-16 md:grid-cols-2 md:items-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Placeholder for the left side, content now takes full width or adjusts as per text alignment */}
-          <div className="md:col-span-1">
-            {/* This div can be empty or you can adjust the grid if content is centered */}
-          </div>
-
-          {/* Text Content and CTA - ensuring it's on the right or centered depending on design preference */}
-          <div className="space-y-6 text-center md:text-left md:col-span-1">
+          {/* Text Content and CTA */}
+          <div className="space-y-8 md:space-y-10 text-left">
             <motion.h1
-              className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl leading-tight font-heading"
+              className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl leading-tight font-heading"
               variants={itemVariants}
-              style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }} // Added text shadow for better readability over video
+              style={{ 
+                textShadow: '2px 2px 12px rgba(0,0,0,0.8), 0 0 30px rgba(0,0,0,0.7)',
+                lineHeight: '1.1'
+              }} 
             >
-               Where Scents{' '}
-               <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent filter brightness-110">
-                 Spark Joy
-               </span>
+              Where Scents{' '}
+              <span 
+                className="bg-clip-text text-transparent bg-gradient-to-r from-[#caa494] via-[#b8d4a8] to-[#b1e4c7]"
+                style={{
+                  display: 'inline-block',
+                  padding: '0.05em 0',
+                  backgroundSize: '200% auto',
+                  animation: 'gradientShift 6s ease infinite',
+                  textShadow: '0 0 20px rgba(177, 228, 199, 0.5), 0 0 40px rgba(202, 164, 148, 0.3)',
+                }}
+              >
+                Spark Joy
+              </span>
             </motion.h1>
+            
             <motion.p
-              className="max-w-lg text-lg text-gray-200 md:text-xl mx-auto md:mx-0 leading-relaxed font-sans" // Adjusted text color for video
+              className="max-w-lg text-lg text-white/90 md:text-xl lg:text-2xl leading-relaxed font-sans font-light"
               variants={itemVariants}
-              style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }} // Added text shadow
+              style={{ 
+                textShadow: '1px 1px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.6)',
+                lineHeight: '1.6'
+              }} 
             >
               Indulge in handcrafted scented candles made with love, designed to brighten your space and soothe your soul.
             </motion.p>
+            
             <motion.div
-              className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4 justify-center md:justify-start"
+              className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-6 justify-start"
               variants={itemVariants}
-              >
+            >
               <motion.div
-                 whileHover={{ scale: 1.05, y: -2 }}
-                 whileTap={{ scale: 0.95 }}
-                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -2,
+                  transition: { duration: 0.2 }
+                }}
+                whileTap={{ 
+                  scale: 0.98,
+                  transition: { duration: 0.1 }
+                }}
               >
-                <Button asChild size="lg" className="btn-primary px-8 py-3 w-full sm:w-auto">
+                <Button 
+                  asChild 
+                  size="lg" 
+                  className="px-10 py-6 text-lg font-medium bg-gradient-to-r from-[#caa494] to-[#b8d4a8] hover:from-[#b8a08e] hover:to-[#a8c498] shadow-lg hover:shadow-xl transition-all duration-300"
+                >
                   <Link href="/products">Shop Now</Link>
                 </Button>
               </motion.div>
-                <motion.div
-                 whileHover={{ scale: 1.05, y: -2 }}
-                 whileTap={{ scale: 0.95 }}
-                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              
+              <motion.div
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -2,
+                  transition: { duration: 0.2 }
+                }}
+                whileTap={{ 
+                  scale: 0.98,
+                  transition: { duration: 0.1 }
+                }}
               >
-                 <Button
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="px-8 py-3 w-full sm:w-auto border-white/70 text-white hover:bg-white/20 hover:text-white hover:border-white font-medium" // Adjusted button style for video
-                 >
-                    <Link href="/about">Explore Kraftika</Link>
-                 </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="px-10 py-6 text-lg font-medium border-2 border-white/90 bg-transparent text-white hover:bg-white/10 hover:text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300" 
+                >
+                  <Link href="/about">Explore Kraftika</Link>
+                </Button>
               </motion.div>
             </motion.div>
           </div>
         </motion.div>
       </div>
+
+      {/* Scrolling indicator */}
+      <motion.div 
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      >
+        <div className="w-8 h-12 border-2 border-white/50 rounded-full flex justify-center">
+          <motion.div 
+            className="w-1 h-3 bg-white rounded-full mt-2"
+            animate={{ opacity: [0.2, 1, 0.2] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+        </div>
+      </motion.div>
+
+      {/* Global styles for animation */}
+      <style jsx global>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.6; }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+      `}</style>
     </section>
   );
 }

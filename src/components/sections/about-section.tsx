@@ -1,11 +1,9 @@
-
 'use client';
 
+import Image from 'next/image'; // <-- add this import
 import { motion } from 'framer-motion';
-import Image from 'next/image'; // Import Image for owner picture
-import { Leaf, Droplet, Gift, Sparkles } from 'lucide-react';
+import { Leaf, Droplet, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'; // Import Avatar
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -16,125 +14,138 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' },
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
-const cardHoverVariants = {
-   rest: { y: 0 },
-   hover: { y: -6, transition: { type: "spring", stiffness: 300, damping: 10 } }
-}
-
-// Keep features concise
 const features = [
   {
     icon: Leaf,
-    title: 'Natural Soy Wax', // Specify Soy
+    title: 'Natural Soy Wax',
     description: 'Clean-burning, eco-friendly soy wax for a mindful experience.',
-    color: 'text-primary',
+    color: 'text-emerald-500',
   },
   {
-    icon: Sparkles, // Changed icon
-    title: 'Hand-Poured in India', // Highlight origin
+    icon: Sparkles,
+    title: 'Hand-Poured in India',
     description: 'Lovingly crafted by hand in small batches for unique quality.',
-     color: 'text-accent-foreground', // Changed from text-accent to text-accent-foreground
+    color: 'text-amber-500',
   },
   {
-    icon: Droplet, // Keep Droplet for scent
+    icon: Droplet,
     title: 'Premium Fragrances',
     description: 'Infused with fine essential oils for authentic, cozy aromas.',
-     color: 'text-secondary',
+    color: 'text-violet-500',
   },
 ];
 
 export function AboutSection() {
   return (
-    // Using Lavender Gradient as requested - soft, warm, artisanal feel
-    <section className="w-full py-16 md:py-24 bg-gradient-lavender overflow-hidden">
-      <div className="container mx-auto max-w-5xl px-4 md:px-6">
+    <section className="w-full py-24 bg-gradient-to-b from-[#faf8ff] to-[#f4f0ff]">
+      <div className="container mx-auto max-w-6xl px-5">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.1 }}
         >
           {/* Section Title */}
-          <motion.div variants={itemVariants} className="mb-12 text-center">
-            {/* Elegant Serif Heading (Forum) */}
-            <h2 className="text-3xl font-bold font-heading tracking-tight text-foreground sm:text-4xl">
-              Crafted with Heart & Soul
+          <motion.div 
+            variants={itemVariants} 
+            className="mb-20 text-center"
+          >
+            <h2 className="mb-10 text-center text-4xl font-bold tracking-tight sm:text-5xl
+             text-transparent bg-clip-text bg-gradient-to-r
+             from-primary via-secondary to-accent
+             filter brightness-75">
+              Crafted with <span >Heart & Soul</span>
             </h2>
-            {/* Body Font (Lato) */}
-            <p className="mt-3 text-lg font-sans text-muted-foreground/90 md:mt-4 max-w-3xl mx-auto">
-              Discover the passion behind every Kraftika candle.
+            <div className="mx-auto mt-6 h-px w-16 bg-gray-300" />
+            <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Discover the passion behind every Kraftika candle
             </p>
           </motion.div>
 
-          {/* Our Story & Vision - Rewritten & Compact */}
-          <motion.div variants={itemVariants} className="mb-16 text-center max-w-3xl mx-auto">
-             {/* Elegant Serif Heading */}
-             <h3 className="text-2xl font-semibold font-heading text-foreground/90 mb-4">Our Philosophy</h3>
-              {/* Body Font (Lato) - Compelling Description */}
-             <p className="text-muted-foreground/80 leading-relaxed font-sans">
-                Welcome to Kraftika, where mindful living meets aromatic bliss. Born from a passion for craftsmanship in India, each candle is lovingly hand-poured using eco-friendly soy wax and premium fragrances. We believe in creating cozy moments and sparking joy through sustainable, beautifully scented candles that soothe the soul.
-             </p>
+          {/* Our Philosophy */}
+          <motion.div 
+            variants={itemVariants} 
+            className="mb-24 max-w-4xl mx-auto text-center"
+          >
+            <h3 className="text-2xl font-normal text-gray-700 mb-8">
+              Our Philosophy
+            </h3>
+            <p className="text-gray-600 leading-relaxed text-lg font-light">
+              Welcome to Kraftika, where mindful living meets aromatic bliss. Born from a passion for craftsmanship in India, each candle is lovingly hand-poured using eco-friendly soy wax and premium fragrances. We believe in creating cozy moments and sparking joy through sustainable, beautifully scented candles that soothe the soul.
+            </p>
           </motion.div>
 
-           {/* Meet the Maker Section */}
-          <motion.div variants={itemVariants} className="mb-16">
-              <h3 className="text-2xl font-semibold font-heading text-foreground/90 mb-8 text-center">Meet the Maker</h3>
-              <motion.div
-                 className="max-w-md mx-auto glassmorphism p-6 md:p-8 border border-[hsl(var(--border)/0.2)] shadow-lg flex flex-col sm:flex-row items-center gap-6"
-                 whileHover={{ y: -5, boxShadow: '0 10px 25px -8px hsla(var(--lilac-hsl), 0.3)' }} // Subtle hover effect
-                 transition={{ type: "spring", stiffness: 300 }}
-              >
-                   <Avatar className="h-24 w-24 border-2 border-primary/30 shadow-sm">
-                       <AvatarImage src="https://picsum.photos/seed/owner/200" alt="Anamika Sinha" data-ai-hint="person portrait founder" />
-                       <AvatarFallback>AS</AvatarFallback>
-                   </Avatar>
-                   <div className="text-center sm:text-left">
-                       <h4 className="text-xl font-medium font-heading text-foreground mb-1">Anamika Sinha</h4>
-                       <p className="text-sm font-semibold text-primary mb-2">Founder & Candlemaker</p>
-                       <p className="text-sm text-muted-foreground/90 font-sans leading-snug">
-                           "I started Kraftika to share the simple joy a beautiful scent can bring. It's about creating moments of peace and warmth, sustainably and with love."
-                       </p>
-                   </div>
-              </motion.div>
+          {/* Meet the Maker */}
+          <motion.div 
+            variants={itemVariants} 
+            className="mb-24"
+          >
+            <h3 className="text-2xl font-normal text-gray-700 mb-12 text-center">
+              Meet the Maker
+            </h3>
+            <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-sm border border-gray-100 flex flex-col items-center">
+              <div className="relative w-32 h-32 mb-6 rounded-full overflow-hidden">
+                <Image
+                  src="/anamika.jpeg" 
+                  alt="Anamika Sinha" 
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  priority
+                />
+              </div>
+              <div className="text-center">
+                <h4 className="text-xl font-normal text-gray-800 mb-1">Anamika Sinha</h4>
+                <p className="text-sm text-gray-500 mb-4 tracking-wider">FOUNDER & CANDLEMAKER</p>
+                <p className="text-gray-600 leading-relaxed italic font-light">
+                  "I started Kraftika to share the simple joy a beautiful scent can bring. It's about creating moments of peace and warmth, sustainably and with love."
+                </p>
+              </div>
+            </div>
           </motion.div>
 
-          {/* What Makes Us Special */}
-          <motion.div variants={itemVariants} className="mb-12 text-center">
-               <h3 className="text-2xl font-semibold font-heading text-foreground/90 mb-8">Why Choose Kraftika?</h3>
-              <motion.div
-                className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8" // Use 3 columns for features
-                 variants={containerVariants}
-               >
-                 {features.map((feature, index) => (
-                  <motion.div
-                     key={index}
-                     variants={itemVariants}
-                      whileHover="hover"
-                   >
-                     <Card className="h-full text-center glassmorphism border border-[hsl(var(--border)/0.15)] shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
-                       <CardHeader className="items-center pb-4">
-                          <motion.div variants={cardHoverVariants} >
-                              <feature.icon className={`h-10 w-10 mb-3 ${feature.color}`} strokeWidth={1.5} />
-                          </motion.div>
-                         <CardTitle className="text-lg font-semibold font-heading text-foreground/90">{feature.title}</CardTitle>
-                       </CardHeader>
-                       <CardContent>
-                         <p className="text-sm text-muted-foreground/80 font-sans">{feature.description}</p>
-                       </CardContent>
-                     </Card>
-                   </motion.div>
-                 ))}
-               </motion.div>
+          {/* Features */}
+          <motion.div 
+            variants={itemVariants} 
+            className="text-center"
+          >
+            <h3 className="text-2xl font-normal text-gray-700 mb-12">
+              Why Choose Kraftika?
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  whileHover={{ y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <Card className="h-full text-center bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-8">
+                    <CardHeader className="items-center pb-6">
+                      <div className={`p-3 mb-4 ${feature.color}`}>
+                        <feature.icon className="h-8 w-8" strokeWidth={1.5} />
+                      </div>
+                      <CardTitle className="text-lg font-normal text-gray-800">
+                        {feature.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 font-light leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
-
         </motion.div>
       </div>
     </section>
