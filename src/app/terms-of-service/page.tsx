@@ -78,7 +78,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-xl font-semibold font-heading text-foreground/90 mb-2">8. Contact Us</h2>
             <p>
-              If you have any questions about these Terms, please contact us by email: <a href="mailto:saatvik.shrivastava08@gmail.com" className="text-primary hover:underline">saatvik.shrivastava08@gmail.com</a>.
+              If you have any questions about these Terms, please contact us by email: <a href="mailto:studiokraftika@gmail.com" className="text-primary hover:underline">studiokraftika@gmail.com</a>.
             </p>
           </section>
         </div>
