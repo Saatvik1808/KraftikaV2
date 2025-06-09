@@ -1,11 +1,8 @@
-
 "use client";
 
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CandleIcon } from "@/components/icons/candle-icon"; // Updated Candle Icon
-import { BackgroundParticles } from "@/components/background-particles"; // Re-import background particles
 
 export function HeroSection() {
   const containerVariants = {
@@ -13,7 +10,7 @@ export function HeroSection() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2, // Slightly faster stagger
+        staggerChildren: 0.2,
         delayChildren: 0.1,
       },
     },
@@ -24,132 +21,156 @@ export function HeroSection() {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { type: "spring", stiffness: 80, damping: 12 }, // Softer spring
+      transition: { 
+        type: "spring", 
+        stiffness: 80, 
+        damping: 12,
+        mass: 0.5 
+      },
     },
   };
 
-  const candleVariants = {
-    initial: { opacity: 0, scale: 0.5, y: 50 },
-    animate: (i: number) => ({
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        delay: 0.2 + i * 0.15, // Stagger entrance
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      }
-    }),
-    float: (i: number) => ({
-        y: [0, -8, 0, 8, 0], // Reduced float range
-        x: [0, 4, -4, 0, 4],
-        rotate: [0, 1.5, -1.5, 0, 1.5], // Reduced rotation
-      transition: {
-        duration: 6 + i * 1.5, // Slightly faster base duration
-        repeat: Infinity,
-        repeatType: "mirror",
-        ease: "easeInOut",
-        delay: i * 0.3, // Stagger float start
-      },
-    }),
-  };
-
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-br from-primary/30 via-primary/10 to-background py-28 md:py-36 lg:py-48">
-       {/* Background Particles - Ensure they use appropriate fruity icons */}
-      <BackgroundParticles />
+    <section className="relative w-full overflow-hidden h-screen min-h-[800px] max-h-[1200px] flex items-center">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover object-top -z-10"
+        poster="/images/products/kraftika-bowl-candle.jpg"
+      >
+        <source src="/KraftikaHero.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
 
-      <div className="container mx-auto max-w-7xl px-4 md:px-6 z-10 relative">
+      
+      {/* Enhanced overlay for better contrast */}
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-black/70 via-black/20 to-transparent -z-5"></div>
+
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 z-10 relative">
         <motion.div
-          className="grid gap-10 md:grid-cols-2 md:items-center"
+          className="grid gap-12 lg:gap-16 md:grid-cols-2 md:items-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Floating Candles Visual */}
-          <motion.div
-            className="relative flex h-64 w-full justify-center items-center md:h-96"
-            aria-hidden="true"
-          >
-            {/* Staggered SVG Candles */}
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="absolute"
-                style={{
-                  // Adjust positioning for a pleasing staggered arrangement
-                  left: `${25 + i * 25}%`,
-                  top: `${20 + (i % 2 === 0 ? 5 : 20)}%`,
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 3 - i,
-                }}
-                variants={candleVariants}
-                initial="initial"
-                animate={["animate", "float"]} // Combine entrance and float animations
-                custom={i}
-              >
-                <CandleIcon
-                  className={`h-28 w-28 lg:h-36 lg:w-36 opacity-90 filter drop-shadow-lg
-                    ${i === 0 ? 'text-primary' : i === 1 ? 'text-accent' : 'text-secondary'}`} // Use theme colors
-                  style={{ filter: `drop-shadow(0 5px 15px hsla(var(--${i === 0 ? 'primary' : i === 1 ? 'accent' : 'secondary'}-hsl), 0.25))` }}
-                 />
-              </motion.div>
-            ))}
-          </motion.div>
-
           {/* Text Content and CTA */}
-          <div className="space-y-6 text-center md:text-left">
+          <div className="space-y-8 md:space-y-10 text-left">
             <motion.h1
-              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-tight font-heading" // Use Forum font
+              className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl leading-tight font-heading"
               variants={itemVariants}
+              style={{ 
+                textShadow: '2px 2px 12px rgba(0,0,0,0.8), 0 0 30px rgba(0,0,0,0.7)',
+                lineHeight: '1.1'
+              }} 
             >
-               Where Scents{' '}
-               <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent filter brightness-90">
-                 Spark Joy
-               </span>
+              Where Scents{' '}
+              <span 
+                className="bg-clip-text text-transparent bg-gradient-to-r from-[#caa494] via-[#b8d4a8] to-[#b1e4c7]"
+                style={{
+                  display: 'inline-block',
+                  padding: '0.05em 0',
+                  backgroundSize: '200% auto',
+                  animation: 'gradientShift 6s ease infinite',
+                  textShadow: '0 0 20px rgba(177, 228, 199, 0.5), 0 0 40px rgba(202, 164, 148, 0.3)',
+                }}
+              >
+                Spark Joy
+              </span>
             </motion.h1>
+            
             <motion.p
-              className="max-w-lg text-lg text-foreground/80 md:text-xl mx-auto md:mx-0 leading-relaxed font-sans" // Use Lato font, softer color
+              className="max-w-lg text-lg text-white/90 md:text-xl lg:text-2xl leading-relaxed font-sans font-light"
               variants={itemVariants}
+              style={{ 
+                textShadow: '1px 1px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.6)',
+                lineHeight: '1.6'
+              }} 
             >
               Indulge in handcrafted scented candles made with love, designed to brighten your space and soothe your soul.
             </motion.p>
+            
             <motion.div
-              className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4 justify-center md:justify-start"
+              className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-6 justify-start"
               variants={itemVariants}
-              >
+            >
               <motion.div
-                 whileHover={{ scale: 1.05, y: -2 }}
-                 whileTap={{ scale: 0.95 }}
-                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -2,
+                  transition: { duration: 0.2 }
+                }}
+                whileTap={{ 
+                  scale: 0.98,
+                  transition: { duration: 0.1 }
+                }}
               >
-                <Button asChild size="lg" className="btn-primary px-8 py-3 w-full sm:w-auto">
+                <Button 
+                  asChild 
+                  size="lg" 
+                  className="px-10 py-6 text-lg font-medium bg-gradient-to-r from-[#caa494] to-[#b8d4a8] hover:from-[#b8a08e] hover:to-[#a8c498] shadow-lg hover:shadow-xl transition-all duration-300"
+                >
                   <Link href="/products">Shop Now</Link>
                 </Button>
               </motion.div>
-                <motion.div
-                 whileHover={{ scale: 1.05, y: -2 }}
-                 whileTap={{ scale: 0.95 }}
-                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              
+              <motion.div
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -2,
+                  transition: { duration: 0.2 }
+                }}
+                whileTap={{ 
+                  scale: 0.98,
+                  transition: { duration: 0.1 }
+                }}
               >
-                 {/* Updated Explore Kraftika Button Styling */}
-                 <Button
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    // Change text color to darker primary-foreground and adjust hover state
-                    className="px-8 py-3 w-full sm:w-auto border-primary/70 text-primary-foreground hover:bg-primary/10 hover:text-primary-foreground/80 hover:border-primary font-medium"
-                 >
-                    <Link href="/about">Explore Kraftika</Link>
-                 </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="px-10 py-6 text-lg font-medium border-2 border-white/90 bg-transparent text-white hover:bg-white/10 hover:text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300" 
+                >
+                  <Link href="/about">Explore Kraftika</Link>
+                </Button>
               </motion.div>
             </motion.div>
           </div>
         </motion.div>
       </div>
-       {/* Optional: Add a subtle curved divider at the bottom */}
-       {/* <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-background to-transparent section-divider"></div> */}
+
+      {/* Scrolling indicator */}
+      <motion.div 
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      >
+        <div className="w-8 h-12 border-2 border-white/50 rounded-full flex justify-center">
+          <motion.div 
+            className="w-1 h-3 bg-white rounded-full mt-2"
+            animate={{ opacity: [0.2, 1, 0.2] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+        </div>
+      </motion.div>
+
+      {/* Global styles for animation */}
+      <style jsx global>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.6; }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+      `}</style>
     </section>
   );
 }

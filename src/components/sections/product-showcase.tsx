@@ -1,43 +1,33 @@
 
 "use client";
 
-import * as React from "react"; // Added React import
+import * as React from "react"; 
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // For sorting
-
-// Sample Product Data (Replace with actual data fetching)
-const sampleProducts: Candle[] = [
-  { id: '1', name: 'Sunrise Citrus', scentCategory: 'Citrus', price: 28, imageUrl: 'https://picsum.photos/seed/candle1/400/500', description: '...', scentNotes: '...', burnTime: '...', ingredients: '...' },
-  { id: '2', name: 'Lavender Dreams', scentCategory: 'Floral', price: 32, imageUrl: 'https://picsum.photos/seed/candle2/400/500', description: '...', scentNotes: '...', burnTime: '...', ingredients: '...' },
-  { id: '3', name: 'Vanilla Bean Bliss', scentCategory: 'Sweet', price: 30, imageUrl: 'https://picsum.photos/seed/candle3/400/500', description: '...', scentNotes: '...', burnTime: '...', ingredients: '...' },
-  { id: '4', name: 'Mint Mojito', scentCategory: 'Fresh', price: 29, imageUrl: 'https://picsum.photos/seed/candle4/400/500', description: '...', scentNotes: '...', burnTime: '...', ingredients: '...' },
-];
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import allProductsData from "@/data/products.json"; // Import the centralized product data
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 } // Slightly faster stagger
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 } 
   }
 };
 
 export function ProductShowcase() {
-  // In a real app, fetch featured products here
-  const featuredProducts = sampleProducts.slice(0, 4); // Show first 4
+  // Use the centralized product data
+  const allProducts: Candle[] = allProductsData;
+  const featuredProducts = allProducts.slice(0, 4); // Show first 4
 
-  // Placeholder state for sorting/filtering - implement logic if needed
   const [sortBy, setSortBy] = React.useState<string>("popularity");
 
   return (
-    <section className="w-full py-16 md:py-24 bg-gradient-peach relative"> {/* Peach Gradient */}
-       {/* Optional: Add curved divider */}
-       {/* <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-background to-transparent section-divider" style={{ clipPath: 'ellipse(100% 50% at 50% 100%)' }}></div> */}
-
+    <section className="w-full py-16 md:py-24 bg-gradient-peach relative"> 
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mb-10 text-center md:mb-12">
           <motion.h2
@@ -60,7 +50,6 @@ export function ProductShowcase() {
           </motion.p>
         </div>
 
-         {/* Filter/Sort Controls Placeholder */}
         <motion.div
              initial={{ opacity: 0, y: 20 }}
              whileInView={{ opacity: 1, y: 0 }}
@@ -69,7 +58,6 @@ export function ProductShowcase() {
              className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4"
          >
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                {/* Placeholder for actual filter buttons/dropdown */}
                 <Button variant="outline" size="sm" className="border-primary/30 text-primary-foreground/90 hover:bg-primary/10 hover:text-primary-foreground">
                     <ListFilter className="mr-2 h-4 w-4" /> Filter Scents
                 </Button>
@@ -94,10 +82,10 @@ export function ProductShowcase() {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }} // Trigger animation earlier
+          viewport={{ once: true, amount: 0.1 }} 
         >
           {featuredProducts.map((product) => (
-             <ProductCard key={product.id} product={product} />
+             <ProductCard key={product.id} product={product} priority={true} /> // Set priority to true for all featured products
           ))}
         </motion.div>
 
@@ -119,4 +107,3 @@ export function ProductShowcase() {
     </section>
   );
 }
-

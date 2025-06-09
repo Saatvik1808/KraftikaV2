@@ -1,0 +1,127 @@
+[
+  {
+    "id": "r1",
+    "productId": "1",
+    "authorName": "Priya Sharma",
+    "authorAvatarUrl": "https://picsum.photos/seed/priya/100",
+    "authorAvatarFallback": "PS",
+    "rating": 5,
+    "reviewText": "The Minimalist Aesthetic candle is perfect for my Bangalore apartment! The fresh linen scent is so clean and modern. It burns evenly and lasts surprisingly long. Definitely worth the price!",
+    "reviewDate": "June 10, 2024",
+    "reviewImageUrl": "https://placehold.co/400x300.png"
+  },
+  {
+    "id": "r2",
+    "productId": "2",
+    "authorName": "Rahul Patel",
+    "authorAvatarUrl": "https://picsum.photos/seed/rahul/100",
+    "authorAvatarFallback": "RP",
+    "rating": 5,
+    "reviewText": "This Artisan Wooden Bowl candle is a masterpiece! The sandalwood fragrance reminds me of my childhood in Kerala. The wooden bowl makes it a beautiful decor piece even after burning. Excellent quality!",
+    "reviewDate": "May 25, 2024"
+  },
+  {
+    "id": "r3",
+    "productId": "3",
+    "authorName": "Ananya Gupta",
+    "authorAvatarUrl": "https://picsum.photos/seed/ananya/100",
+    "authorAvatarFallback": "AG",
+    "rating": 4,
+    "reviewText": "Love the Elegant Glass Jar candle! The floral scent is perfect for my Mumbai home. My only suggestion would be to make the rose note a bit stronger. Otherwise, beautiful packaging and good burn time.",
+    "reviewDate": "June 5, 2024",
+    "reviewImageUrl": "https://placehold.co/400x300.png"
+  },
+  {
+    "id": "r4",
+    "productId": "4",
+    "authorName": "Arjun Singh",
+    "authorAvatarUrl": "https://picsum.photos/seed/arjun/100",
+    "authorAvatarFallback": "AS",
+    "rating": 5,
+    "reviewText": "As a coffee lover from Delhi, this Morning Coffee candle is heavenly! The aroma is so authentic - it's like having a café in my study. The metal jar gives it such a premium feel. Will buy again!",
+    "reviewDate": "May 15, 2024"
+  },
+  {
+    "id": "r5",
+    "productId": "5",
+    "authorName": "Neha Kapoor",
+    "authorAvatarUrl": "https://picsum.photos/seed/neha/100",
+    "authorAvatarFallback": "NK",
+    "rating": 5,
+    "reviewText": "Spring Blossom has transformed my Chennai home! The peony and rose combination is divine - not too sweet, just perfect. My guests always compliment the fragrance. Highly recommended for floral lovers!",
+    "reviewDate": "June 18, 2024",
+    "reviewImageUrl": "https://placehold.co/400x300.png"
+  },
+  {
+    "id": "r6",
+    "productId": "6",
+    "authorName": "Vikram Joshi",
+    "authorAvatarUrl": "https://picsum.photos/seed/vikram/100",
+    "authorAvatarFallback": "VJ",
+    "rating": 4,
+    "reviewText": "Fresh Cut Grass candle brings back memories of monsoon in Pune. The herbal notes are very refreshing. The scent throw could be slightly stronger, but overall a great product for the price.",
+    "reviewDate": "May 30, 2024"
+  },
+  {
+    "id": "r7",
+    "productId": "7",
+    "authorName": "Divya Nair",
+    "authorAvatarUrl": "https://picsum.photos/seed/divya/100",
+    "authorAvatarFallback": "DN",
+    "rating": 5,
+    "reviewText": "Mocha Delight is my absolute favorite! The chocolate-coffee blend is so rich and indulgent. Perfect for cozy Hyderabad evenings. The wooden wick crackle adds to the experience. 10/10!",
+    "reviewDate": "June 12, 2024"
+  },
+  {
+    "id": "r8",
+    "productId": "8",
+    "authorName": "Aditya Rao",
+    "authorAvatarUrl": "https://picsum.photos/seed/aditya/100",
+    "authorAvatarFallback": "AR",
+    "rating": 5,
+    "reviewText": "Ocean Mist is incredibly refreshing for our Goa beach house! The sea salt and driftwood notes are so authentic. The glass jar looks beautiful when lit at night. Excellent quality and long-lasting.",
+    "reviewDate": "May 20, 2024",
+    "reviewImageUrl": "https://placehold.co/400x300.png"
+  },
+  {
+    "id": "r9",
+    "productId": "9",
+    "authorName": "Meera Iyer",
+    "authorAvatarUrl": "https://picsum.photos/seed/meera/100",
+    "authorAvatarFallback": "MI",
+    "rating": 5,
+    "reviewText": "The Romantic Valentine gift set was perfect for our anniversary! My husband loved the luxurious rose-vanilla scent. The packaging was exquisite and the burn time is impressive. Worth every rupee!",
+    "reviewDate": "February 14, 2024"
+  },
+  {
+    "id": "r10",
+    "productId": "10",
+    "authorName": "Karthik Menon",
+    "authorAvatarUrl": "https://picsum.photos/seed/karthik/100",
+    "authorAvatarFallback": "KM",
+    "rating": 4,
+    "reviewText": "Pure White is a great value candle for my Bangalore office. The fresh laundry scent is very clean and professional. The wax sachet format is convenient. Would be perfect if the scent lasted a bit longer.",
+    "reviewDate": "June 8, 2024",
+    "reviewImageUrl": "https://placehold.co/400x300.png"
+  },
+  {
+    "id": "r11",
+    "productId": "11",
+    "authorName": "Shreya Malhotra",
+    "authorAvatarUrl": "https://picsum.photos/seed/shreya/100",
+    "authorAvatarFallback": "SM",
+    "rating": 5,
+    "reviewText": "Valentine's Special hamper is absolutely luxurious! The chocolate-rose combination is divine and the packaging made it a perfect gift. My partner was thrilled. Will definitely purchase again for special occasions!",
+    "reviewDate": "February 10, 2024"
+  },
+  {
+    "id": "r12",
+    "productId": "3",
+    "authorName": "Rohan Verma",
+    "authorAvatarUrl": "https://picsum.photos/seed/rohan/100",
+    "authorAvatarFallback": "RV",
+    "rating": 5,
+    "reviewText": "Second time buying the Elegant Glass Jar! The floral scent is perfect for our Gurgaon home. The reusable glass container is a big plus - we use it for storing small items after finishing the candle.",
+    "reviewDate": "June 1, 2024"
+  }
+]

@@ -81,7 +81,7 @@ export default function FaqPage() {
           <Accordion type="single" collapsible className="w-full">
             {faqData.map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`} className="border-b border-primary/20 last:border-b-0">
-                <AccordionTrigger className="py-4 text-left text-base md:text-lg font-medium text-foreground/90 hover:text-primary hover:no-underline [&[data-state=open]]:text-primary">
+                <AccordionTrigger className="py-4 text-left text-base md:text-lg font-medium text-foreground/90 hover:text-accent-foreground hover:no-underline [&[data-state=open]]:text-accent-foreground">
                   {item.question}
                 </AccordionTrigger>
                 <AccordionContent className="pt-1 pb-4 text-sm md:text-base text-muted-foreground/80 leading-relaxed">
