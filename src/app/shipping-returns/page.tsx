@@ -39,7 +39,7 @@ export default function ShippingReturnsPage() {
               </p>
               <h3 className="text-lg font-medium text-foreground/85 mt-4">International Shipping</h3>
               <p>
-                Currently, we primarily ship to addresses within India. For international shipping inquiries, please contact us at <a href="mailto:saatvik.shrivastava08@gmail.com" className="text-primary hover:underline">saatvik.shrivastava08@gmail.com</a> before placing your order.
+                Currently, we primarily ship to addresses within India. For international shipping inquiries, please contact us at <a href="mailto:studiokraftika@gmail.com" className="text-primary hover:underline">studiokraftika@gmail.com</a> before placing your order.
               </p>
             </div>
           </section>
@@ -60,7 +60,7 @@ export default function ShippingReturnsPage() {
               </p>
               <h3 className="text-lg font-medium text-foreground/85 mt-4">Return Process</h3>
               <p>
-                To initiate a return, please email us at <a href="mailto:saatvik.shrivastava08@gmail.com" className="text-primary hover:underline">saatvik.shrivastava08@gmail.com</a> with your order number and reason for return. We will provide you with instructions on how to send back your item(s).
+                To initiate a return, please email us at <a href="mailto:studiokraftika@gmail.com" className="text-primary hover:underline">studiokraftika@gmail.com</a> with your order number and reason for return. We will provide you with instructions on how to send back your item(s).
                 Customers are responsible for return shipping costs unless the item arrived damaged or incorrect.
               </p>
               <h3 className="text-lg font-medium text-foreground/85 mt-4">Refunds</h3>
@@ -69,7 +69,7 @@ export default function ShippingReturnsPage() {
               </p>
               <h3 className="text-lg font-medium text-foreground/85 mt-4">Damaged or Incorrect Items</h3>
               <p>
-                If you received a damaged or incorrect item, please contact us immediately at <a href="mailto:saatvik.shrivastava08@gmail.com" className="text-primary hover:underline">saatvik.shrivastava08@gmail.com</a> with your order number and a photo of the item. We will arrange for a replacement or refund.
+                If you received a damaged or incorrect item, please contact us immediately at <a href="mailto:studiokraftika@gmail.com" className="text-primary hover:underline">studiokraftika@gmail.com</a> with your order number and a photo of the item. We will arrange for a replacement or refund.
               </p>
             </div>
           </section>

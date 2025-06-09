@@ -18,7 +18,7 @@ export async function sendEmail({ name, email, message }: Message): Promise<bool
 
     const mailOptions = {
       from: `"${name}" <${email}>`,
-      to: process.env.EMAIL_TO || "saatvik.shrivastava08@gmail.com",
+      to: process.env.EMAIL_TO || "saatvik.shrivastava@gmail.com",
       subject: `New message from ${name}`,
       text: message,
       html: `
