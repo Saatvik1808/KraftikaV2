@@ -52,13 +52,15 @@
               <div className="flex space-x-4 pt-2">
                   {/* Social Icons with Animation */}
                   {[
-                     { Icon: Instagram, label: "Instagram", href: "#" },
+                     { Icon: Instagram, label: "Instagram", href: "https://www.instagram.com/kraftika_studio/" },
                      { Icon: PinterestIcon, label: "Pinterest", href: "#" }, // Use SVG Component
                      { Icon: Facebook, label: "Facebook", href: "#" },
                   ].map(({ Icon, label, href }) => ( // Removed Twitter from this array
                      <motion.a
                          key={label}
                          href={href}
+                         target="_blank"
+                         rel="noopener noreferrer"
                          aria-label={`Kraftika on ${label}`}
                          className="text-muted-foreground/70 hover:text-primary transition-colors"
                          variants={iconVariants}
