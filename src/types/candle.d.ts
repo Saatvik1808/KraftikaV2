@@ -1,7 +1,7 @@
 export interface Candle {
   id: string;
   name: string;
-  scentCategory: 'Citrus' | 'Floral' | 'Sweet' | 'Fresh' | 'Fruity' | 'Woody' | 'Spicy'; // Add more as needed
+  scentCategory: string; // relax to string
   price: number;
   imageUrl: string;
   description: string;
@@ -12,5 +12,7 @@ export interface Candle {
   isFeatured?: boolean;
   isNew?: boolean;
   popularityScore?: number; // For sorting
-  images?: string[]; // For carousel on detail page
+  images?: string[];
+  popularity?: number; // Add if you're using it for sorting
+  createdAt?: string;  // For carousel on detail page
 }

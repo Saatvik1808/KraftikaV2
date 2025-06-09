@@ -7,7 +7,7 @@
 - Scent Quiz: Design a 'Find Your Scent' quiz to provide personalized candle recommendations based on user preferences.
 - Product Page: Display candle products in a grid layout, allowing users to filter by scent and sort by price, popularity, and newest.
 - Product Detail Page: Showcase large candle images with a 360° view or image carousel, along with full product specifications and an add-to-cart button.
-- Contact Us Page: Create a beautifully styled contact page with a form for users to send messages. On submit, an email should be sent to saatvik.shrivastava08@gmail.com.
+- Contact Us Page: Create a beautifully styled contact page with a form for users to send messages. On submit, an email should be sent to studiokraftika@gmail.com.
 - Mobile Responsiveness: Ensure all sections adapt smoothly on mobile devices using flex/grid layouts. Enable swipe for carousels and filters.
 
 ## Style Guidelines:
@@ -87,7 +87,7 @@ Message
 
 Use Framer Motion for smooth form interactions and transitions.
 
-On submit, sends an email to saatvik.shrivastava08@gmail.com (use backend like EmailJS, Nodemailer, or Formspree).
+On submit, sends an email to studiokraftika@gmail.com (use backend like EmailJS, Nodemailer, or Formspree).
 
 Thank-you message with animation and glow.
 

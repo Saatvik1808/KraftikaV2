@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import { fontFamily } from "tailwindcss/defaultTheme"; // Import default theme
+import { fontFamily as defaultFontFamily } from "tailwindcss/defaultTheme"; // Renamed to avoid conflict
 
 export default {
     darkMode: ["class"],
@@ -11,8 +11,8 @@ export default {
   theme: {
   	extend: {
       fontFamily: {
-        sans: ["var(--font-lato)", ...fontFamily.sans], // Use Lato for body text
-        heading: ["var(--font-forum)", ...fontFamily.serif], // Add Forum for headings (optional, CSS handles this too)
+        sans: ["'Regalia Monarch'", ...defaultFontFamily.sans], // Use Regalia Monarch for body text
+        heading: ["'Regalia Monarch'", ...defaultFontFamily.serif], // Use Regalia Monarch for headings
       },
   		colors: {
         // Theme HSL variables defined in globals.css
