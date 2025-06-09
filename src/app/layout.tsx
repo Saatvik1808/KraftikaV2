@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 // Removed Forum and Lato imports
 import './globals.css';
@@ -11,6 +12,10 @@ import { Providers } from './providers';
 export const metadata: Metadata = {
   title: 'Kraftika Scents - Handcrafted Scented Candles',
   description: 'Where Scents Spark Joy. Premium, handcrafted scented candles from Kraftika.',
+  icons: {
+    icon: '/KraftikaV2.png', // Main favicon
+    apple: '/KraftikaV2.png', // Apple touch icon
+  },
 };
 
 export default function RootLayout({
