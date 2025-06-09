@@ -29,6 +29,7 @@ export default function CartPage() {
   const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const { toast } = useToast();
+  const whatsappCheckoutLink = "https://wa.me/6204605797";
 
   React.useEffect(() => {
     setIsLoading(true);
@@ -208,8 +209,10 @@ export default function CartPage() {
                 </div>
               </CardContent>
               <CardFooter className="p-0 mt-6">
-                <Button size="lg" className="w-full btn-primary">
-                  Proceed to Checkout
+                <Button asChild size="lg" className="w-full btn-primary">
+                  <Link href={whatsappCheckoutLink} target="_blank" rel="noopener noreferrer">
+                    Proceed to Checkout
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>
