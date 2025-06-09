@@ -1,142 +1,161 @@
-
 "use client";
 
 import * as React from "react";
 import Link from "next/link";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, ShoppingBag } from "lucide-react";
+import { Menu, X, ShoppingBag, Heart } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "@/components/logo";
-import { usePathname } from 'next/navigation'; // Import usePathname
-
+import { usePathname } from 'next/navigation';
 
 const navItems = [
   { name: "Home", href: "/" },
   { name: "Products", href: "/products" },
-  { name: "About Us", href: "/about" }, // Added About Us
+  { name: "About Us", href: "/about" },
   { name: "Contact", href: "/contact" },
+  { name: "FAQ", href: "/faq"}
 ];
 
 export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { scrollY } = useScroll();
-  const pathname = usePathname(); // Get current path
+  const pathname = usePathname();
 
-  // Update scrolled state based on scroll position
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
   });
 
   return (
     <motion.nav
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        // Apply glassmorphism effect, more opaque on scroll
-        "glassmorphism border-b border-transparent",
-        isScrolled
-          ? "bg-[hsla(0,0%,100%,0.6)] dark:bg-[hsla(220,15%,15%,0.6)] border-[hsl(var(--border)/0.2)] shadow-sm"
-          : "bg-[hsla(0,0%,100%,0.3)] dark:bg-[hsla(220,15%,15%,0.3)]"
-      )}
-      style={{ '--navbar-height': '4rem' } as React.CSSProperties} // Define navbar height for layout calculations
-    >
+    className={cn(
+      "sticky top-0 z-50 w-full transition-all duration-300",
+      "glassmorphism border-b border-transparent rounded-none !rounded-none", // ← force override
+      isScrolled
+        ? "bg-[hsla(0,0%,100%,0.7)] dark:bg-[hsla(220,15%,15%,0.7)] border-[hsl(var(--border)/0.2)] shadow-sm"
+        : "bg-white/90 dark:bg-gray-950/90"
+    )}
+    
+    style={{ '--navbar-height': '4rem' } as React.CSSProperties}
+  >
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center space-x-2 group" aria-label="Kraftika Homepage">
-           {/* Logo with hover animation */}
-           <motion.div
-            whileHover={{ scale: 1.1, filter: 'brightness(1.1)' }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-           >
-            <Logo className="h-8 w-auto transition-all duration-300 group-hover:animate-glow text-primary" />
-           </motion.div>
-           {/* Changed text color to primary-foreground for darker appearance */}
-           <span className="font-semibold text-lg text-primary-foreground transition-colors group-hover:text-primary-foreground/80">Kraftika</span>
+          <motion.div
+            whileHover={{ rotate: [0, 8, -8, 0] }}
+            transition={{ type: "spring", stiffness: 300, damping: 10 }}
+          >
+            <Logo 
+              width={60} 
+              height={16} 
+              className="text-gray-900 dark:text-gray-100 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-300" 
+            />
+          </motion.div>
+          <span className="font-heading font-bold text-xl tracking-wide text-gray-900 dark:text-gray-100 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-300">
+            KRAFTIKA
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden items-center space-x-6 md:flex">
+        <div className="hidden items-center space-x-1 md:flex">
           {navItems.map((item) => (
             <motion.div
               key={item.name}
               whileHover="hover"
-              animate={pathname === item.href ? "hover" : "rest"} // Keep underline if active
-              variants={{ // Define variants for hover state
-                 hover: { y: -2 },
-                 rest: { y: 0 }
-               }}
+              animate={pathname === item.href ? "hover" : "rest"}
+              variants={{
+                hover: { y: -2 },
+                rest: { y: 0 }
+              }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              className="relative group" // group is used for the underline animation
+              className="relative group"
             >
               <Link
                 href={item.href}
                 className={cn(
-                    "text-sm font-medium transition-colors relative z-10",
-                     pathname === item.href ? "text-primary font-semibold" : "text-foreground/90 hover:text-primary" // Style active link
-                 )}
-                 style={pathname === item.href ? { textShadow: "0 0 8px hsla(var(--primary-hsl), 0.6)" } : {}} // Apply shadow if active
-               >
-                 {item.name}
-                 {/* Underline Ripple Animation - positioned below the link */}
-                 <motion.span
-                   className="absolute left-0 -bottom-1 block h-[2px] w-full bg-primary origin-center"
-                   initial={{ scaleX: 0 }}
-                   // Animate scaleX on group hover (parent motion.div) or if active
-                   variants={{
-                     hover: { scaleX: 1 },
-                     rest: { scaleX: pathname === item.href ? 1 : 0 } // Keep scaled if active
-                   }}
-                   transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
-                   style={{ transformOrigin: 'center' }} // Ensure scaling from center
-                 />
+                  "font-sans text-sm font-medium transition-colors relative z-10 px-3 py-2",
+                  pathname === item.href 
+                    ? "text-gray-900 dark:text-gray-100 font-semibold" 
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                )}
+              >
+                {item.name}
+                <motion.span
+                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-gray-900 dark:bg-gray-100 origin-center"
+                  initial={{ scaleX: 0 }}
+                  variants={{
+                    hover: { scaleX: 1 },
+                    rest: { scaleX: pathname === item.href ? 1 : 0 }
+                  }}
+                  transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  style={{ transformOrigin: 'center' }}
+                />
               </Link>
             </motion.div>
           ))}
-           {/* Optional Cart Icon */}
-           <Button variant="ghost" size="icon" className="relative hover:bg-primary/10" aria-label="Shopping Cart">
-             <ShoppingBag className="h-5 w-5 text-foreground/80 hover:text-primary" />
-             {/* <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">3</span> */}
-           </Button>
+          
+          {/* Wishlist Icon Link */}
+          <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="View Wishlist">
+            <Link href="/wishlist">
+              <Heart className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+            </Link>
+          </Button>
+          
+          {/* Cart Icon Link */}
+          <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Shopping Cart">
+            <Link href="/cart">
+              <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+            </Link>
+          </Button>
         </div>
-
 
         {/* Mobile Navigation Trigger */}
         <div className="flex items-center md:hidden">
-         <Button variant="ghost" size="icon" className="relative mr-2 hover:bg-primary/10" aria-label="Shopping Cart">
-             <ShoppingBag className="h-5 w-5 text-foreground/80 hover:text-primary" />
-         </Button>
+          <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="View Wishlist">
+            <Link href="/wishlist">
+              <Heart className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+            </Link>
+          </Button>
+          
+          <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Shopping Cart">
+            <Link href="/cart">
+              <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+            </Link>
+          </Button>
+          
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Toggle Menu" className="hover:bg-primary/10">
-                <Menu className="h-6 w-6 text-foreground/80 hover:text-primary" />
+              <Button variant="ghost" size="icon" aria-label="Toggle Menu" className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Menu className="h-6 w-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] p-6 glassmorphism border-l border-[hsl(var(--border)/0.2)]">
-              <div className="mb-6 flex justify-between items-center">
-                 <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                     <Logo className="h-7 w-auto text-primary" />
-                     <span className="font-semibold text-md text-primary-foreground">Kraftika</span>
-                 </Link>
-                 <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} aria-label="Close Menu" className="hover:bg-primary/10">
-                     <X className="h-5 w-5 text-foreground/80 hover:text-primary" />
-                 </Button>
+            <SheetContent side="right" className="w-[280px] p-0 bg-white dark:bg-gray-950 border-l border-gray-200 dark:border-gray-800">
+              <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
+                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
+                  <Logo width={60} height={14} className="text-gray-900 dark:text-gray-100" />
+                  <span className="font-heading font-bold text-lg tracking-wide text-gray-900 dark:text-gray-100">
+                    KRAFTIKA
+                  </span>
+                </Link>
+                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} aria-label="Close Menu" className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <X className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+                </Button>
               </div>
 
-              <nav className="flex flex-col space-y-4">
+              <nav className="flex flex-col p-6">
                 {navItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
                     className={cn(
-                        "text-base font-medium transition-colors py-1",
-                        pathname === item.href ? "text-primary font-semibold" : "text-foreground hover:text-primary"
+                      "font-sans text-base font-medium transition-colors py-3 px-2 -mx-2",
+                      pathname === item.href 
+                        ? "text-gray-900 dark:text-gray-100 font-semibold bg-gray-100 dark:bg-gray-800" 
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                     )}
-                    onClick={() => setIsOpen(false)} // Close sheet on navigation
+                    onClick={() => setIsOpen(false)}
                   >
                     {item.name}
                   </Link>

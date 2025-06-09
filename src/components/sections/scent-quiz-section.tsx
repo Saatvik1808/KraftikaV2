@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -36,8 +37,7 @@ export function ScentQuizSection() {
             className="inline-block"
           >
             <Button size="lg" className="btn-primary px-8 py-3"> {/* Use primary button style */}
-              {/* In a real app, this would link to /quiz page or open a modal */}
-              <Link href="#">Take the Scent Quiz</Link>
+              <Link href="/quiz">Take the Scent Quiz</Link> {/* Updated Link */}
             </Button>
           </motion.div>
         </motion.div>
