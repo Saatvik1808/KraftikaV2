@@ -29,7 +29,7 @@ export default function CartPage() {
   const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const { toast } = useToast();
-  const whatsappCheckoutLink = "https://wa.me/6204605797";
+  const whatsappCheckoutLink = "https://wa.me/9625901437";
 
   React.useEffect(() => {
     setIsLoading(true);

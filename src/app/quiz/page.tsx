@@ -86,34 +86,78 @@ export default function ScentQuizPage() {
   };
 
   const getRecommendations = (currentAnswers: Answers): Candle[] => {
-    const { mood, scentType } = currentAnswers;
+    const { mood, scentType, activity } = currentAnswers;
     let recommended: Candle[] = [];
-
-    // Ensure sampleCandles are available before trying to find products
-    const findCandle = (name: string) => sampleCandles.find(c => c.name === name);
-
-    if (mood === 'Relaxing') {
-      if (scentType === 'Floral') recommended.push(findCandle('Lavender Dreams')!);
-      else if (scentType === 'Sweet') recommended.push(findCandle('Vanilla Bean Bliss')!);
-      else recommended.push(findCandle('Lavender Dreams')!);
-    } else if (mood === 'Energizing') {
-      if (scentType === 'Citrus') recommended.push(findCandle('Sunrise Citrus')!);
-      else if (scentType === 'Fresh') recommended.push(findCandle('Mint Mojito')!);
-      else recommended.push(findCandle('Sunrise Citrus')!);
-    } else if (mood === 'Cozy') {
-      if (scentType === 'Sweet') recommended.push(findCandle('Vanilla Bean Bliss')!);
-      else if (scentType === 'Fruity') recommended.push(findCandle('Spiced Apple')!);
-      else recommended.push(findCandle('Vanilla Bean Bliss')!);
-    } else if (mood === 'Romantic') {
-         if (scentType === 'Floral') recommended.push(findCandle('Lavender Dreams')!);
-         else if (scentType === 'Sweet') recommended.push(findCandle('Vanilla Bean Bliss')!);
-         else recommended.push(findCandle('Lavender Dreams')!);
+    
+    // First filter by scent category if selected
+    let candidates = scentType 
+      ? allProductsData.filter(candle => 
+          candle.scentCategory.toLowerCase().includes(scentType.toLowerCase()) ||
+          candle.scentNotes.toLowerCase().includes(scentType.toLowerCase())
+        )
+      : [...allProductsData];
+  
+    // Then prioritize by mood
+    if (mood) {
+      candidates.sort((a, b) => {
+        const aScore = getMoodScore(a, mood);
+        const bScore = getMoodScore(b, mood);
+        return bScore - aScore;
+      });
     }
-
-    if (recommended.length === 0 && sampleCandles.length > 0) {
-        recommended.push(sampleCandles[Math.floor(Math.random() * sampleCandles.length)]);
+  
+    // Then consider activity if provided
+    if (activity) {
+      candidates.sort((a, b) => {
+        const aScore = getActivityScore(a, activity);
+        const bScore = getActivityScore(b, activity);
+        return bScore - aScore;
+      });
     }
-    return [...new Set(recommended.filter(Boolean))].slice(0, 2);
+  
+    // Take top 2-3 unique recommendations
+    recommended = candidates.slice(0, 3);
+    
+    // If no matches found, return some popular defaults
+    if (recommended.length === 0) {
+      recommended = allProductsData
+        .filter(c => ['1', '2', '3', '4'].includes(c.id))
+        .slice(0, 2);
+    }
+  
+    return recommended;
+  };
+  
+  // Helper function to score products based on mood
+  const getMoodScore = (candle: Candle, mood: string): number => {
+    const moodMap: Record<string, string[]> = {
+      'Relaxing': ['lavender', 'vanilla', 'chamomile', 'oatmeal', 'musk', 'amber'],
+      'Energizing': ['citrus', 'mint', 'bergamot', 'coffee', 'grass', 'ozone'],
+      'Cozy': ['vanilla', 'caramel', 'cinnamon', 'tonka', 'chocolate', 'cedar'],
+      'Romantic': ['rose', 'jasmine', 'violet', 'champagne', 'chocolate', 'berry']
+    };
+  
+    const targetNotes = moodMap[mood] || [];
+    const notes = candle.scentNotes.toLowerCase();
+    
+    return targetNotes.reduce((score, note) => 
+      notes.includes(note) ? score + 1 : score, 0);
+  };
+  
+  // Helper function to score products based on activity
+  const getActivityScore = (candle: Candle, activity: string): number => {
+    const activityMap: Record<string, string[]> = {
+      'Reading a book by a window': ['vanilla', 'tea', 'cotton', 'musk', 'amber'],
+      'A lively gathering with friends': ['citrus', 'mojito', 'coffee', 'chocolate', 'tonka'],
+      'A calming spa day at home': ['lavender', 'eucalyptus', 'sea salt', 'jasmine', 'oatmeal'],
+      'A walk through a blooming garden': ['rose', 'lily', 'peony', 'grass', 'violet']
+    };
+  
+    const targetNotes = activityMap[activity] || [];
+    const notes = candle.scentNotes.toLowerCase();
+    
+    return targetNotes.reduce((score, note) => 
+      notes.includes(note) ? score + 1 : score, 0);
   };
 
   const handleSubmitQuiz = () => {
