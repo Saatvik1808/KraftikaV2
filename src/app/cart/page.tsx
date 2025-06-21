@@ -29,8 +29,7 @@ export default function CartPage() {
   const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const { toast } = useToast();
-  const whatsappCheckoutLink = "https://wa.me/9625901437";
-
+  
   React.useEffect(() => {
     setIsLoading(true);
     if (typeof window !== 'undefined') {
@@ -109,6 +108,17 @@ export default function CartPage() {
   const subtotal = isEmpty ? 0 : cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shippingCost = subtotal > 50 || isEmpty ? 0 : 5.99;
   const total = subtotal + shippingCost;
+
+  const phoneNumber = "6204605797";
+  let whatsappCheckoutLink = `https://wa.me/${phoneNumber}`;
+
+  if (!isEmpty) {
+    const messageBody = `Hello Kraftika,\n\nI would like to place an order for the following items:\n\n${cartItems
+      .map((item) => `- ${item.name} (Qty: ${item.quantity})`)
+      .join("\n")}\n\n*Total Amount: ₹${total.toFixed(2)}*\n\nThank you!`;
+    
+    whatsappCheckoutLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(messageBody)}`;
+  }
 
   return (
     <motion.div
