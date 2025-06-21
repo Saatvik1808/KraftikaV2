@@ -1,10 +1,18 @@
 
+'use client';
+
 import { HeroSection } from '@/components/sections/hero-section';
 import { ProductShowcase } from '@/components/sections/product-showcase';
 import { AboutSection } from '@/components/sections/about-section'; // Import AboutSection
 import { Testimonials } from '@/components/sections/testimonials';
 import { ScentQuizSection } from '@/components/sections/scent-quiz-section';
-import { FloatingWhatsAppButton } from '@/components/floating-whatsapp-button'; // Import the new component
+import dynamic from 'next/dynamic';
+
+// Dynamically import the FloatingWhatsAppButton with SSR disabled for performance
+const FloatingWhatsAppButton = dynamic(
+  () => import('@/components/floating-whatsapp-button').then(mod => mod.FloatingWhatsAppButton),
+  { ssr: false }
+);
 
 export default function Home() {
   return (
