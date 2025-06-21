@@ -45,18 +45,15 @@ export function Navbar() {
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center space-x-2 group" aria-label="Kraftika Homepage">
           <motion.div
-            whileHover={{ rotate: [0, 8, -8, 0], scale: 1.05 }}
+            whileHover={{ rotate: [0, 5, -5, 0], scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300, damping: 10 }}
           >
             <Logo 
-              width={90} 
-              height={16} 
+              width={120} 
+              height={24} 
               className="text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow" 
             />
           </motion.div>
-          <span className="font-heading font-bold text-xl tracking-wide text-primary-foreground transition-colors duration-300 group-hover:text-primary">
-            KRAFTIKA
-          </span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -135,11 +132,8 @@ export function Navbar() {
             <SheetContent side="right" className="w-[280px] p-0 bg-white dark:bg-gray-950">
               <SheetHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-800">
                   <SheetTitle>
-                    <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                      <Logo width={80} height={14} className="text-primary-foreground" />
-                      <span className="font-heading font-bold text-lg tracking-wide text-primary-foreground">
-                        KRAFTIKA
-                      </span>
+                    <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
+                      <Logo width={120} height={24} className="text-primary-foreground" />
                     </Link>
                   </SheetTitle>
               </SheetHeader>
