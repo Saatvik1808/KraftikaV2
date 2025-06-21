@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -7,7 +8,7 @@ import { Menu, X, ShoppingBag, Heart } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "@/components/logo";
 import { usePathname } from 'next/navigation';
 
@@ -33,7 +34,7 @@ export function Navbar() {
     <motion.nav
     className={cn(
       "sticky top-0 z-50 w-full transition-all duration-300",
-      "glassmorphism border-b border-transparent rounded-none !rounded-none", // ← force override
+      "glassmorphism border-b border-transparent",
       isScrolled
         ? "bg-[hsla(0,0%,100%,0.7)] dark:bg-[hsla(220,15%,15%,0.7)] border-[hsl(var(--border)/0.2)] shadow-sm"
         : "bg-white/90 dark:bg-gray-950/90"
@@ -44,16 +45,16 @@ export function Navbar() {
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center space-x-2 group" aria-label="Kraftika Homepage">
           <motion.div
-            whileHover={{ rotate: [0, 8, -8, 0] }}
+            whileHover={{ rotate: [0, 8, -8, 0], scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300, damping: 10 }}
           >
             <Logo 
-              width={60} 
+              width={90} 
               height={16} 
-              className="text-gray-900 dark:text-gray-100 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-300" 
+              className="text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow" 
             />
           </motion.div>
-          <span className="font-heading font-bold text-xl tracking-wide text-gray-900 dark:text-gray-100 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-300">
+          <span className="font-heading font-bold text-xl tracking-wide text-primary-foreground transition-colors duration-300 group-hover:text-primary">
             KRAFTIKA
           </span>
         </Link>
@@ -83,7 +84,7 @@ export function Navbar() {
               >
                 {item.name}
                 <motion.span
-                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-gray-900 dark:bg-gray-100 origin-center"
+                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-primary origin-center"
                   initial={{ scaleX: 0 }}
                   variants={{
                     hover: { scaleX: 1 },
@@ -99,14 +100,14 @@ export function Navbar() {
           {/* Wishlist Icon Link */}
           <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="View Wishlist">
             <Link href="/wishlist">
-              <Heart className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+              <Heart className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
             </Link>
           </Button>
           
           {/* Cart Icon Link */}
           <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Shopping Cart">
             <Link href="/cart">
-              <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+              <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
             </Link>
           </Button>
         </div>
@@ -115,13 +116,13 @@ export function Navbar() {
         <div className="flex items-center md:hidden">
           <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="View Wishlist">
             <Link href="/wishlist">
-              <Heart className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+              <Heart className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
             </Link>
           </Button>
           
           <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Shopping Cart">
             <Link href="/cart">
-              <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+              <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
             </Link>
           </Button>
           
@@ -131,18 +132,17 @@ export function Navbar() {
                 <Menu className="h-6 w-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] p-0 bg-white dark:bg-gray-950 border-l border-gray-200 dark:border-gray-800">
-              <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
-                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                  <Logo width={60} height={14} className="text-gray-900 dark:text-gray-100" />
-                  <span className="font-heading font-bold text-lg tracking-wide text-gray-900 dark:text-gray-100">
-                    KRAFTIKA
-                  </span>
-                </Link>
-                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} aria-label="Close Menu" className="hover:bg-gray-100 dark:hover:bg-gray-800">
-                  <X className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
-                </Button>
-              </div>
+            <SheetContent side="right" className="w-[280px] p-0 bg-white dark:bg-gray-950">
+              <SheetHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-800">
+                  <SheetTitle>
+                    <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
+                      <Logo width={80} height={14} className="text-primary-foreground" />
+                      <span className="font-heading font-bold text-lg tracking-wide text-primary-foreground">
+                        KRAFTIKA
+                      </span>
+                    </Link>
+                  </SheetTitle>
+              </SheetHeader>
 
               <nav className="flex flex-col p-6">
                 {navItems.map((item) => (
@@ -150,7 +150,7 @@ export function Navbar() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "font-sans text-base font-medium transition-colors py-3 px-2 -mx-2",
+                      "font-sans text-base font-medium transition-colors py-3 px-2 -mx-2 rounded-md",
                       pathname === item.href 
                         ? "text-gray-900 dark:text-gray-100 font-semibold bg-gray-100 dark:bg-gray-800" 
                         : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50"
