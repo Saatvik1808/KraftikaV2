@@ -1,3 +1,4 @@
+
 "use client";
 
 import { motion } from "framer-motion";
@@ -31,7 +32,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative w-full overflow-hidden h-screen min-h-[800px] max-h-[1200px] flex items-center">
+    <section className="relative w-full overflow-hidden h-[90vh] min-h-[650px] flex items-center sm:h-screen sm:min-h-[800px] max-h-[1200px]">
       {/* Background Video */}
       <video
         autoPlay
@@ -57,12 +58,12 @@ export function HeroSection() {
           animate="visible"
         >
           {/* Text Content and CTA */}
-          <div className="space-y-8 md:space-y-10 text-left">
+          <div className="space-y-8 md:space-y-10 text-center sm:text-left">
             <motion.h1
               className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl leading-tight font-heading"
               variants={itemVariants}
               style={{ 
-                textShadow: '2px 2px 12px rgba(0,0,0,0.8), 0 0 30px rgba(0,0,0,0.7)',
+                textShadow: '1px 1px 8px rgba(0,0,0,0.7)',
                 lineHeight: '1.1'
               }} 
             >
@@ -82,10 +83,10 @@ export function HeroSection() {
             </motion.h1>
             
             <motion.p
-              className="max-w-lg text-lg text-white/90 md:text-xl lg:text-2xl leading-relaxed font-sans font-light"
+              className="max-w-lg text-lg text-white/90 md:text-xl leading-relaxed font-sans font-light mx-auto sm:mx-0"
               variants={itemVariants}
               style={{ 
-                textShadow: '1px 1px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.6)',
+                textShadow: '1px 1px 8px rgba(0,0,0,0.6)',
                 lineHeight: '1.6'
               }} 
             >
@@ -93,7 +94,7 @@ export function HeroSection() {
             </motion.p>
             
             <motion.div
-              className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-6 justify-start"
+              className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-6 justify-center sm:justify-start items-center"
               variants={itemVariants}
             >
               <motion.div
@@ -106,11 +107,12 @@ export function HeroSection() {
                   scale: 0.98,
                   transition: { duration: 0.1 }
                 }}
+                className="w-full sm:w-auto"
               >
                 <Button 
                   asChild 
                   size="lg" 
-                  className="px-10 py-6 text-lg font-medium bg-gradient-to-r from-[#caa494] to-[#b8d4a8] hover:from-[#b8a08e] hover:to-[#a8c498] shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium bg-gradient-to-r from-[#caa494] to-[#b8d4a8] hover:from-[#b8a08e] hover:to-[#a8c498] shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <Link href="/products">Shop Now</Link>
                 </Button>
@@ -126,18 +128,21 @@ export function HeroSection() {
                   scale: 0.98,
                   transition: { duration: 0.1 }
                 }}
+                className="w-full sm:w-auto"
               >
                 <Button
                   asChild
                   size="lg"
                   variant="outline"
-                  className="px-10 py-6 text-lg font-medium border-2 border-white/90 bg-transparent text-white hover:bg-white/10 hover:text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300" 
+                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium border-2 border-white/90 bg-transparent text-white hover:bg-white/10 hover:text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300" 
                 >
                   <Link href="/about">Explore Kraftika</Link>
                 </Button>
               </motion.div>
             </motion.div>
           </div>
+          {/* This empty div pushes the content to the left on medium screens and up */}
+          <div className="hidden md:block"></div>
         </motion.div>
       </div>
 
