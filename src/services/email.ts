@@ -1,4 +1,7 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export interface Message {
   name: string;
@@ -9,16 +12,18 @@ export interface Message {
 export async function sendEmail({ name, email, message }: Message): Promise<boolean> {
   try {
     const transporter = nodemailer.createTransport({
-      service: "Gmail",
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: false,
       auth: {
-        user: process.env.EMAIL_USER, // your Gmail address
-        pass: process.env.EMAIL_PASS, // app-specific password
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
 
     const mailOptions = {
-      from: `"${name}" <${email}>`,
-      to: process.env.EMAIL_TO || "saatvik.shrivastava@gmail.com",
+      from: `"${name}" <${process.env.SMTP_USER}>`,
+      to: process.env.EMAIL_TO,
       subject: `New message from ${name}`,
       text: message,
       html: `
@@ -29,10 +34,10 @@ export async function sendEmail({ name, email, message }: Message): Promise<bool
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully: %s", info.messageId);
+    console.log("✅ Email sent:", info.messageId);
     return true;
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("❌ Error sending email:", error);
     return false;
   }
 }
