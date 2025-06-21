@@ -107,12 +107,12 @@ export function HeroSection() {
                   scale: 0.98,
                   transition: { duration: 0.1 }
                 }}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-56"
               >
                 <Button 
                   asChild 
                   size="lg" 
-                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium bg-gradient-to-r from-[#caa494] to-[#b8d4a8] hover:from-[#b8a08e] hover:to-[#a8c498] shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full px-10 py-6 text-lg font-medium bg-gradient-to-r from-[#caa494] to-[#b8d4a8] hover:from-[#b8a08e] hover:to-[#a8c498] shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <Link href="/products">Shop Now</Link>
                 </Button>
@@ -128,13 +128,13 @@ export function HeroSection() {
                   scale: 0.98,
                   transition: { duration: 0.1 }
                 }}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-56"
               >
                 <Button
                   asChild
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium border-2 border-white/90 bg-transparent text-white hover:bg-white/10 hover:text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300" 
+                  className="w-full px-10 py-6 text-lg font-medium border-2 border-white/90 bg-transparent text-white hover:bg-white/10 hover:text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300" 
                 >
                   <Link href="/about">Explore Kraftika</Link>
                 </Button>
