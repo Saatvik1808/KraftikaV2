@@ -50,7 +50,7 @@ export function Navbar() {
           >
             <Logo 
               width={120} 
-              height={24} 
+              height={30} 
               className="text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow" 
             />
           </motion.div>
@@ -133,7 +133,7 @@ export function Navbar() {
               <SheetHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-800">
                   <SheetTitle>
                     <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
-                      <Logo width={120} height={24} className="text-primary-foreground" />
+                      <Logo width={120} height={30} className="text-primary-foreground" />
                     </Link>
                   </SheetTitle>
               </SheetHeader>
