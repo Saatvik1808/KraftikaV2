@@ -1,6 +1,7 @@
+
 'use client';
 
-import Image from 'next/image'; // <-- add this import
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Leaf, Droplet, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -98,6 +99,7 @@ export function AboutSection() {
                   alt="Anamika Sinha" 
                   fill
                   style={{ objectFit: 'cover' }}
+                  sizes="128px"
                   priority
                 />
               </div>

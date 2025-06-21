@@ -40,7 +40,7 @@ export function HeroSection() {
         muted
         playsInline
         className="absolute inset-0 w-full h-full object-cover object-top -z-10"
-        poster="/images/products/kraftika-bowl-candle.jpg"
+        poster="/aesV2.jpeg"
       >
         <source src="/KraftikaHero.mp4" type="video/mp4" />
         Your browser does not support the video tag.
