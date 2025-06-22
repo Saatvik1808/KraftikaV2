@@ -17,7 +17,7 @@ export function Logo({  ...props }: LogoProps) {
   return (
     // The className is applied to the wrapping div or directly to Image if no wrapper is needed
     <Image
-      src="/KraftikaV3.png" // Path relative to the 'public' directory
+      src="/KraftikaV2.png" // Path relative to the 'public' directory
       alt="Kraftika Logo"
       {...props} // Pass any remaining div props (like aria-label if needed)
     />
