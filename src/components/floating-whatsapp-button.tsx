@@ -17,7 +17,7 @@ const WhatsAppSvgIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export function FloatingWhatsAppButton() {
-  const phoneNumber = "6204605797"; 
+  const phoneNumber = "9625901437"; 
   const whatsappLink = `https://wa.me/${phoneNumber}`;
 
   return (
