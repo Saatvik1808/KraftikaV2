@@ -55,6 +55,9 @@ export function Navbar() {
               className="text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow" 
             />
           </motion.div>
+          <span className="font-heading font-bold text-xl tracking-wide text-primary-foreground transition-colors duration-300 group-hover:text-primary">
+            KRAFTIKA
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
