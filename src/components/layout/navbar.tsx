@@ -32,11 +32,12 @@ export function Navbar() {
 
   return (
     <motion.nav
+    key={pathname}
     className={cn(
       "sticky top-0 z-50 w-full transition-all duration-300",
       "glassmorphism border-b border-transparent",
       isScrolled
-        ? "bg-[hsla(0,0%,100%,0.7)] dark:bg-[hsla(220,15%,15%,0.7)] border-[hsl(var(--border)/0.2)] shadow-sm"
+        ? "bg-[hsla(0,0%,100%,0.7)] dark:bg-[hsla(220,15%,15%,0.7)] border-[hsl(var(--border)/0.2)] shadow-sm rounded-none"
         : "bg-white/90 dark:bg-gray-950/90"
     )}
     
@@ -49,8 +50,8 @@ export function Navbar() {
             transition={{ type: "spring", stiffness: 300, damping: 10 }}
           >
             <Logo 
-              width={120} 
-              height={30} 
+              width={67} 
+              height={10} 
               className="text-primary-foreground transition-colors duration-300 group-hover:text-primary group-hover:animate-glow" 
             />
           </motion.div>
