@@ -109,7 +109,7 @@ export default function CartPage() {
   const shippingCost = subtotal > 50 || isEmpty ? 0 : 5.99;
   const total = subtotal + shippingCost;
 
-  const phoneNumber = "6204605797";
+  const phoneNumber = "9625901437";
   let whatsappCheckoutLink = `https://wa.me/${phoneNumber}`;
 
   if (!isEmpty) {
