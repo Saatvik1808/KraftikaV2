@@ -30,7 +30,8 @@ type FormState = {
 
 // The function now accepts a plain object instead of FormData
 export async function addProduct(data: z.infer<typeof productSchema>): Promise<FormState> {
-  
+  console.log("addProduct server action started.");
+
   const validatedFields = productSchema.safeParse(data);
   if (!validatedFields.success) {
     console.error("Server-side validation failed:", validatedFields.error.flatten());
@@ -40,19 +41,29 @@ export async function addProduct(data: z.infer<typeof productSchema>): Promise<F
     };
   }
   
+  console.log("Validation successful. Validated data:", { 
+    ...validatedFields.data, 
+    image: `ArrayBuffer of size ${validatedFields.data.image.byteLength}` 
+  });
+  
   const { image, fileName, fileType, ...productData } = validatedFields.data;
 
-  if (!image) {
-    return { success: false, error: "Product image data is required." };
+  if (!image || image.byteLength === 0) {
+    console.error("Image data is missing or empty.");
+    return { success: false, error: "Product image data is required and cannot be empty." };
   }
 
   try {
     // 1. Upload image to Firebase Storage
     const imagePath = `products/${uuidv4()}-${fileName}`;
     const storageRef = ref(storage, imagePath);
-    // The ArrayBuffer is uploaded directly.
+
+    console.log(`Attempting to upload to Firebase Storage at path: ${imagePath} with fileType: ${fileType}`);
     const snapshot = await uploadBytes(storageRef, image, { contentType: fileType });
+    console.log("Image upload successful. Snapshot:", snapshot);
+
     const imageUrl = await getDownloadURL(snapshot.ref);
+    console.log("Successfully got download URL:", imageUrl);
 
     // 2. Add product data (including image URL) to Firestore
     const newProductData = {
@@ -62,11 +73,13 @@ export async function addProduct(data: z.infer<typeof productSchema>): Promise<F
       popularity: 0, // Default popularity
     };
 
+    console.log("Attempting to add document to Firestore with data:", newProductData);
     await addDoc(collection(db, "products"), newProductData);
+    console.log("Successfully added document to Firestore.");
 
     return { success: true, message: "Product added successfully!" };
   } catch (error) {
-    console.error("Error adding product:", error);
+    console.error("❌ Error adding product:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
     return { success: false, error: `Failed to add product: ${errorMessage}` };
   }
