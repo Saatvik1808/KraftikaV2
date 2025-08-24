@@ -64,16 +64,19 @@ export default function AddProductPage() {
 
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
+
+    // Create a FormData object to send to the server action
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+        if (value instanceof File) {
+            formData.append(key, value);
+        } else {
+            formData.append(key, String(value));
+        }
+    });
+
     try {
-      // Convert image to ArrayBuffer before sending
-      const imageBuffer = await data.image.arrayBuffer();
-      
-      const result = await addProduct({
-          ...data,
-          image: imageBuffer,
-          fileName: data.image.name,
-          fileType: data.image.type,
-      });
+      const result = await addProduct(formData);
 
       if (result.success) {
         toast({
