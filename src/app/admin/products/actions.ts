@@ -2,9 +2,8 @@
 "use server";
 
 import { z } from "zod";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { addDoc, collection } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
 
 // This schema is for form validation, the action will receive FormData
@@ -16,13 +15,15 @@ const productSchema = z.object({
   scentNotes: z.string().min(3),
   burnTime: z.string().min(3),
   ingredients: z.string().min(10),
-  image: z.instanceof(File).refine(file => file.size > 0, "Image is required."),
+  image: z.instanceof(File).refine(file => file.size > 0, "Product image is required."),
 });
 
 type FormState = {
   success: boolean;
   message?: string;
   error?: string;
+  imageUrl?: string;
+  fileName?: string;
 };
 
 // The function now accepts FormData
@@ -44,31 +45,38 @@ export async function addProduct(formData: FormData): Promise<FormState> {
   const { image, ...productData } = validatedFields.data;
   const imageFile = image as File;
 
-  console.log("Validation successful. Processing file:", imageFile.name);
-
-  if (!imageFile || imageFile.size === 0) {
-    console.error("Image file is missing or empty.");
-    return { success: false, error: "Product image is required." };
-  }
+  console.log("Validation successful. Processing image:", imageFile.name);
 
   try {
-    // 1. Upload image to Firebase Storage
-    const imagePath = `products/${uuidv4()}-${imageFile.name}`;
-    const storageRef = ref(storage, imagePath);
-
-    console.log(`Attempting to upload to Firebase Storage at path: ${imagePath}`);
-    // Convert File to ArrayBuffer for uploadBytes
-    const imageBuffer = await imageFile.arrayBuffer();
-    const snapshot = await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
-    console.log("Image upload successful. Snapshot:", snapshot);
-
-    const imageUrl = await getDownloadURL(snapshot.ref);
-    console.log("Successfully got download URL:", imageUrl);
-
-    // 2. Add product data (including image URL) to Firestore
+    // 1. Upload image to local public folder via API
+    const uploadFormData = new FormData();
+    uploadFormData.append('image', imageFile);
+    
+    console.log("Uploading image to local public folder...");
+    
+    const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:9002'}/api/upload`, {
+      method: 'POST',
+      body: uploadFormData,
+    });
+    
+    if (!uploadResponse.ok) {
+      const uploadError = await uploadResponse.json();
+      throw new Error(`Image upload failed: ${uploadError.error}`);
+    }
+    
+    const uploadResult = await uploadResponse.json();
+    console.log("Image upload successful:", uploadResult);
+    
+    // 2. Generate a user-friendly image path
+    const originalName = imageFile.name.replace(/\s+/g, '-').toLowerCase();
+    const suggestedPublicPath = `/uploads/${uploadResult.fileName}`;
+    
+    // 3. Add product data (including image URL) to Firestore
     const newProductData = {
       ...productData,
-      imageUrl,
+      imageUrl: suggestedPublicPath, // Path to image in public folder
+      originalImageName: originalName, // Keep original filename for reference
+      uploadedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       popularity: 0, // Default popularity
     };
@@ -77,7 +85,12 @@ export async function addProduct(formData: FormData): Promise<FormState> {
     await addDoc(collection(db, "products"), newProductData);
     console.log("Successfully added document to Firestore.");
 
-    return { success: true, message: "Product added successfully!" };
+    return { 
+      success: true, 
+      message: "Product added successfully! Image saved to public folder.",
+      imageUrl: suggestedPublicPath,
+      fileName: uploadResult.fileName
+    };
   } catch (error) {
     console.error("❌ Error adding product:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";

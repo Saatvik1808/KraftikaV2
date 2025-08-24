@@ -11,10 +11,7 @@ import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
 import { Wand2, RotateCcw, CheckCircle, Sparkles, ArrowLeft, ArrowRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import allProductsData from "@/data/products.json"; // Import the centralized product data
-
-// Sample products for recommendation - now taken from the centralized data
-const sampleCandles: Candle[] = allProductsData.filter(c => ['1', '2', '3', '4', '6'].includes(c.id));
+import { getProducts } from "@/services/products";
 
 
 const quizQuestions = [
@@ -74,11 +71,33 @@ const itemVariants = {
 
 
 export default function ScentQuizPage() {
+  const [allProducts, setAllProducts] = React.useState<Candle[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [sampleCandles, setSampleCandles] = React.useState<Candle[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
   const [answers, setAnswers] = React.useState<Answers>({});
   const [showResults, setShowResults] = React.useState(false);
   const [recommendations, setRecommendations] = React.useState<Candle[]>([]);
   const [slideDirection, setSlideDirection] = React.useState<'left' | 'right'>('right');
+
+  // Fetch products from Firestore
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const products = await getProducts();
+        setAllProducts(products);
+        // Set sample candles for recommendations
+        setSampleCandles(products.slice(0, 5));
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
 
   const handleAnswerChange = (questionId: string, value: string) => {

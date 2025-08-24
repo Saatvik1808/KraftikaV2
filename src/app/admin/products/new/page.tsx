@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -19,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Info } from "lucide-react";
 import { addProduct } from "../actions";
 import {
   Select,
@@ -28,7 +27,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ImageUpload } from "@/components/admin/image-upload";
+import { Label } from "@/components/ui/label";
+import { getProductCategories } from "@/services/products";
 
 const productSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -43,10 +45,13 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-const scentCategories = ["Fresh", "Woody", "Floral", "Sweet", "Aesthetic", "Wax sachet", "Gift hampers", "Metal Jar candles", "Glass Jar candles", "Wooden Bowl candles"];
-
 export default function AddProductPage() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [uploadResult, setUploadResult] = React.useState<{
+    imageUrl?: string;
+    fileName?: string;
+  } | null>(null);
+  const [scentCategories, setScentCategories] = React.useState<string[]>(["Citrus", "Floral", "Sweet", "Fresh", "Fruity"]);
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<ProductFormData>({
@@ -62,8 +67,24 @@ export default function AddProductPage() {
     },
   });
 
+  // Fetch categories on component mount
+  React.useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getProductCategories();
+        setScentCategories(categories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        // Keep default categories if fetch fails
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
+    setUploadResult(null);
 
     // Create a FormData object to send to the server action
     const formData = new FormData();
@@ -79,11 +100,20 @@ export default function AddProductPage() {
       const result = await addProduct(formData);
 
       if (result.success) {
+        setUploadResult({
+          imageUrl: result.imageUrl,
+          fileName: result.fileName
+        });
+        
         toast({
           title: "Product Added!",
-          description: `"${data.name}" has been successfully added.`,
+          description: `"${data.name}" has been successfully added with image.`,
         });
-        router.push("/admin/products");
+        
+        // Don't redirect immediately, show the success message
+        setTimeout(() => {
+          router.push("/admin/products");
+        }, 5000);
       } else {
         toast({
           title: "Error",
@@ -103,9 +133,24 @@ export default function AddProductPage() {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Add New Product</h1>
-      <Card>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Add New Product</h1>
+        <p className="text-muted-foreground mt-1">
+          Create a new product for your candle collection.
+        </p>
+      </div>
+
+      {/* Image Upload Instructions */}
+      <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+        <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <AlertDescription className="text-blue-800 dark:text-blue-200">
+          <strong>Free Image Upload:</strong> Images are uploaded directly to your public folder using our local API. 
+          No external storage costs, no Firebase Storage fees!
+        </AlertDescription>
+      </Alert>
+
+      <Card className="hover:shadow-md transition-shadow">
         <CardHeader>
           <CardTitle>Product Details</CardTitle>
         </CardHeader>
@@ -131,7 +176,7 @@ export default function AddProductPage() {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price (INR)</FormLabel>
+                      <FormLabel>Price (₹)</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="e.g., 450" {...field} />
                       </FormControl>
@@ -154,8 +199,10 @@ export default function AddProductPage() {
                         </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                        {scentCategories.map(category => (
-                            <SelectItem key={category} value={category}>{category}</SelectItem>
+                        {scentCategories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
                         ))}
                         </SelectContent>
                     </Select>
@@ -163,7 +210,6 @@ export default function AddProductPage() {
                     </FormItem>
                 )}
                 />
-
 
               <FormField
                 control={form.control}
@@ -186,7 +232,7 @@ export default function AddProductPage() {
                   <FormItem>
                     <FormLabel>Scent Notes</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Top: Bergamot | Middle: ... | Base: ..." {...field} />
+                      <Input placeholder="e.g., Vanilla, Lavender, Citrus" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -222,24 +268,18 @@ export default function AddProductPage() {
                 />
               </div>
 
+              {/* Image Upload Section */}
               <FormField
                 control={form.control}
                 name="image"
                 render={({ field: { onChange, value, ...rest } }) => (
                   <FormItem>
-                    <FormLabel>Product Image</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="file" 
-                        accept="image/png, image/jpeg, image/webp"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            onChange(file);
-                          }
-                        }}
-                        {...rest}
-                       />
+                      <ImageUpload
+                        value={value}
+                        onChange={onChange}
+                        required
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -258,6 +298,58 @@ export default function AddProductPage() {
           </Form>
         </CardContent>
       </Card>
+
+      {/* Upload Result Instructions */}
+      {uploadResult && (
+        <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+          <CardHeader>
+            <CardTitle className="text-green-800 dark:text-green-200">Product Added Successfully! 🎉</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <h4 className="font-medium text-green-800 dark:text-green-200">Image Upload Complete!</h4>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                Your image has been automatically saved to the public folder and is ready to use.
+              </p>
+            </div>
+            
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-green-800 dark:text-green-200">Image Path:</Label>
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded border border-green-200 dark:border-green-700">
+                  <code className="text-sm text-green-800 dark:text-green-200 break-all">
+                    {uploadResult.imageUrl}
+                  </code>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-green-800 dark:text-green-200">File Name:</Label>
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded border border-green-200 dark:border-green-700">
+                  <code className="text-sm text-green-800 dark:text-green-200 break-all">
+                    {uploadResult.fileName}
+                  </code>
+                </div>
+              </div>
+            </div>
+            
+            <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+              <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <AlertDescription className="text-blue-800 dark:text-blue-200">
+                <strong>Success:</strong> Your image is now accessible at {uploadResult.imageUrl} and will be displayed on your website immediately.
+              </AlertDescription>
+            </Alert>
+            
+            <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+              <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <AlertDescription className="text-amber-800 dark:text-amber-200">
+                <strong>Important:</strong> You'll be redirected to the products page in 5 seconds. 
+                Your product is now live with the uploaded image!
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
