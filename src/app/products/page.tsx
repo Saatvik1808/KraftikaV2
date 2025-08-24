@@ -11,9 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ListFilter, X, Info } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import allProductsData from "@/data/products.json";
-
-const allProducts: Candle[] = allProductsData;
+import { getProducts } from "@/services/products";
 
 const scentCategories = ["All", "Citrus", "Floral", "Sweet", "Fresh", "Fruity"];
 const sortOptions = [
@@ -49,10 +47,29 @@ const itemVariants = {
 };
 
 export default function ProductsPage() {
-  const [filteredProducts, setFilteredProducts] = React.useState<Candle[]>(allProducts);
+  const [allProducts, setAllProducts] = React.useState<Candle[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [filteredProducts, setFilteredProducts] = React.useState<Candle[]>([]);
   const [selectedScent, setSelectedScent] = React.useState<string>("All");
   const [sortBy, setSortBy] = React.useState<string>("popularity");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = React.useState(false);
+
+  // Fetch products from Firestore
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const products = await getProducts();
+        setAllProducts(products);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   React.useEffect(() => {
     let products = [...allProducts];
@@ -71,7 +88,7 @@ export default function ProductsPage() {
     }
 
     setFilteredProducts(products);
-  }, [selectedScent, sortBy]);
+  }, [selectedScent, sortBy, allProducts]);
 
   const FilterControls = () => (
     <>
@@ -153,7 +170,7 @@ export default function ProductsPage() {
         className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
       >
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          Showing {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}
+          {isLoading ? "Loading..." : `Showing ${filteredProducts.length} ${filteredProducts.length === 1 ? "product" : "products"}`}
         </span>
         
         <div className="flex gap-3 w-full sm:w-auto">
@@ -221,7 +238,21 @@ export default function ProductsPage() {
           animate="visible"
         >
           <AnimatePresence mode="wait">
-            {filteredProducts.length > 0 ? (
+            {isLoading ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="col-span-full flex flex-col items-center justify-center text-center py-16 space-y-4"
+              >
+                <div className="p-4 rounded-full bg-gray-100 dark:bg-gray-800">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white">Loading products...</h3>
+                <p className="text-gray-600 dark:text-gray-400">Please wait while we fetch your favorite scents</p>
+              </motion.div>
+            ) : filteredProducts.length > 0 ? (
               filteredProducts.map((product, index) => (
                 <motion.div 
                   key={product.id} 

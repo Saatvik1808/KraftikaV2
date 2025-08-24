@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import allProductsData from "@/data/products.json"; // Import the centralized product data
+import { getProducts } from "@/services/products";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,11 +20,28 @@ const containerVariants = {
 };
 
 export function ProductShowcase() {
-  // Use the centralized product data
-  const allProducts: Candle[] = allProductsData;
+  const [allProducts, setAllProducts] = React.useState<Candle[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const featuredProducts = allProducts.slice(0, 4); // Show first 4
 
   const [sortBy, setSortBy] = React.useState<string>("popularity");
+
+  // Fetch products from Firestore
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const products = await getProducts();
+        setAllProducts(products);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <section className="w-full py-16 md:py-24 bg-gradient-peach relative"> 
@@ -84,9 +101,24 @@ export function ProductShowcase() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }} 
         >
-          {featuredProducts.map((product) => (
-             <ProductCard key={product.id} product={product} priority={true} /> // Set priority to true for all featured products
-          ))}
+          {isLoading ? (
+            // Loading skeleton
+            Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="bg-gray-200 dark:bg-gray-800 rounded-lg h-64 mb-4"></div>
+                <div className="bg-gray-200 dark:bg-gray-800 rounded h-4 mb-2"></div>
+                <div className="bg-gray-200 dark:bg-gray-800 rounded h-4 w-2/3"></div>
+              </div>
+            ))
+          ) : featuredProducts.length > 0 ? (
+            featuredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} priority={true} />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8 text-muted-foreground">
+              No products available at the moment.
+            </div>
+          )}
         </motion.div>
 
         <motion.div

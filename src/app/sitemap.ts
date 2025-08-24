@@ -1,9 +1,9 @@
 
 import { MetadataRoute } from 'next';
-import allProductsData from '@/data/products.json';
+import { db } from '@/lib/firebase-admin';
 import type { Candle } from '@/types/candle';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Use NEXT_PUBLIC_SITE_URL which should be set in your environment variables.
   // Fallback to a generic production URL if not set.
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com';
@@ -23,13 +23,40 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteUrl}/shipping-returns`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
   ];
 
-  // Dynamic product routes from JSON data
-  const productRoutes: MetadataRoute.Sitemap = (allProductsData as Candle[]).map((product) => ({
-    url: `${siteUrl}/products/${product.id}`,
-    lastModified: new Date(), // In a real app, you might use a 'product.updatedAt' field
-    changeFrequency: 'weekly',
-    priority: 0.9,
-  }));
+  try {
+    // Fetch products from Firestore
+    const productsSnapshot = await db.collection('products').get();
+    const products: Candle[] = [];
+    
+    productsSnapshot.forEach((doc) => {
+      const data = doc.data();
+      products.push({
+        id: doc.id,
+        name: data.name || '',
+        description: data.description || '',
+        price: Number(data.price) || 0,
+        imageUrl: data.imageUrl || '',
+        scentCategory: data.scentCategory || '',
+        scentNotes: data.scentNotes || '',
+        burnTime: data.burnTime || '',
+        ingredients: data.ingredients || '',
+        popularity: Number(data.popularity) || 0,
+        createdAt: data.createdAt || new Date().toISOString(),
+      });
+    });
 
-  return [...staticRoutes, ...productRoutes];
+    // Dynamic product routes from Firestore data
+    const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
+      url: `${siteUrl}/products/${product.id}`,
+      lastModified: new Date(), // In a real app, you might use a 'product.updatedAt' field
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    }));
+
+    return [...staticRoutes, ...productRoutes];
+  } catch (error) {
+    console.error('Error fetching products for sitemap:', error);
+    // Return only static routes if there's an error
+    return staticRoutes;
+  }
 }
