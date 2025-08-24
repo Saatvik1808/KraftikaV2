@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarContent, SidebarHeader, SidebarFooter, SidebarProvider } from "@/components/ui/sidebar";
-import { LogOut, ShoppingBag, LayoutDashboard } from "lucide-react";
+import { LogOut, ShoppingBag, LayoutDashboard, Tags } from "lucide-react";
 import { Logo } from "@/components/logo";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -58,8 +58,8 @@ export default function AdminLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
-        <Sidebar>
+      <div className="flex min-h-screen bg-background">
+        <Sidebar className="border-r border-border/50 bg-card/50 backdrop-blur-sm">
           <SidebarHeader>
               <Link href="/" className="flex items-center" >
                   <Logo width={120} height={30} className="text-primary-foreground" />
@@ -83,6 +83,14 @@ export default function AdminLayout({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/categories')}>
+                  <Link href="/admin/categories">
+                    <Tags />
+                    Categories
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
@@ -96,8 +104,10 @@ export default function AdminLayout({
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <main className="flex-1 p-8 bg-muted/20">
-          {children}
+        <main className="flex-1 p-6 md:p-8 bg-gradient-to-br from-background via-muted/10 to-muted/20 min-h-screen">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </SidebarProvider>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { ShoppingBag, AlertTriangle, Trash2 } from "lucide-react";
+import { ShoppingBag, AlertTriangle, Trash2, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import * as React from "react";
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
-import allProductsData from "@/data/products.json"; // Import the centralized product data
+import { getProducts } from "@/services/products";
 
 // Define Candle and CartItem types consistent with other parts of the app
 interface CartItem extends Candle {
@@ -23,12 +23,25 @@ interface CartStorageItem {
   quantity: number;
 }
 
-const allProducts: Candle[] = allProductsData;
-
 export default function CartPage() {
+  const [allProducts, setAllProducts] = React.useState<Candle[]>([]);
   const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const { toast } = useToast();
+  
+  // Fetch products from Firestore
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const products = await getProducts();
+        setAllProducts(products);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
   
   React.useEffect(() => {
     setIsLoading(true);
@@ -166,14 +179,20 @@ export default function CartPage() {
               >
                 <Card className="flex flex-col sm:flex-row items-center gap-4 p-4 glassmorphism border border-[hsl(var(--border)/0.15)]">
                   <div className="relative h-24 w-20 sm:h-28 sm:w-24 rounded-md overflow-hidden shrink-0">
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.name}
-                      fill
-                      sizes="(max-width: 640px) 80px, 96px"
-                      className="object-cover"
-                      data-ai-hint="handcrafted candle"
-                    />
+                    {item.imageUrl ? (
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.name}
+                        fill
+                        sizes="(max-width: 640px) 80px, 96px"
+                        className="object-cover"
+                        data-ai-hint="handcrafted candle"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    )}
                   </div>
                   <div className="flex-grow text-center sm:text-left">
                     <h3 className="text-lg font-semibold text-foreground">{item.name}</h3>
