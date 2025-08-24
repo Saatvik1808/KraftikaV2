@@ -65,16 +65,15 @@ export default function AddProductPage() {
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        if (value instanceof File) {
-            formData.append(key, value);
-        } else {
-            formData.append(key, String(value));
-        }
-      });
+      // Convert image to ArrayBuffer before sending
+      const imageBuffer = await data.image.arrayBuffer();
       
-      const result = await addProduct(formData);
+      const result = await addProduct({
+          ...data,
+          image: imageBuffer,
+          fileName: data.image.name,
+          fileType: data.image.type,
+      });
 
       if (result.success) {
         toast({
@@ -92,7 +91,7 @@ export default function AddProductPage() {
     } catch (error) {
       toast({
         title: "Submission Error",
-        description: "An unexpected error occurred.",
+        description: "An unexpected error occurred while processing the form.",
         variant: "destructive",
       });
     } finally {
