@@ -1,29 +1,21 @@
-
-// Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
-// IMPORTANT: Do not remove or modify this object, it is fetched from the server.
 const firebaseConfig = {
-  apiKey: "AIzaSyC5fUKR-lXoNxA3Z8SjpPOaYIGcQ7pDa4k",
-  authDomain: "kraftika-scents.firebaseapp.com",
-  projectId: "kraftika-scents",
-  storageBucket: "kraftika-scents.appspot.com",
-  messagingSenderId: "185008785004",
-  appId: "1:185008785004:web:46c12991e51a8cb8fa7a49"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
 
-
-// Initialize Firebase
+// Initialize Firebase only once
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
 
-// Explicitly pass the storage bucket URL to getStorage
-const storage = getStorage(app, firebaseConfig.storageBucket);
-
-
-export { app, auth, db, storage };
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export default app;

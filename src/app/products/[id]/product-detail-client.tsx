@@ -14,7 +14,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
 import type { Review } from "@/types/review";
-import { ShoppingCart, Heart, Share2, Star, MessageSquareText } from "lucide-react";
+import { ShoppingCart, Heart, Share2, Star, MessageSquareText, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -138,15 +138,21 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
                   {[product.imageUrl, product.imageUrl, product.imageUrl, product.imageUrl].map((imgUrl, index) => (
                       <CarouselItem key={index}>
                       <div className="aspect-[4/5] relative">
-                          <Image
-                          src={imgUrl}
-                          alt={`${product.name} - view ${index + 1}`}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                          className="object-cover rounded-md"
-                          priority={index === 0} 
-                          data-ai-hint={`handcrafted candle ${index > 0 ? 'detail view' : 'main view'}`.trim()}
-                          />
+                          {imgUrl ? (
+                            <Image
+                              src={imgUrl}
+                              alt={`${product.name} - view ${index + 1}`}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                              className="object-cover rounded-md"
+                              priority={index === 0} 
+                              data-ai-hint={`handcrafted candle ${index > 0 ? 'detail view' : 'main view'}`.trim()}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-muted flex items-center justify-center rounded-md">
+                              <ImageIcon className="h-16 w-16 text-muted-foreground" />
+                            </div>
+                          )}
                       </div>
                       </CarouselItem>
                   ))}

@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    serverComponentsExternalPackages: ['multer'],
+  },
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
   images: {
     remotePatterns: [
       {

@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Candle } from "@/types/candle";
-import { ShoppingCart, Eye, Star } from "lucide-react";
+import { ShoppingCart, Eye, Star, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -127,14 +127,20 @@ export function ProductCard({
           variants={imageVariants} 
           className="h-full w-full"
         >
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
-            className="object-cover transition-transform duration-500 ease-out"
-            priority={priority}
-          />
+          {product.imageUrl ? (
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
+              className="object-cover transition-transform duration-500 ease-out"
+              priority={priority}
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+            </div>
+          )}
         </motion.div>
 
         {/* Badges */}

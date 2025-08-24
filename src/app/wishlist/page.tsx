@@ -9,9 +9,7 @@ import type { Candle } from "@/types/candle";
 import { Button } from "@/components/ui/button";
 import { HeartCrack, ShoppingBag } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import allProductsData from "@/data/products.json"; // Import the centralized product data
-
-const allProducts: Candle[] = allProductsData;
+import { getProducts } from "@/services/products";
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -28,8 +26,23 @@ const itemVariants = {
 
 
 export default function WishlistPage() {
+  const [allProducts, setAllProducts] = React.useState<Candle[]>([]);
   const [wishlistItems, setWishlistItems] = React.useState<Candle[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+
+  // Fetch products from Firestore
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const products = await getProducts();
+        setAllProducts(products);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {

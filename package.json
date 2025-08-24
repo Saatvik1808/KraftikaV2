@@ -9,7 +9,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:seed": "tsx src/lib/seed-db.ts",
+    "firestore:seed": "tsx src/scripts/seed-firestore.ts",
+    "categories:seed": "tsx src/scripts/seed-categories.ts",
+    "download:images": "tsx src/scripts/download-images.ts",
+    "test:storage": "tsx src/scripts/test-firebase-storage.ts"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.0.4",
@@ -38,14 +43,17 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@tanstack-query-firebase/react": "^1.0.5",
     "@tanstack/react-query": "^5.66.0",
+    "@types/multer": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.1.7",
     "firebase": "^11.3.0",
+    "firebase-admin": "^13.4.0",
     "framer-motion": "^11.3.17",
     "genkit": "^1.0.4",
     "lucide-react": "^0.475.0",
+    "multer": "^2.0.2",
     "next": "15.2.3",
     "nodemailer": "^7.0.3",
     "patch-package": "^8.0.0",
@@ -68,6 +76,7 @@
     "genkit-cli": "^1.0.4",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.20.5",
     "typescript": "^5"
   }
 }
