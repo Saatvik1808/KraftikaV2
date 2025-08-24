@@ -7,6 +7,8 @@ import { addDoc, collection } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
 
+// The schema now expects the image to be an ArrayBuffer-like object (any)
+// and includes fileName and fileType.
 const productSchema = z.object({
   name: z.string().min(2),
   scentCategory: z.string().min(1),
@@ -15,6 +17,9 @@ const productSchema = z.object({
   scentNotes: z.string().min(3),
   burnTime: z.string().min(3),
   ingredients: z.string().min(10),
+  image: z.any(), // We'll pass an ArrayBuffer here
+  fileName: z.string().min(1),
+  fileType: z.string().min(1),
 });
 
 type FormState = {
@@ -23,10 +28,10 @@ type FormState = {
   error?: string;
 };
 
-export async function addProduct(formData: FormData): Promise<FormState> {
-  const rawData = Object.fromEntries(formData.entries());
-
-  const validatedFields = productSchema.safeParse(rawData);
+// The function now accepts a plain object instead of FormData
+export async function addProduct(data: z.infer<typeof productSchema>): Promise<FormState> {
+  
+  const validatedFields = productSchema.safeParse(data);
   if (!validatedFields.success) {
     console.error("Server-side validation failed:", validatedFields.error.flatten());
     return {
@@ -34,22 +39,24 @@ export async function addProduct(formData: FormData): Promise<FormState> {
       error: "Invalid product data provided.",
     };
   }
+  
+  const { image, fileName, fileType, ...productData } = validatedFields.data;
 
-  const imageFile = formData.get("image") as File;
-  if (!imageFile || imageFile.size === 0) {
-    return { success: false, error: "Product image is required." };
+  if (!image) {
+    return { success: false, error: "Product image data is required." };
   }
 
   try {
     // 1. Upload image to Firebase Storage
-    const imagePath = `products/${uuidv4()}-${imageFile.name}`;
+    const imagePath = `products/${uuidv4()}-${fileName}`;
     const storageRef = ref(storage, imagePath);
-    const snapshot = await uploadBytes(storageRef, imageFile);
+    // The ArrayBuffer is uploaded directly.
+    const snapshot = await uploadBytes(storageRef, image, { contentType: fileType });
     const imageUrl = await getDownloadURL(snapshot.ref);
 
     // 2. Add product data (including image URL) to Firestore
     const newProductData = {
-      ...validatedFields.data,
+      ...productData,
       imageUrl,
       createdAt: new Date().toISOString(),
       popularity: 0, // Default popularity
