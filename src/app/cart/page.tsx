@@ -62,7 +62,7 @@ export default function CartPage() {
         }).filter(item => item !== null) as CartItem[];
         
         setCartItems(hydratedCartItems);
-      } catch (error) => {
+      } catch (error) {
         console.error("Failed to load cart from localStorage", error);
         setCartItems([]); // Fallback to empty cart on error
         toast({ title: "Error", description: "Could not load your cart.", variant: "destructive" });
