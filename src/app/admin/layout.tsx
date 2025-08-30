@@ -169,7 +169,7 @@ function AdminRootLayout({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen flex-col bg-background">
         <AdminNavbar />
         <main className="flex-1 p-6 md:p-8">
-            <div className="container max-w-screen-2xl">
+            <div className="container max-w-screen-2xl mx-auto">
                  {children}
             </div>
         </main>
