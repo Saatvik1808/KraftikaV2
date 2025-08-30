@@ -1,4 +1,3 @@
-
 "use client";
 
 import { ShoppingBag, AlertTriangle, Trash2, Image as ImageIcon } from "lucide-react";
@@ -130,17 +129,6 @@ export default function CartPage() {
   const shippingCost = subtotal > 50 || isEmpty ? 0 : 5.99;
   const total = subtotal + shippingCost;
 
-  const phoneNumber = "9625901437";
-  let whatsappCheckoutLink = `https://wa.me/${phoneNumber}`;
-
-  if (!isEmpty) {
-    const messageBody = `Hello Kraftika,\n\nI would like to place an order for the following items:\n\n${cartItems
-      .map((item) => `- ${item.name} (Qty: ${item.quantity})`)
-      .join("\n")}\n\n*Total Amount: ₹${total.toFixed(2)}*\n\nThank you!`;
-    
-    whatsappCheckoutLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(messageBody)}`;
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -247,7 +235,7 @@ export default function CartPage() {
               </CardContent>
               <CardFooter className="p-0 mt-6">
                 <Button asChild size="lg" className="w-full btn-primary">
-                  <Link href={whatsappCheckoutLink} target="_blank" rel="noopener noreferrer">
+                  <Link href="/payment">
                     Proceed to Checkout
                   </Link>
                 </Button>
