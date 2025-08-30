@@ -29,23 +29,26 @@ export default function CartPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const { toast } = useToast();
   
-  // Fetch products from Firestore
+  // Fetch all products from Firestore on component mount
   React.useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchAllProducts = async () => {
       try {
+        setIsLoading(true);
         const products = await getProducts();
         setAllProducts(products);
       } catch (error) {
         console.error('Error fetching products:', error);
+        toast({ title: "Error", description: "Could not load product details.", variant: "destructive" });
       }
     };
 
-    fetchProducts();
-  }, []);
+    fetchAllProducts();
+  }, [toast]);
   
+  // Hydrate cart items from localStorage once allProducts are available
   React.useEffect(() => {
-    setIsLoading(true);
-    if (typeof window !== 'undefined') {
+    // Only proceed if we have products to look up
+    if (allProducts.length > 0) {
       try {
         const cartString = localStorage.getItem('kraftikaCart');
         const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
@@ -59,13 +62,18 @@ export default function CartPage() {
         }).filter(item => item !== null) as CartItem[];
         
         setCartItems(hydratedCartItems);
-      } catch (error) {
+      } catch (error) => {
         console.error("Failed to load cart from localStorage", error);
         setCartItems([]); // Fallback to empty cart on error
+        toast({ title: "Error", description: "Could not load your cart.", variant: "destructive" });
+      } finally {
+        setIsLoading(false);
       }
+    } else if (!isLoading) { // Handle case where there are no products at all
+        setIsLoading(false);
     }
-    setIsLoading(false);
-  }, []);
+  }, [allProducts, isLoading, toast]);
+
 
   const handleDecreaseQuantityOrRemove = (itemId: string) => {
     let itemUpdated = false;
