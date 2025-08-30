@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Save, Loader2, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
-import { getProduct, updateProductWithImage, getProductCategories } from "@/services/products";
+import { getProduct, updateProduct, updateProductWithImage, getProductCategories } from "@/services/products";
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/admin/image-upload";
@@ -134,7 +134,7 @@ export default function EditProductPage({ params }: PageProps) {
     try {
       setIsSaving(true);
       
-      const updatedProductData = {
+      const updatedProductData: Partial<Candle> = {
         ...product,
         name: formData.name,
         description: formData.description,
