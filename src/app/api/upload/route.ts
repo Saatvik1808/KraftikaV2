@@ -1,76 +1,222 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { db } from "@/lib/firebase";
+import { collection, getDocs, doc, getDoc, query, where, updateDoc, deleteDoc } from "firebase/firestore";
+import type { Candle } from "@/types/candle";
+import { getActiveCategories } from "./categories";
+import { v4 as uuidv4 } from "uuid";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
 
-export async function POST(request: NextRequest) {
+// Helper function to format image URL for public folder
+function formatImageUrl(imageUrl: string): string {
+  // If it's already a public folder path, return as is
+  if (imageUrl.startsWith('/')) {
+    return imageUrl;
+  }
+  
+  // If it's a Firebase Storage URL, we'll use a placeholder for now
+  // In the future, you can download these to public folder
+  if (imageUrl.includes('firebasestorage.googleapis.com')) {
+    return '/placeholder-image.jpg'; // You can add a placeholder image
+  }
+  
+  // Default to the provided URL
+  return imageUrl;
+}
+
+export async function getProducts(): Promise<Candle[]> {
   try {
-    const formData = await request.formData();
-    const file = formData.get('image') as File;
+    const querySnapshot = await getDocs(collection(db, "products"));
+    const products: Candle[] = [];
     
-    if (!file) {
-      return NextResponse.json(
-        { error: 'No image file provided' },
-        { status: 400 }
-      );
-    }
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json(
-        { error: 'File must be an image' },
-        { status: 400 }
-      );
-    }
-
-    // Validate file size (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: 'File size must be less than 10MB' },
-        { status: 400 }
-      );
-    }
-
-    // Generate unique filename
-    const fileExtension = file.name.split('.').pop();
-    const uniqueId = uuidv4();
-    const fileName = `${uniqueId}.${fileExtension}`;
-    
-    // Create path to public folder
-    const publicDir = join(process.cwd(), 'public');
-    const uploadDir = join(publicDir, 'uploads');
-    const filePath = join(uploadDir, fileName);
-    
-    // Ensure uploads directory exists
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (error) {
-      // Directory already exists
-    }
-
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    
-    // Write file to public/uploads folder
-    await writeFile(filePath, buffer);
-    
-    // Return success with file path
-    const publicPath = `/uploads/${fileName}`;
-    
-    return NextResponse.json({
-      success: true,
-      fileName: fileName,
-      publicPath: publicPath,
-      fileSize: file.size,
-      message: 'Image uploaded successfully to public folder'
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      products.push({
+        id: doc.id,
+        name: data.name,
+        scentCategory: data.scentCategory,
+        price: data.price,
+        description: data.description,
+        scentNotes: data.scentNotes,
+        burnTime: data.burnTime,
+        ingredients: data.ingredients,
+        imageUrl: formatImageUrl(data.imageUrl || ''),
+        popularity: data.popularity || 0,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      });
     });
-
+    
+    return products;
   } catch (error) {
-    console.error('Error uploading file:', error);
-    return NextResponse.json(
-      { error: 'Failed to upload file' },
-      { status: 500 }
+    console.error("Error fetching products:", error);
+    return [];
+  }
+}
+
+export async function getProduct(id: string): Promise<Candle | null> {
+  try {
+    const docRef = doc(db, "products", id);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      return {
+        id: docSnap.id,
+        name: data.name,
+        scentCategory: data.scentCategory,
+        price: data.price,
+        description: data.description,
+        scentNotes: data.scentNotes,
+        burnTime: data.burnTime,
+        ingredients: data.ingredients,
+        imageUrl: formatImageUrl(data.imageUrl || ''),
+        popularity: data.popularity || 0,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    return null;
+  }
+}
+
+export async function getRelatedProducts(category: string, excludeId: string): Promise<Candle[]> {
+  try {
+    const q = query(
+      collection(db, "products"),
+      where("scentCategory", "==", category)
     );
+    
+    const querySnapshot = await getDocs(q);
+    const products: Candle[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      if (doc.id !== excludeId) {
+        const data = doc.data();
+        products.push({
+          id: doc.id,
+          name: data.name,
+          scentCategory: data.scentCategory,
+          price: data.price,
+          description: data.description,
+          scentNotes: data.scentNotes,
+          burnTime: data.burnTime,
+          ingredients: data.ingredients,
+          imageUrl: formatImageUrl(data.imageUrl || ''),
+          popularity: data.popularity || 0,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+        });
+      }
+    });
+    
+    // Return up to 4 related products
+    return products.slice(0, 4);
+  } catch (error) {
+    console.error("Error fetching related products:", error);
+    return [];
+  }
+}
+
+export async function getProductsByCategory(category: string): Promise<Candle[]> {
+  try {
+    const products = await getProducts();
+    if (category === 'All') return products;
+    return products.filter(product => product.scentCategory === category);
+  } catch (error) {
+    console.error('Error fetching products by category:', error);
+    return [];
+  }
+}
+
+export async function updateProduct(id: string, productData: Partial<Candle>): Promise<boolean> {
+  try {
+    const productRef = doc(db, 'products', id);
+    
+    // Remove the id field if it exists in the data
+    const { id: _, ...updateData } = productData;
+    
+    await updateDoc(productRef, {
+      ...updateData,
+      updatedAt: new Date().toISOString()
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return false;
+  }
+}
+
+export async function updateProductWithImage(id: string, productData: Partial<Candle>, imageFile?: File): Promise<{
+  success: boolean;
+  imageUrl?: string;
+  fileName?: string;
+}> {
+  try {
+    const productRef = doc(db, 'products', id);
+    
+    let imageUrl = productData.imageUrl;
+    let fileName: string | undefined;
+    
+    // If a new image is provided, upload it to local public folder
+    if (imageFile) {
+        const bytes = await imageFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        const fileExtension = imageFile.name.split('.').pop();
+        const uniqueId = uuidv4();
+        fileName = `${uniqueId}.${fileExtension}`;
+        
+        const uploadDir = join(process.cwd(), 'public', 'uploads');
+        const filePath = join(uploadDir, fileName);
+
+        await mkdir(uploadDir, { recursive: true });
+        await writeFile(filePath, buffer);
+        
+        imageUrl = `/uploads/${fileName}`;
+    }
+    
+    // Remove the id field if it exists in the data
+    const { id: _, ...updateData } = productData;
+    
+    await updateDoc(productRef, {
+      ...updateData,
+      imageUrl,
+      updatedAt: new Date().toISOString()
+    });
+    
+    return {
+      success: true,
+      imageUrl,
+      fileName
+    };
+  } catch (error) {
+    console.error('Error updating product with image:', error);
+    return { success: false };
+  }
+}
+
+export async function deleteProduct(id: string): Promise<boolean> {
+  try {
+    await deleteDoc(doc(db, "products", id));
+    return true;
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return false;
+  }
+}
+
+export async function getProductCategories(): Promise<string[]> {
+  try {
+    const categories = await getActiveCategories();
+    return categories.map(cat => cat.name);
+  } catch (error) {
+    console.error("Error fetching product categories:", error);
+    // Fallback to default categories
+    return ["Citrus", "Floral", "Sweet", "Fresh", "Fruity"];
   }
 }

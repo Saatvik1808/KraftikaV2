@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -10,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Save, Loader2, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
-import { getProduct, updateProduct, updateProductWithImage, getProductCategories } from "@/services/products";
+import { getProduct, getProductCategories } from "@/services/products";
+import { updateProduct } from "../actions"; // Import the server action
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/admin/image-upload";
@@ -85,7 +87,6 @@ export default function EditProductPage({ params }: PageProps) {
     fetchProduct();
   }, [params.id, router, toast]);
 
-  // Fetch categories on component mount
   React.useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -93,10 +94,8 @@ export default function EditProductPage({ params }: PageProps) {
         setCategories(fetchedCategories);
       } catch (error) {
         console.error("Error fetching categories:", error);
-        // Keep default categories if fetch fails
       }
     };
-
     fetchCategories();
   }, []);
 
@@ -116,8 +115,7 @@ export default function EditProductPage({ params }: PageProps) {
       };
       reader.readAsDataURL(file);
     } else {
-      // If file is removed, revert to current image
-      setImagePreview(formData.imageUrl);
+      setImagePreview(product?.imageUrl || "");
     }
   };
 
@@ -128,55 +126,38 @@ export default function EditProductPage({ params }: PageProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!product) return;
+    setIsSaving(true);
+
+    const formDataToSubmit = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+        formDataToSubmit.append(key, value);
+    });
+    if (selectedImage) {
+        formDataToSubmit.append('image', selectedImage);
+    }
 
     try {
-      setIsSaving(true);
+      const result = await updateProduct(product.id, formDataToSubmit);
       
-      const updatedProductData: Partial<Candle> = {
-        ...product,
-        name: formData.name,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        scentCategory: formData.scentCategory,
-        scentNotes: formData.scentNotes,
-        burnTime: formData.burnTime,
-        ingredients: formData.ingredients,
-        imageUrl: formData.imageUrl,
-        popularity: parseInt(formData.popularity)
-      };
-
-      // Use updateProductWithImage if a new image is selected
-      if (selectedImage) {
-        const result = await updateProductWithImage(product.id, updatedProductData, selectedImage);
-        if (result.success) {
-          toast({
-            title: "Success",
-            description: `Product updated successfully! New image uploaded to ${result.imageUrl}`,
-          });
-        } else {
-          toast({
-            title: "Warning",
-            description: "Product updated but image upload failed. Please try uploading the image again.",
-            variant: "destructive"
-          });
-        }
-      } else {
-        // Use regular updateProduct if no new image
-        await updateProduct(product.id, updatedProductData);
+      if (result.success) {
         toast({
           title: "Success",
-          description: "Product updated successfully!",
+          description: result.message || "Product updated successfully!",
+        });
+        router.push("/admin/products");
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to update product.",
+          variant: "destructive",
         });
       }
-      
-      router.push("/admin/products");
     } catch (error) {
       console.error('Error updating product:', error);
       toast({
         title: "Error",
-        description: "Failed to update product. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -198,7 +179,6 @@ export default function EditProductPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="outline" size="sm" asChild>
           <Link href="/admin/products">
@@ -216,7 +196,6 @@ export default function EditProductPage({ params }: PageProps) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Basic Information */}
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
@@ -228,7 +207,6 @@ export default function EditProductPage({ params }: PageProps) {
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  placeholder="Enter product name"
                   required
                 />
               </div>
@@ -239,7 +217,6 @@ export default function EditProductPage({ params }: PageProps) {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange("description", e.target.value)}
-                  placeholder="Enter product description"
                   rows={4}
                   required
                 />
@@ -254,7 +231,6 @@ export default function EditProductPage({ params }: PageProps) {
                   min="0"
                   value={formData.price}
                   onChange={(e) => handleInputChange("price", e.target.value)}
-                  placeholder="0.00"
                   required
                 />
               </div>
@@ -277,7 +253,6 @@ export default function EditProductPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          {/* Product Details */}
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Product Details</CardTitle>
@@ -289,7 +264,6 @@ export default function EditProductPage({ params }: PageProps) {
                   id="scentNotes"
                   value={formData.scentNotes}
                   onChange={(e) => handleInputChange("scentNotes", e.target.value)}
-                  placeholder="e.g., Vanilla, Lavender, Citrus"
                   required
                 />
               </div>
@@ -300,7 +274,6 @@ export default function EditProductPage({ params }: PageProps) {
                   id="burnTime"
                   value={formData.burnTime}
                   onChange={(e) => handleInputChange("burnTime", e.target.value)}
-                  placeholder="e.g., 40-50 hours"
                   required
                 />
               </div>
@@ -311,7 +284,6 @@ export default function EditProductPage({ params }: PageProps) {
                   id="ingredients"
                   value={formData.ingredients}
                   onChange={(e) => handleInputChange("ingredients", e.target.value)}
-                  placeholder="List the ingredients"
                   rows={3}
                   required
                 />
@@ -326,20 +298,17 @@ export default function EditProductPage({ params }: PageProps) {
                   max="100"
                   value={formData.popularity}
                   onChange={(e) => handleInputChange("popularity", e.target.value)}
-                  placeholder="0-100"
                 />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Image Management */}
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle>Product Image</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Current Image Display */}
             <div className="space-y-3">
               <Label>Current Image</Label>
               <div className="flex items-center gap-4">
@@ -350,9 +319,7 @@ export default function EditProductPage({ params }: PageProps) {
                       alt="Current product image"
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        target.nextElementSibling?.classList.remove('hidden');
+                        (e.target as HTMLImageElement).src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
                       }}
                     />
                   ) : (
@@ -360,16 +327,10 @@ export default function EditProductPage({ params }: PageProps) {
                       <ImageIcon className="h-8 w-8 text-muted-foreground" />
                     </div>
                   )}
-                  <div className="hidden w-full h-full bg-muted flex items-center justify-center">
-                    <span className="text-xs text-muted-foreground">Invalid image</span>
-                  </div>
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-muted-foreground mb-2">
                     <strong>Current path:</strong> {formData.imageUrl || 'No image set'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    This is the image currently displayed on your website.
                   </p>
                   {formData.imageUrl && (
                     <Button
@@ -377,7 +338,7 @@ export default function EditProductPage({ params }: PageProps) {
                       variant="outline"
                       size="sm"
                       onClick={handleRemoveCurrentImage}
-                      className="text-destructive hover:text-destructive border-destructive/30 hover:border-destructive/50"
+                      className="text-destructive hover:text-destructive"
                     >
                       Remove Current Image
                     </Button>
@@ -386,7 +347,6 @@ export default function EditProductPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Image Upload for New Image */}
             <div className="space-y-3">
               <Label>Upload New Image (Optional)</Label>
               <ImageUpload
@@ -398,8 +358,7 @@ export default function EditProductPage({ params }: PageProps) {
                 Leave empty to keep the current image. If you upload a new image, it will replace the current one.
               </p>
             </div>
-
-            {/* Image URL Override */}
+            
             <div className="space-y-3">
               <Label htmlFor="imageUrl">Image URL Override</Label>
               <Input
@@ -412,21 +371,12 @@ export default function EditProductPage({ params }: PageProps) {
                 placeholder="/path/to/image.jpeg"
               />
               <p className="text-sm text-muted-foreground">
-                You can manually set a custom image path here. This will override both the current image and any newly uploaded image.
+                You can manually set a custom image path. This overrides the current image and any new upload.
               </p>
             </div>
-
-            {/* Image Upload Instructions */}
-            <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
-              <AlertDescription className="text-blue-800 dark:text-blue-200 text-xs">
-                <strong>Image Priority:</strong> 1) Manual URL override (if set), 2) Newly uploaded image, 3) Current image. 
-                New images are automatically saved to your public/uploads folder.
-              </AlertDescription>
-            </Alert>
           </CardContent>
         </Card>
 
-        {/* Actions */}
         <div className="flex justify-end gap-4">
           <Button variant="outline" asChild>
             <Link href="/admin/products">Cancel</Link>
