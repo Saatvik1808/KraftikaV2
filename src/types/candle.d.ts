@@ -10,5 +10,6 @@ export interface Candle {
   ingredients: string;
   popularity: number;
   createdAt: string;
+  updatedAt?: string;
   // Add any other fields you have in Firebase
 }

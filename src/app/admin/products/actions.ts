@@ -1,11 +1,11 @@
+
 "use server";
 
 import { z } from "zod";
 import { db } from "@/lib/firebase";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { uploadImageToCloudinary } from "@/lib/cloudinary";
 import { v4 as uuidv4 } from "uuid";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
 import type { Candle } from "@/types/candle";
 
 // --- ADD PRODUCT ---
@@ -17,9 +17,7 @@ const addProductSchema = z.object({
   scentNotes: z.string().min(3, "Scent notes are required"),
   burnTime: z.string().min(3, "Burn time is required"),
   ingredients: z.string().min(10, "Ingredients are required"),
-  // Correctly expect an ArrayBuffer, not a File object
-  image: z.instanceof(ArrayBuffer).refine(buffer => buffer.byteLength > 0, "Product image is required."),
-  fileName: z.string().min(1, "File name is required."),
+  image: z.instanceof(File).refine(file => file.size > 0, "Product image is required."),
 });
 
 type AddFormState = {
@@ -30,80 +28,42 @@ type AddFormState = {
   fileName?: string;
 };
 
-export async function addProduct(
-  fileName: string,
-  fileType: string,
-  imageBuffer: ArrayBuffer,
-  productData: Omit<z.infer<typeof addProductSchema>, 'image' | 'fileName'>
-): Promise<AddFormState> {
-  console.log("🚀 addProduct: Action started.");
-
-  const validatedFields = addProductSchema.safeParse({
-    ...productData,
-    image: imageBuffer,
-    fileName: fileName,
-  });
+export async function addProduct(formData: FormData): Promise<AddFormState> {
+  const rawData = Object.fromEntries(formData.entries());
+  
+  const validatedFields = addProductSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
-    console.error("❌ addProduct: Validation failed.", validatedFields.error.flatten());
     return {
       success: false,
       error: "Invalid product data provided.",
     };
   }
-
-  console.log("✅ addProduct: Validation successful.");
-  const { image, ...restOfProductData } = validatedFields.data;
+  
+  const { image, ...productData } = validatedFields.data;
+  const imageFile = image as File;
 
   try {
-    const buffer = Buffer.from(image);
-    
-    // Use the original file name for a more descriptive path
-    const uniqueId = uuidv4();
-    const newFileName = `${uniqueId}-${restOfProductData.fileName}`;
-    
-    const uploadDir = join(process.cwd(), 'public', 'uploads');
-    const filePath = join(uploadDir, newFileName);
-
-    console.log(`📝 addProduct: Preparing to write file to: ${filePath}`);
-
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(filePath, buffer);
-    
-    const suggestedPublicPath = `/uploads/${newFileName}`;
-    console.log(`✅ addProduct: File successfully written to public folder. Path: ${suggestedPublicPath}`);
+    // Upload to Cloudinary
+    const { url: imageUrl } = await uploadImageToCloudinary(imageFile, 'kraftika-products');
 
     const newProductData = {
-      name: restOfProductData.name,
-      scentCategory: restOfProductData.scentCategory,
-      price: restOfProductData.price,
-      description: restOfProductData.description,
-      scentNotes: restOfProductData.scentNotes,
-      burnTime: restOfProductData.burnTime,
-      ingredients: restOfProductData.ingredients,
-      imageUrl: suggestedPublicPath, // Use the new public path
+      ...productData,
+      imageUrl: imageUrl,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       popularity: 0,
     };
 
-    console.log("✍️ addProduct: Adding product to Firestore...");
     await addDoc(collection(db, "products"), newProductData);
-    console.log("🎉 addProduct: Product added to Firestore successfully!");
 
     return { 
       success: true, 
       message: "Product added successfully!",
-      imageUrl: suggestedPublicPath,
-      fileName: newFileName
+      imageUrl: imageUrl
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-    console.error("❌ addProduct: Error caught in action:", {
-      message: errorMessage,
-      stack: error instanceof Error ? error.stack : 'No stack available',
-      fullError: error
-    });
     return { success: false, error: `Failed to add product: ${errorMessage}` };
   }
 }
@@ -149,33 +109,15 @@ export async function updateProduct(id: string, formData: FormData): Promise<Upd
     try {
         // If a new image is provided, upload it
         if (imageFile && imageFile.size > 0) {
-            const bytes = await imageFile.arrayBuffer();
-            const buffer = Buffer.from(bytes);
-
-            const fileExtension = imageFile.name.split('.').pop() || 'jpg';
-            const uniqueId = uuidv4();
-            const fileName = `${uniqueId}.${fileExtension}`;
-            
-            const uploadDir = join(process.cwd(), 'public', 'uploads');
-            const filePath = join(uploadDir, fileName);
-
-            await mkdir(uploadDir, { recursive: true });
-            await writeFile(filePath, buffer);
-            
-            finalImageUrl = `/uploads/${fileName}`;
+            // Upload to Cloudinary
+            const { url } = await uploadImageToCloudinary(imageFile, 'kraftika-products');
+            finalImageUrl = url;
         }
 
         const productRef = doc(db, 'products', id);
 
         const updateData: Partial<Candle> = {
-            name: productData.name,
-            scentCategory: productData.scentCategory,
-            price: productData.price,
-            description: productData.description,
-            scentNotes: productData.scentNotes,
-            burnTime: productData.burnTime,
-            ingredients: productData.ingredients,
-            popularity: productData.popularity,
+            ...productData,
             imageUrl: finalImageUrl,
             updatedAt: new Date().toISOString()
         };

@@ -1,20 +1,23 @@
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, getDoc, query, where, updateDoc, deleteDoc } from "firebase/firestore";
+import { uploadImageToCloudinary } from "@/lib/cloudinary";
 import type { Candle } from "@/types/candle";
 import { getActiveCategories } from "@/services/categories";
 import { v4 as uuidv4 } from "uuid";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
 
-// Helper function to format image URL for public folder
+// Helper function to format image URL
 function formatImageUrl(imageUrl: string): string {
   // If it's already a public folder path, return as is
   if (imageUrl.startsWith('/')) {
     return imageUrl;
   }
   
+  // If it's a Cloudinary URL, return as is
+  if (imageUrl.includes('cloudinary.com')) {
+    return imageUrl;
+  }
+  
   // If it's a Firebase Storage URL, we'll use a placeholder for now
-  // In the future, you can download these to public folder
   if (imageUrl.includes('firebasestorage.googleapis.com')) {
     return '/placeholder-image.jpg'; // You can add a placeholder image
   }
@@ -162,22 +165,11 @@ export async function updateProductWithImage(id: string, productData: Partial<Ca
     let imageUrl = productData.imageUrl;
     let fileName: string | undefined;
     
-    // If a new image is provided, upload it to local public folder
+    // If a new image is provided, upload it to Cloudinary
     if (imageFile) {
-        const bytes = await imageFile.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        const fileExtension = imageFile.name.split('.').pop();
-        const uniqueId = uuidv4();
-        fileName = `${uniqueId}.${fileExtension}`;
-        
-        const uploadDir = join(process.cwd(), 'public', 'uploads');
-        const filePath = join(uploadDir, fileName);
-
-        await mkdir(uploadDir, { recursive: true });
-        await writeFile(filePath, buffer);
-        
-        imageUrl = `/uploads/${fileName}`;
+        const { url } = await uploadImageToCloudinary(imageFile, 'kraftika-products');
+        imageUrl = url;
+        fileName = imageFile.name; // Use original filename for reference
     }
     
     // Remove the id field if it exists in the data

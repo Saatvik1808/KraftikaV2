@@ -86,18 +86,15 @@ export default function AddProductPage() {
     setIsSubmitting(true);
     setUploadResult(null);
 
-    const { image, ...productData } = data;
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value) {
+        formData.append(key, value);
+      }
+    });
 
     try {
-      // Convert file to ArrayBuffer
-      const imageBuffer = await image.arrayBuffer();
-      
-      const result = await addProduct(
-        image.name,
-        image.type,
-        imageBuffer,
-        productData
-      );
+      const result = await addProduct(formData);
 
       if (result.success) {
         setUploadResult({
