@@ -86,18 +86,18 @@ export default function AddProductPage() {
     setIsSubmitting(true);
     setUploadResult(null);
 
-    // Create a FormData object to send to the server action
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-        if (value instanceof File) {
-            formData.append(key, value);
-        } else {
-            formData.append(key, String(value));
-        }
-    });
+    const { image, ...productData } = data;
 
     try {
-      const result = await addProduct(formData);
+      // Convert file to ArrayBuffer
+      const imageBuffer = await image.arrayBuffer();
+      
+      const result = await addProduct(
+        image.name,
+        image.type,
+        imageBuffer,
+        productData
+      );
 
       if (result.success) {
         setUploadResult({
@@ -110,10 +110,11 @@ export default function AddProductPage() {
           description: `"${data.name}" has been successfully added with image.`,
         });
         
-        // Don't redirect immediately, show the success message
+        // Redirect after a short delay to show the success message
         setTimeout(() => {
           router.push("/admin/products");
-        }, 5000);
+          router.refresh();
+        }, 3000);
       } else {
         toast({
           title: "Error",
@@ -141,7 +142,6 @@ export default function AddProductPage() {
         </p>
       </div>
 
-      {/* Image Upload Instructions */}
       <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
         <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         <AlertDescription className="text-blue-800 dark:text-blue-200">
@@ -268,7 +268,6 @@ export default function AddProductPage() {
                 />
               </div>
 
-              {/* Image Upload Section */}
               <FormField
                 control={form.control}
                 name="image"
@@ -299,7 +298,6 @@ export default function AddProductPage() {
         </CardContent>
       </Card>
 
-      {/* Upload Result Instructions */}
       {uploadResult && (
         <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
           <CardHeader>
@@ -336,15 +334,7 @@ export default function AddProductPage() {
             <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
               <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               <AlertDescription className="text-blue-800 dark:text-blue-200">
-                <strong>Success:</strong> Your image is now accessible at {uploadResult.imageUrl} and will be displayed on your website immediately.
-              </AlertDescription>
-            </Alert>
-            
-            <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
-              <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <AlertDescription className="text-amber-800 dark:text-amber-200">
-                <strong>Important:</strong> You'll be redirected to the products page in 5 seconds. 
-                Your product is now live with the uploaded image!
+                <strong>Success:</strong> Your image is now accessible at {uploadResult.imageUrl} and will be displayed on your website immediately. You will be redirected shortly.
               </AlertDescription>
             </Alert>
           </CardContent>
