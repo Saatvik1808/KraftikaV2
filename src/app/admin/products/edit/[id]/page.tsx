@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Save, Loader2, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { getProduct, getProductCategories } from "@/services/products";
-import { updateProduct } from "../actions"; // Import the server action
+import { updateProduct } from "../../actions"; // Import the server action
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/admin/image-upload";

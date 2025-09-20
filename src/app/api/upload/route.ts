@@ -1,7 +1,7 @@
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, getDoc, query, where, updateDoc, deleteDoc } from "firebase/firestore";
 import type { Candle } from "@/types/candle";
-import { getActiveCategories } from "./categories";
+import { getActiveCategories } from "@/services/categories";
 import { v4 as uuidv4 } from "uuid";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
