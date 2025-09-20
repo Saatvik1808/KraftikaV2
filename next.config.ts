@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: ['multer'],
+    serverActions: {
+      bodySizeLimit: '800mb',
+    },
   },
   api: {
     bodyParser: {
