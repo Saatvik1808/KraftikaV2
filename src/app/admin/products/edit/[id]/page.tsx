@@ -140,7 +140,7 @@ export default function EditProductPage({ params }: PageProps) {
     try {
       const result = await updateProduct(product.id, formDataToSubmit);
       
-      if (result.success) {
+      if (result && result.success) {
         toast({
           title: "Success",
           description: result.message || "Product updated successfully!",
@@ -149,7 +149,7 @@ export default function EditProductPage({ params }: PageProps) {
       } else {
         toast({
           title: "Error",
-          description: result.error || "Failed to update product.",
+          description: result?.error || "Failed to update product.",
           variant: "destructive",
         });
       }

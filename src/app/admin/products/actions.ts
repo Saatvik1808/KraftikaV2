@@ -80,7 +80,7 @@ const updateProductSchema = z.object({
     ingredients: z.string().min(10, "Ingredients are required"),
     imageUrl: z.string(), // Keep track of current/new URL
     popularity: z.coerce.number().min(0),
-    image: z.instanceof(File).optional(), // New image is optional
+    image: z.any().optional(), // New image is optional - using z.any() to handle File or undefined
 });
 
 type UpdateFormState = {
@@ -91,33 +91,61 @@ type UpdateFormState = {
 };
 
 export async function updateProduct(id: string, formData: FormData): Promise<UpdateFormState> {
-    const rawData = Object.fromEntries(formData.entries());
-
-    const validatedFields = updateProductSchema.safeParse(rawData);
-
-    if (!validatedFields.success) {
-        return {
-          success: false,
-          error: "Invalid product data provided.",
-        };
-    }
-
-    const { image, ...productData } = validatedFields.data;
-    const imageFile = image as File | undefined;
-    let finalImageUrl = productData.imageUrl;
-
     try {
+        // Handle Next.js serialized form data
+        const rawData = Object.fromEntries(formData.entries());
+        
+        // Extract the actual data from serialized form (remove prefixes like "1_")
+        const productData = {
+            name: rawData['1_name'] || rawData.name || '',
+            description: rawData['1_description'] || rawData.description || '',
+            price: rawData['1_price'] || rawData.price || '0',
+            scentCategory: rawData['1_scentCategory'] || rawData.scentCategory || '',
+            scentNotes: rawData['1_scentNotes'] || rawData.scentNotes || '',
+            burnTime: rawData['1_burnTime'] || rawData.burnTime || '',
+            ingredients: rawData['1_ingredients'] || rawData.ingredients || '',
+            imageUrl: rawData['1_imageUrl'] || rawData.imageUrl || '',
+            popularity: rawData['1_popularity'] || rawData.popularity || '0',
+        };
+
+        // Get the image file (it might be named '1_image' or 'image')
+        const imageFile = formData.get('1_image') as File || formData.get('image') as File;
+        
+        // Validate the extracted data
+        const validatedFields = updateProductSchema.safeParse({
+            ...productData,
+            image: imageFile
+        });
+
+        if (!validatedFields.success) {
+            console.error('Validation error:', validatedFields.error);
+            return {
+                success: false,
+                error: "Invalid product data provided.",
+            };
+        }
+
+        const { image, ...validatedProductData } = validatedFields.data;
+        let finalImageUrl = validatedProductData.imageUrl;
+
         // If a new image is provided, upload it
-        if (imageFile && imageFile.size > 0) {
-            // Upload to Cloudinary
-            const { url } = await uploadImageToCloudinary(imageFile, 'kraftika-products');
-            finalImageUrl = url;
+        if (image && image.size > 0) {
+            try {
+                const { url } = await uploadImageToCloudinary(image, 'kraftika-products');
+                finalImageUrl = url;
+            } catch (uploadError) {
+                console.error('Image upload error:', uploadError);
+                return {
+                    success: false,
+                    error: "Failed to upload image. Please try again.",
+                };
+            }
         }
 
         const productRef = doc(db, 'products', id);
 
         const updateData: Partial<Candle> = {
-            ...productData,
+            ...validatedProductData,
             imageUrl: finalImageUrl,
             updatedAt: new Date().toISOString()
         };
@@ -131,7 +159,11 @@ export async function updateProduct(id: string, formData: FormData): Promise<Upd
         };
 
     } catch (error) {
+        console.error('Update product error:', error);
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        return { success: false, error: `Failed to update product: ${errorMessage}` };
+        return { 
+            success: false, 
+            error: `Failed to update product: ${errorMessage}` 
+        };
     }
 }
