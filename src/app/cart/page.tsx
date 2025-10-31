@@ -11,6 +11,8 @@ import * as React from "react";
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
 import { getProducts } from "@/services/products-unified";
+import { useAuth } from "@/contexts/AuthContext";
+import { cartApi } from "@/services/cart-api";
 
 // Define Candle and CartItem types consistent with other parts of the app
 interface CartItem extends Candle {
@@ -27,6 +29,7 @@ export default function CartPage() {
   const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
   
   // Fetch all products from Firestore on component mount
   React.useEffect(() => {
@@ -44,74 +47,143 @@ export default function CartPage() {
     fetchAllProducts();
   }, [toast]);
   
-  // Hydrate cart items from localStorage once allProducts are available
+  // Load cart items - from backend if authenticated, from localStorage otherwise
   React.useEffect(() => {
-    // Only proceed if we have products to look up
-    if (allProducts.length > 0) {
+    const loadCart = async () => {
+      if (allProducts.length === 0) return;
+      
       try {
-        const cartString = localStorage.getItem('kraftikaCart');
-        const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+        setIsLoading(true);
+        let loadedCartItems: CartItem[] = [];
         
-        const hydratedCartItems = storedCartItems.map(storedItem => {
-          const productDetails = allProducts.find(p => p.id === storedItem.id);
-          if (productDetails) {
-            return { ...productDetails, quantity: storedItem.quantity };
+        if (isAuthenticated) {
+          // Load from backend API
+          try {
+            const backendCart = await cartApi.getCart();
+            // Backend returns CartItem[] with productId, price, etc.
+            // Map to our CartItem format (which extends Candle)
+            loadedCartItems = backendCart.map((backendItem: any) => {
+              const productDetails = allProducts.find(p => p.id === backendItem.productId);
+              if (productDetails) {
+                return {
+                  ...productDetails,
+                  quantity: backendItem.quantity,
+                  price: typeof backendItem.price === 'string' ? parseFloat(backendItem.price) : backendItem.price,
+                };
+              }
+              return null;
+            }).filter((item: any) => item !== null) as CartItem[];
+          } catch (error: any) {
+            console.error("Failed to load cart from backend:", error);
+            // Fallback to localStorage if backend fails
+            const cartString = localStorage.getItem('kraftikaCart');
+            const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+            loadedCartItems = storedCartItems.map(storedItem => {
+              const productDetails = allProducts.find(p => p.id === storedItem.id);
+              if (productDetails) {
+                return { ...productDetails, quantity: storedItem.quantity };
+              }
+              return null;
+            }).filter(item => item !== null) as CartItem[];
           }
-          return null; 
-        }).filter(item => item !== null) as CartItem[];
+        } else {
+          // Load from localStorage
+          const cartString = localStorage.getItem('kraftikaCart');
+          const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+          
+          loadedCartItems = storedCartItems.map(storedItem => {
+            const productDetails = allProducts.find(p => p.id === storedItem.id);
+            if (productDetails) {
+              return { ...productDetails, quantity: storedItem.quantity };
+            }
+            return null;
+          }).filter(item => item !== null) as CartItem[];
+        }
         
-        setCartItems(hydratedCartItems);
+        setCartItems(loadedCartItems);
       } catch (error) {
-        console.error("Failed to load cart from localStorage", error);
-        setCartItems([]); // Fallback to empty cart on error
+        console.error("Failed to load cart:", error);
+        setCartItems([]);
         toast({ title: "Error", description: "Could not load your cart.", variant: "destructive" });
       } finally {
         setIsLoading(false);
       }
-    } else if (!isLoading) { // Handle case where there are no products at all
-        setIsLoading(false);
-    }
-  }, [allProducts, isLoading, toast]);
+    };
+    
+    loadCart();
+  }, [allProducts, isAuthenticated, toast]);
 
 
-  const handleDecreaseQuantityOrRemove = (itemId: string) => {
+  const handleDecreaseQuantityOrRemove = async (itemId: string) => {
     let itemUpdated = false;
     let itemRemoved = false;
     let itemName = "";
-
-    const updatedCartItems = cartItems.map(item => {
-      if (item.id === itemId) {
-        itemName = item.name;
-        if (item.quantity > 1) {
-          itemUpdated = true;
-          return { ...item, quantity: item.quantity - 1 };
-        } else {
-          itemRemoved = true;
-          return null; // Mark for removal
-        }
-      }
-      return item;
-    }).filter(item => item !== null) as CartItem[];
-
-    setCartItems(updatedCartItems);
+    const item = cartItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    itemName = item.name;
+    const newQuantity = item.quantity - 1;
 
     try {
-      const updatedStorageCart = updatedCartItems.map(item => ({ id: item.id, quantity: item.quantity }));
-      localStorage.setItem('kraftikaCart', JSON.stringify(updatedStorageCart));
-    } catch (error) {
-      console.error("Failed to update cart in localStorage", error);
-    }
+      if (isAuthenticated) {
+        // Update via backend API
+        if (newQuantity <= 0) {
+          await cartApi.removeItem(itemId);
+          itemRemoved = true;
+        } else {
+          await cartApi.updateItem(itemId, newQuantity);
+          itemUpdated = true;
+        }
+        // Reload cart from backend
+        const backendCart = await cartApi.getCart();
+        const updatedCartItems = backendCart.map((backendItem: any) => {
+          const productDetails = allProducts.find(p => p.id === backendItem.productId);
+          if (productDetails) {
+            return {
+              ...productDetails,
+              quantity: backendItem.quantity,
+              price: typeof backendItem.price === 'string' ? parseFloat(backendItem.price) : backendItem.price,
+            };
+          }
+          return null;
+        }).filter((item: any) => item !== null) as CartItem[];
+        setCartItems(updatedCartItems);
+      } else {
+        // Update localStorage
+        const updatedCartItems = cartItems.map(cartItem => {
+          if (cartItem.id === itemId) {
+            if (newQuantity <= 0) {
+              itemRemoved = true;
+              return null;
+            }
+            itemUpdated = true;
+            return { ...cartItem, quantity: newQuantity };
+          }
+          return cartItem;
+        }).filter(item => item !== null) as CartItem[];
 
-    if (itemRemoved) {
+        setCartItems(updatedCartItems);
+        const updatedStorageCart = updatedCartItems.map(item => ({ id: item.id, quantity: item.quantity }));
+        localStorage.setItem('kraftikaCart', JSON.stringify(updatedStorageCart));
+      }
+
+      if (itemRemoved) {
+        toast({
+          title: "Item Removed",
+          description: `${itemName} has been removed from your cart.`,
+        });
+      } else if (itemUpdated) {
+        toast({
+          title: "Quantity Updated",
+          description: `Quantity for ${itemName} is now ${newQuantity}.`,
+        });
+      }
+    } catch (error: any) {
+      console.error("Failed to update cart:", error);
       toast({
-        title: "Item Removed",
-        description: `${itemName} has been removed from your cart.`,
-      });
-    } else if (itemUpdated) {
-      const currentItem = updatedCartItems.find(i => i.id === itemId);
-      toast({
-        title: "Quantity Updated",
-        description: `Quantity for ${itemName} is now ${currentItem?.quantity || 0}.`,
+        title: "Error",
+        description: error.message || "Failed to update cart. Please try again.",
+        variant: "destructive",
       });
     }
   };

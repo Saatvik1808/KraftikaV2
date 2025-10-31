@@ -85,6 +85,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       saveAuth(data.token, userData);
+      
+      // Sync localStorage cart to backend after login
+      if (typeof window !== 'undefined') {
+        import("@/services/cart-sync").then(({ syncLocalStorageCartToBackend }) => {
+          syncLocalStorageCartToBackend().catch(console.error);
+        });
+      }
+      
       toast({
         title: "Welcome back!",
         description: `Logged in as ${userData.email || userData.phone}`,
@@ -127,6 +135,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       saveAuth(data.token, userData);
+      
+      // Sync localStorage cart to backend after registration
+      if (typeof window !== 'undefined') {
+        import("@/services/cart-sync").then(({ syncLocalStorageCartToBackend }) => {
+          syncLocalStorageCartToBackend().catch(console.error);
+        });
+      }
+      
       toast({
         title: "Welcome!",
         description: "Account created successfully",
@@ -207,6 +223,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       saveAuth(data.token, userData);
+      
+      // Sync localStorage cart to backend after phone login
+      if (typeof window !== 'undefined') {
+        import("@/services/cart-sync").then(({ syncLocalStorageCartToBackend }) => {
+          syncLocalStorageCartToBackend().catch(console.error);
+        });
+      }
+      
       toast({
         title: "Welcome!",
         description: "Logged in successfully",
@@ -249,6 +273,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       saveAuth(data.token, userData);
+      
+      // Sync localStorage cart to backend after Google login
+      if (typeof window !== 'undefined') {
+        import("@/services/cart-sync").then(({ syncLocalStorageCartToBackend }) => {
+          syncLocalStorageCartToBackend().catch(console.error);
+        });
+      }
+      
       toast({
         title: "Welcome!",
         description: "Logged in with Google successfully",
@@ -266,7 +298,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     localStorage.removeItem("kraftikaToken");
     localStorage.removeItem("kraftikaUser");
-    localStorage.removeItem("kraftikaCart"); // Clear cart on logout
+    // Don't clear cart on logout - keep it in localStorage for when they log back in
+    // The cart will be synced to backend when they log in again
     setToken(null);
     setUser(null);
     toast({
