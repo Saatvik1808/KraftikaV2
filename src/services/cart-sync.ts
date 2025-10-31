@@ -1,6 +1,14 @@
 import { cartApi } from "./cart-api";
 
 /**
+ * Helper function to validate if a string is a valid UUID
+ */
+function isValidUUID(str: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
+/**
  * Sync localStorage cart to backend when user logs in
  */
 export async function syncLocalStorageCartToBackend(): Promise<void> {
@@ -11,13 +19,26 @@ export async function syncLocalStorageCartToBackend(): Promise<void> {
     const localCart: Array<{ id: string; quantity: number }> = JSON.parse(cartString);
     if (localCart.length === 0) return; // Empty cart, nothing to sync
     
-    // Sync each item to backend
-    for (const item of localCart) {
+    // Filter out items with invalid UUIDs and sync valid ones
+    const validItems = localCart.filter(item => isValidUUID(item.id));
+    
+    if (validItems.length === 0) {
+      // No valid items to sync, clear localStorage
+      localStorage.removeItem('kraftikaCart');
+      return;
+    }
+    
+    // Sync each valid item to backend
+    for (const item of validItems) {
       try {
         await cartApi.addItem(item.id, item.quantity);
-      } catch (error) {
+      } catch (error: any) {
         console.error(`Failed to sync item ${item.id} to backend:`, error);
         // Continue syncing other items even if one fails
+        // Skip if it's an invalid UUID error
+        if (error.message?.includes('Invalid product ID') || error.message?.includes('Invalid UUID')) {
+          continue;
+        }
       }
     }
     
