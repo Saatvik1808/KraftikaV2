@@ -122,20 +122,21 @@ export default function CartPage() {
     if (!item) return;
     
     itemName = item.name;
+    const productId = item.id; // This is the product ID, not cart item ID
     const newQuantity = item.quantity - 1;
 
     try {
       if (isAuthenticated) {
-        // Update via backend API
+        // Update via backend API - use productId, not cart item id
+        let backendCart: any[];
         if (newQuantity <= 0) {
-          await cartApi.removeItem(itemId);
+          backendCart = await cartApi.removeItem(productId);
           itemRemoved = true;
         } else {
-          await cartApi.updateItem(itemId, newQuantity);
+          backendCart = await cartApi.updateItem(productId, newQuantity);
           itemUpdated = true;
         }
-        // Reload cart from backend
-        const backendCart = await cartApi.getCart();
+        // Use response directly - it already contains the updated cart
         const updatedCartItems = backendCart.map((backendItem: any) => {
           const productDetails = allProducts.find(p => p.id === backendItem.productId);
           if (productDetails) {
