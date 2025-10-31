@@ -9,7 +9,7 @@ import type { Candle } from "@/types/candle";
 import { Button } from "@/components/ui/button";
 import { HeartCrack, ShoppingBag } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getProducts } from "@/services/products";
+import { getProducts } from "@/services/products-unified";
 
 const containerVariants = {
     hidden: { opacity: 0 },

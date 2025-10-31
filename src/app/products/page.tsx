@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ListFilter, X, Info } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { getProducts } from "@/services/products";
+import { getProducts } from "@/services/products-unified";
 
 const scentCategories = ["All", "Citrus", "Floral", "Sweet", "Fresh", "Fruity"];
 const sortOptions = [

@@ -1,0 +1,25 @@
+// Configuration to switch between Firebase and Spring Boot APIs
+export const API_CONFIG = {
+  // Set to 'firebase' to use Firebase, 'springboot' to use Spring Boot APIs
+  provider:  'springboot',
+  
+  // Spring Boot API configuration
+  springBoot: {
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://kraftika-backend-production.up.railway.app/api',
+  },
+  
+  // Firebase configuration (keeping existing)
+  firebase: {
+    // Firebase config is already in lib/firebase.ts
+  }
+};
+
+// Helper function to determine which API to use
+export function useSpringBootAPI(): boolean {
+  return API_CONFIG.provider === 'springboot';
+}
+
+export function useFirebaseAPI(): boolean {
+  return API_CONFIG.provider === 'firebase';
+}
+

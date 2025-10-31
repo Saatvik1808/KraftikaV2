@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle, Search, Edit3, Trash2, Eye, MoreHorizontal, Package } from "lucide-react";
 import Link from "next/link";
-import { getProducts, deleteProduct } from "@/services/products";
+import { getProducts, deleteProduct } from "@/services/products-unified";
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
 import {

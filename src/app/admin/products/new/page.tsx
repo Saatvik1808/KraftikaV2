@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Info } from "lucide-react";
-import { addProduct } from "../actions";
+import { addProductAction } from "../actions-unified";
 import {
   Select,
   SelectContent,
@@ -30,7 +30,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { Label } from "@/components/ui/label";
-import { getProductCategories } from "@/services/products";
+import { getProductCategories } from "@/services/products-unified";
 
 const productSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -51,7 +51,7 @@ export default function AddProductPage() {
     imageUrl?: string;
     fileName?: string;
   } | null>(null);
-  const [scentCategories, setScentCategories] = React.useState<string[]>(["Citrus", "Floral", "Sweet", "Fresh", "Fruity"]);
+  const [scentCategories, setScentCategories] = React.useState<string[]>([]);
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<ProductFormData>({
@@ -94,7 +94,7 @@ export default function AddProductPage() {
     });
 
     try {
-      const result = await addProduct(formData);
+      const result = await addProductAction(formData);
 
       if (result.success) {
         setUploadResult({

@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, CheckCircle, Info, QrCode } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Candle } from "@/types/candle";
-import { getProducts } from "@/services/products";
+import { getProducts } from "@/services/products-unified";
 
 // Define CartItem types consistent with other parts of the app
 interface CartItem extends Candle {
