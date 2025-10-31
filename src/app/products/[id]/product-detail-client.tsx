@@ -17,6 +17,8 @@ import type { Review } from "@/types/review";
 import { ShoppingCart, Heart, Share2, Star, MessageSquareText, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { addItemToCart } from "@/services/cart-sync";
 
 interface CartStorageItem {
   id: string;
@@ -59,7 +61,9 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
     }
   }, [wishlistedItems]);
 
-  const handleAddToCartClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const { isAuthenticated } = useAuth();
+
+  const handleAddToCartClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!product) return;
     const rect = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -68,32 +72,27 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
     setTimeout(() => setRipple(prev => ({ ...prev, show: false })), 600);
     
     try {
-      const cartString = localStorage.getItem('kraftikaCart');
-      let currentCart: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
-      
-      const existingItemIndex = currentCart.findIndex(item => item.id === product.id);
-
-      if (existingItemIndex > -1) {
-        currentCart[existingItemIndex].quantity += 1;
-      } else {
-        currentCart.push({ id: product.id, quantity: 1 });
-      }
-      
-      localStorage.setItem('kraftikaCart', JSON.stringify(currentCart));
-      
-      toast({
-        title: "Added to Cart!",
-        description: `${product.name} has been added to your cart.`,
-        onClick: () => router.push('/cart'),
-      });
-
+      await addItemToCart(
+        product.id,
+        1,
+        isAuthenticated,
+        () => {
+          toast({
+            title: "Added to Cart!",
+            description: `${product.name} has been added to your cart.`,
+            onClick: () => router.push('/cart'),
+          });
+        },
+        (error) => {
+          toast({
+            title: "Error",
+            description: error.message || "Could not add item to cart. Please try again.",
+            variant: "destructive",
+          });
+        }
+      );
     } catch (error) {
-      console.error("Failed to update cart in localStorage", error);
-      toast({
-        title: "Error",
-        description: "Could not add item to cart. Please try again.",
-        variant: "destructive",
-      });
+      console.error("Failed to add item to cart:", error);
     }
   };
 

@@ -10,6 +10,8 @@ import { ShoppingCart, Eye, Star, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { addItemToCart } from "@/services/cart-sync";
 
 interface ProductCardProps {
   product: Candle;
@@ -62,38 +64,34 @@ export function ProductCard({
 }: ProductCardProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
-  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
 
     try {
-      const cartString = localStorage.getItem('kraftikaCart');
-      let currentCart: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
-      
-      const existingItemIndex = currentCart.findIndex(item => item.id === product.id);
-
-      if (existingItemIndex > -1) {
-        currentCart[existingItemIndex].quantity += 1;
-      } else {
-        currentCart.push({ id: product.id, quantity: 1 });
-      }
-      
-      localStorage.setItem('kraftikaCart', JSON.stringify(currentCart));
-      
-      toast({
-        title: "Added to Cart!",
-        description: `${product.name} has been added to your cart.`,
-        onClick: () => router.push('/cart'),
-      });
-
+      await addItemToCart(
+        product.id,
+        1,
+        isAuthenticated,
+        () => {
+          toast({
+            title: "Added to Cart!",
+            description: `${product.name} has been added to your cart.`,
+            onClick: () => router.push('/cart'),
+          });
+        },
+        (error) => {
+          toast({
+            title: "Error",
+            description: error.message || "Could not add item to cart. Please try again.",
+            variant: "destructive",
+          });
+        }
+      );
     } catch (error) {
-      console.error("Failed to update cart in localStorage", error);
-      toast({
-        title: "Error",
-        description: "Could not add item to cart. Please try again.",
-        variant: "destructive",
-      });
+      console.error("Failed to add item to cart:", error);
     }
   };
 
