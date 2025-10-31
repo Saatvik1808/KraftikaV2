@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getProducts } from "@/services/products";
+import { getProducts } from "@/services/products-unified";
 
 const containerVariants = {
   hidden: { opacity: 0 },

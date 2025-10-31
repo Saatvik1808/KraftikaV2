@@ -11,8 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Save, Loader2, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
-import { getProduct, getProductCategories } from "@/services/products";
-import { updateProduct } from "../../actions"; // Import the server action
+import { getProduct, getProductCategories } from "@/services/products-unified";
+import { updateProductAction } from "../../actions-unified"; // Import the unified server action
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/admin/image-upload";
@@ -138,7 +138,7 @@ export default function EditProductPage({ params }: PageProps) {
     }
 
     try {
-      const result = await updateProduct(product.id, formDataToSubmit);
+      const result = await updateProductAction(product.id, formDataToSubmit);
       
       if (result && result.success) {
         toast({

@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
 import { Wand2, RotateCcw, CheckCircle, Sparkles, ArrowLeft, ArrowRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { getProducts } from "@/services/products";
+import { getProducts } from "@/services/products-unified";
 
 
 const quizQuestions = [

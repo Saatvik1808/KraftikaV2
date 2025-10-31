@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import * as React from "react";
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
-import { getProducts } from "@/services/products";
+import { getProducts } from "@/services/products-unified";
 
 // Define Candle and CartItem types consistent with other parts of the app
 interface CartItem extends Candle {

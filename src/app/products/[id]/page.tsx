@@ -4,7 +4,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 
 import type { Candle } from '@/types/candle';
 import type { Review } from '@/types/review';
-import { getProduct, getRelatedProducts } from '@/services/products';
+import { getProduct, getRelatedProducts } from '@/services/products-unified';
 import { ProductDetailClient } from './product-detail-client';
 
 interface PageProps {

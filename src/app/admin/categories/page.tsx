@@ -24,7 +24,7 @@ import {
   updateCategory, 
   deleteCategory,
   type ScentCategory 
-} from "@/services/categories";
+} from "@/services/categories-unified";
 import {
   Dialog,
   DialogContent,

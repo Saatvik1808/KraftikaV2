@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Users, TrendingUp, Package, PlusCircle, Edit3, Trash2, Eye, Tag } from "lucide-react";
 import Link from "next/link";
-import { getProducts } from "@/services/products";
-import { getCategories } from "@/services/categories";
+import { getProducts } from "@/services/products-unified";
+import { getCategories } from "@/services/categories-unified";
 import type { Candle } from "@/types/candle";
 
 export default function AdminDashboardPage() {
