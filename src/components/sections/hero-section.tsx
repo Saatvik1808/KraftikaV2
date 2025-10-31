@@ -1,11 +1,16 @@
 
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { LeadCaptureDialog } from "@/components/lead-capture-dialog";
+import { Mail } from "lucide-react";
 
 export function HeroSection() {
+  const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -94,7 +99,7 @@ export function HeroSection() {
             </motion.p>
             
             <motion.div
-              className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-6 justify-center sm:justify-start items-center"
+              className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 justify-center sm:justify-start items-center"
               variants={itemVariants}
             >
               <motion.div
@@ -107,12 +112,12 @@ export function HeroSection() {
                   scale: 0.98,
                   transition: { duration: 0.1 }
                 }}
-                className="w-full sm:w-56"
+                className="w-full sm:w-auto"
               >
                 <Button 
                   asChild 
                   size="lg" 
-                  className="w-full px-10 py-6 text-lg font-medium bg-gradient-to-r from-[#caa494] to-[#b8d4a8] hover:from-[#b8a08e] hover:to-[#a8c498] shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium bg-gradient-to-r from-[#caa494] to-[#b8d4a8] hover:from-[#b8a08e] hover:to-[#a8c498] shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <Link href="/products">Shop Now</Link>
                 </Button>
@@ -128,15 +133,38 @@ export function HeroSection() {
                   scale: 0.98,
                   transition: { duration: 0.1 }
                 }}
-                className="w-full sm:w-56"
+                className="w-full sm:w-auto"
               >
                 <Button
                   asChild
                   size="lg"
                   variant="outline"
-                  className="w-full px-10 py-6 text-lg font-medium border-2 border-white/90 bg-transparent text-white hover:bg-white/10 hover:text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300" 
+                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium border-2 border-white/90 bg-transparent text-white hover:bg-white/10 hover:text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300" 
                 >
                   <Link href="/about">Explore Kraftika</Link>
+                </Button>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -2,
+                  transition: { duration: 0.2 }
+                }}
+                whileTap={{ 
+                  scale: 0.98,
+                  transition: { duration: 0.1 }
+                }}
+                className="w-full sm:w-auto"
+              >
+                <Button
+                  onClick={() => setIsLeadDialogOpen(true)}
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium border-2 border-white/90 bg-transparent text-white hover:bg-white/10 hover:text-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2"
+                >
+                  <Mail className="h-5 w-5" />
+                  <span>Get Updates & Offers</span>
                 </Button>
               </motion.div>
             </motion.div>
@@ -176,6 +204,12 @@ export function HeroSection() {
           animation: pulse-slow 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
       `}</style>
+      
+      {/* Lead Capture Dialog */}
+      <LeadCaptureDialog 
+        open={isLeadDialogOpen} 
+        onOpenChange={setIsLeadDialogOpen} 
+      />
     </section>
   );
 }

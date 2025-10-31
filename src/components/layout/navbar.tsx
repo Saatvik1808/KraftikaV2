@@ -4,13 +4,22 @@
 import * as React from "react";
 import Link from "next/link";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, ShoppingBag, Heart } from "lucide-react";
+import { Menu, X, ShoppingBag, Heart, User, LogOut } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "@/components/logo";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -25,6 +34,8 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { scrollY } = useScroll();
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isAuthenticated, logout } = useAuth();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -111,6 +122,37 @@ export function Navbar() {
               <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
             </Link>
           </Button>
+
+          {/* User Menu */}
+          {isAuthenticated && user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <User className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{user.firstName || user.email || user.phone}</p>
+                    <p className="text-xs text-muted-foreground">{user.email || user.phone}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/login">
+                <User className="mr-2 h-4 w-4" />
+                Login
+              </Link>
+            </Button>
+          )}
         </div>
 
         {/* Mobile Navigation Trigger */}
@@ -126,6 +168,35 @@ export function Navbar() {
               <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
             </Link>
           </Button>
+
+          {isAuthenticated && user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <User className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{user.firstName || user.email || user.phone}</p>
+                    <p className="text-xs text-muted-foreground">{user.email || user.phone}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800">
+              <Link href="/login">
+                <User className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+              </Link>
+            </Button>
+          )}
           
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
