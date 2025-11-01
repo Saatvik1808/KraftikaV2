@@ -113,5 +113,6 @@ export const InlineLoader: React.FC<{ className?: string }> = ({ className }) =>
   return <Spinner size="sm" className={className} />;
 };
 
+export { Loader };
 export default Loader;
 
