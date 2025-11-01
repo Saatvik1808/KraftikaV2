@@ -51,7 +51,8 @@ import {
   BarChart3,
 } from "lucide-react";
 import { getAllOrders, getVendorOrders, getAllPayouts, getAllInvoices, getProfitLoss, getAllVendors, createVendorOrder, createVendor } from "@/services/orders-api";
-import type { Order, VendorOrder, Payout, GSTInvoice, ProfitLoss, Vendor, OrderStatus, VendorOrderStatus, InvoiceStatus, PayoutStatus } from "@/types/order";
+import type { Order, VendorOrder, Payout, GSTInvoice, ProfitLoss, Vendor, OrderStatus, InvoiceStatus, PayoutStatus } from "@/types/order";
+import { VendorOrderStatus } from "@/types/order";
 import { format } from "date-fns";
 import { getProducts } from "@/services/products-unified";
 import { Label } from "@/components/ui/label";
@@ -645,8 +646,25 @@ export function VendorOrdersTab() {
                     type="number"
                     min="0"
                     step="0.01"
-                    value={vendorFormData.marginPercentage}
-                    onChange={(e) => setVendorFormData(prev => ({ ...prev, marginPercentage: parseFloat(e.target.value) || 0 }))}
+                    value={vendorFormData.marginPercentage !== undefined && vendorFormData.marginPercentage !== null ? vendorFormData.marginPercentage : ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const normalizedVal = val.replace(/^0+([1-9])/, "$1");
+                      if (normalizedVal === "" || normalizedVal === "0") {
+                        setVendorFormData(prev => ({ ...prev, marginPercentage: 0 }));
+                        return;
+                      }
+                      const num = parseFloat(normalizedVal);
+                      if (!isNaN(num) && num >= 0) {
+                        setVendorFormData(prev => ({ ...prev, marginPercentage: num }));
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const val = e.target.value;
+                      if (!val || val === "0" || val === "") {
+                        setVendorFormData(prev => ({ ...prev, marginPercentage: 0 }));
+                      }
+                    }}
                     placeholder="0"
                   />
                 </div>
@@ -755,8 +773,35 @@ export function VendorOrdersTab() {
                             <Input
                               type="number"
                               min="1"
-                              value={item.quantity}
-                              onChange={(e) => handleOrderItemChange(index, "quantity", parseInt(e.target.value) || 1)}
+                              value={item.quantity || ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                // Remove leading zeros but preserve single "0" for user to continue typing
+                                // If value is "05", convert to "5"
+                                if (val.match(/^0+[1-9]/)) {
+                                  const normalizedVal = val.replace(/^0+/, "");
+                                  const num = parseInt(normalizedVal, 10);
+                                  if (!isNaN(num) && num > 0) {
+                                    handleOrderItemChange(index, "quantity", num);
+                                  }
+                                  return;
+                                }
+                                // Allow empty string for user to continue typing
+                                if (val === "" || val === "0") {
+                                  return;
+                                }
+                                // Parse and update if valid
+                                const num = parseInt(val, 10);
+                                if (!isNaN(num) && num > 0) {
+                                  handleOrderItemChange(index, "quantity", num);
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const val = e.target.value;
+                                if (!val || val === "0" || parseInt(val, 10) < 1) {
+                                  handleOrderItemChange(index, "quantity", 1);
+                                }
+                              }}
                             />
                           </div>
 
@@ -766,8 +811,26 @@ export function VendorOrdersTab() {
                               type="number"
                               min="0"
                               step="0.01"
-                              value={item.wholesalePrice}
-                              onChange={(e) => handleOrderItemChange(index, "wholesalePrice", parseFloat(e.target.value) || 0)}
+                              value={item.wholesalePrice !== undefined && item.wholesalePrice !== null ? item.wholesalePrice : ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                // Remove leading zeros from integer part (e.g., "05.50" becomes "5.50")
+                                const normalizedVal = val.replace(/^0+([1-9])/, "$1");
+                                if (normalizedVal === "" || normalizedVal === "0") {
+                                  handleOrderItemChange(index, "wholesalePrice", 0);
+                                  return;
+                                }
+                                const num = parseFloat(normalizedVal);
+                                if (!isNaN(num) && num >= 0) {
+                                  handleOrderItemChange(index, "wholesalePrice", num);
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const val = e.target.value;
+                                if (!val || val === "0" || val === "") {
+                                  handleOrderItemChange(index, "wholesalePrice", 0);
+                                }
+                              }}
                               placeholder="Price you charge vendor"
                             />
                           </div>
@@ -778,8 +841,26 @@ export function VendorOrdersTab() {
                               type="number"
                               min="0"
                               step="0.01"
-                              value={item.retailPrice}
-                              onChange={(e) => handleOrderItemChange(index, "retailPrice", parseFloat(e.target.value) || 0)}
+                              value={item.retailPrice !== undefined && item.retailPrice !== null ? item.retailPrice : ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                // Remove leading zeros from integer part (e.g., "05.50" becomes "5.50")
+                                const normalizedVal = val.replace(/^0+([1-9])/, "$1");
+                                if (normalizedVal === "" || normalizedVal === "0") {
+                                  handleOrderItemChange(index, "retailPrice", 0);
+                                  return;
+                                }
+                                const num = parseFloat(normalizedVal);
+                                if (!isNaN(num) && num >= 0) {
+                                  handleOrderItemChange(index, "retailPrice", num);
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const val = e.target.value;
+                                if (!val || val === "0" || val === "") {
+                                  handleOrderItemChange(index, "retailPrice", 0);
+                                }
+                              }}
                               placeholder="Price vendor sells at"
                             />
                           </div>

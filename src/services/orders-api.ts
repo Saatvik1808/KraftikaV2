@@ -154,7 +154,38 @@ export async function getVendorOrders(vendorId?: string): Promise<VendorOrder[]>
 export async function createVendorOrder(order: Omit<VendorOrder, "id" | "createdAt">): Promise<VendorOrder> {
   try {
     // TODO: Replace with actual backend endpoint when VendorOrder entity is created
-    throw new Error("Not implemented");
+    // For now, create a mock response with generated ID
+    const mockResponse: VendorOrder = {
+      id: `vo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      vendorId: order.vendorId,
+      vendorName: order.vendorName,
+      orderId: order.orderId || `ORDER_${Date.now()}`,
+      orderItems: order.orderItems,
+      totalAmount: order.totalAmount,
+      salePrice: order.salePrice,
+      margin: order.margin,
+      status: order.status,
+      sentDate: order.sentDate,
+      soldDate: order.soldDate,
+      createdAt: new Date().toISOString(),
+    };
+    
+    // TODO: Uncomment this when backend endpoint is ready
+    // const response = await apiClient.post<VendorOrder>("/vendor-orders", {
+    //   vendorId: order.vendorId,
+    //   vendorName: order.vendorName,
+    //   orderItems: order.orderItems,
+    //   totalAmount: order.totalAmount,
+    //   salePrice: order.salePrice,
+    //   margin: order.margin,
+    //   status: order.status,
+    //   sentDate: order.sentDate,
+    // });
+    // return response;
+    
+    // For now, return mock response
+    console.warn("createVendorOrder: Using mock response. Backend endpoint not yet implemented.");
+    return mockResponse;
   } catch (error) {
     console.error("Error creating vendor order:", error);
     throw error;
