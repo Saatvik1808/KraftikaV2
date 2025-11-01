@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kraftikastudio.com',
     siteName: 'Kraftika - Handcrafted Scented Candles',
     title: 'Kraftika - Premium Handcrafted Scented Candles | Best Candle Shop in India',
     description: 'Kraftika offers premium handcrafted scented soy candles in India. Shop the finest collection of aromatherapy candles, fragrance candles, and luxury candles. Where scents spark joy!',
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
   },
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kraftikastudio.com';
 
 // Enhanced Organization Schema for Google Rich Results
 const organizationSchema = {
