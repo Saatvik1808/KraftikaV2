@@ -5,9 +5,17 @@ import { VendorOrderStatus, InvoiceStatus, PayoutStatus, OrderStatus } from "@/t
 // Vendor APIs - Integrated with backend
 export async function getAllVendors(): Promise<Vendor[]> {
   try {
+    console.log("Fetching vendors from:", `${apiClient.baseUrl}/vendors`);
     const response = await apiClient.get<Vendor[]>("/vendors");
+    console.log("Vendors response received:", response);
+    
+    if (!Array.isArray(response)) {
+      console.error("Vendors response is not an array:", response);
+      return [];
+    }
+    
     // Transform backend response to frontend format
-    return response.map((v: any) => ({
+    const vendors = response.map((v: any) => ({
       id: v.id,
       name: v.name,
       email: v.email || "",
@@ -21,10 +29,17 @@ export async function getAllVendors(): Promise<Vendor[]> {
       createdAt: v.createdAt,
       updatedAt: v.updatedAt,
     }));
+    
+    console.log("Transformed vendors:", vendors);
+    return vendors;
   } catch (error) {
-    console.error("Error fetching vendors:", error);
-    // Return empty array if backend not available
-    return [];
+    console.error("❌ Error fetching vendors:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
+    // Re-throw error so calling code can handle it
+    throw error;
   }
 }
 

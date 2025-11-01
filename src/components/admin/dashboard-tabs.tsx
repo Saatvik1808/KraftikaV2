@@ -250,6 +250,8 @@ export function VendorOrdersTab() {
   const [products, setProducts] = React.useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSubmittingVendor, setIsSubmittingVendor] = React.useState(false);
+  const [vendorsLoading, setVendorsLoading] = React.useState(true);
+  const [vendorsError, setVendorsError] = React.useState<string | null>(null);
   
   // Vendor form state
   const [vendorFormData, setVendorFormData] = React.useState({
@@ -278,14 +280,27 @@ export function VendorOrdersTab() {
   React.useEffect(() => {
     const fetchVendorsAndProducts = async () => {
       try {
+        setVendorsLoading(true);
+        setVendorsError(null);
+        console.log("🔄 Fetching vendors and products...");
         const [vendorsData, productsData] = await Promise.all([
           getAllVendors(),
           getProducts(),
         ]);
+        console.log("✅ Vendors fetched:", vendorsData.length);
+        console.log("✅ Products fetched:", productsData.length);
         setVendors(vendorsData);
         setProducts(productsData);
       } catch (error) {
-        console.error("Error fetching vendors/products:", error);
+        console.error("❌ Error fetching vendors/products:", error);
+        const errorMessage = error instanceof Error ? error.message : "Failed to fetch vendors";
+        setVendorsError(errorMessage);
+        console.error("Error details:", error);
+        // Set empty arrays but keep error state
+        setVendors([]);
+        setProducts([]);
+      } finally {
+        setVendorsLoading(false);
       }
     };
     fetchVendorsAndProducts();
@@ -334,7 +349,10 @@ export function VendorOrdersTab() {
 
     try {
       setIsSubmittingVendor(true);
-      const newVendor = await createVendor(vendorFormData);
+      const newVendor = await createVendor({
+        ...vendorFormData,
+        isActive: true, // Default to active when creating
+      });
       
       // Add to local state
       setVendors(prev => [...prev, newVendor]);
@@ -668,14 +686,25 @@ export function VendorOrdersTab() {
                     <SelectValue placeholder="Select a vendor" />
                   </SelectTrigger>
                   <SelectContent>
-                    {vendors.map((vendor) => (
-                      <SelectItem key={vendor.id} value={vendor.id}>
-                        {vendor.name} {vendor.gstNumber && `(${vendor.gstNumber})`}
-                      </SelectItem>
-                    ))}
+                    {vendorsLoading ? (
+                      <SelectItem value="loading" disabled>Loading vendors...</SelectItem>
+                    ) : vendorsError ? (
+                      <SelectItem value="error" disabled>Error: {vendorsError}</SelectItem>
+                    ) : vendors.length === 0 ? (
+                      <SelectItem value="empty" disabled>No vendors available</SelectItem>
+                    ) : (
+                      vendors.map((vendor) => (
+                        <SelectItem key={vendor.id} value={vendor.id}>
+                          {vendor.name} {vendor.gstNumber && `(${vendor.gstNumber})`}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
-                {vendors.length === 0 && (
+                {vendorsError && (
+                  <p className="text-sm text-red-600 mt-1">⚠️ Error loading vendors: {vendorsError}</p>
+                )}
+                {!vendorsLoading && !vendorsError && vendors.length === 0 && (
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-muted-foreground">No vendors available.</p>
                     <Button
@@ -1514,6 +1543,7 @@ export function GSTInvoicesTab() {
   const [vendorOrders, setVendorOrders] = React.useState<VendorOrder[]>([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedInvoice, setSelectedInvoice] = React.useState<GSTInvoice | null>(null);
+  const [vendorsError, setVendorsError] = React.useState<string | null>(null);
   
   const [invoiceFormData, setInvoiceFormData] = React.useState({
     vendorId: "",
@@ -1533,16 +1563,28 @@ export function GSTInvoicesTab() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+        setVendorsError(null);
+        console.log("🔄 Fetching invoices, vendors, and orders...");
         const [invoicesData, vendorsData, ordersData] = await Promise.all([
           getAllInvoices(),
           getAllVendors(),
           getVendorOrders(),
         ]);
+        console.log("✅ Invoices fetched:", invoicesData.length);
+        console.log("✅ Vendors fetched:", vendorsData.length);
+        console.log("✅ Orders fetched:", ordersData.length);
         setInvoices(invoicesData);
         setVendors(vendorsData);
         setVendorOrders(ordersData);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("❌ Error fetching data:", error);
+        if (error instanceof Error && error.message.includes("vendors")) {
+          setVendorsError(error.message);
+        }
+        // Continue with empty arrays for other data
+        setInvoices([]);
+        setVendors([]);
+        setVendorOrders([]);
       } finally {
         setIsLoading(false);
       }
@@ -1729,13 +1771,24 @@ export function GSTInvoicesTab() {
                       <SelectValue placeholder="Select vendor" />
                     </SelectTrigger>
                     <SelectContent>
-                      {vendors.map((vendor) => (
-                        <SelectItem key={vendor.id} value={vendor.id}>
-                          {vendor.name} ({vendor.gstNumber})
-                        </SelectItem>
-                      ))}
+                      {isLoading ? (
+                        <SelectItem value="loading" disabled>Loading vendors...</SelectItem>
+                      ) : vendorsError ? (
+                        <SelectItem value="error" disabled>Error: {vendorsError}</SelectItem>
+                      ) : vendors.length === 0 ? (
+                        <SelectItem value="empty" disabled>No vendors available</SelectItem>
+                      ) : (
+                        vendors.map((vendor) => (
+                          <SelectItem key={vendor.id} value={vendor.id}>
+                            {vendor.name} ({vendor.gstNumber})
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
+                  {vendorsError && (
+                    <p className="text-sm text-red-600 mt-1">⚠️ Error loading vendors: {vendorsError}</p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
