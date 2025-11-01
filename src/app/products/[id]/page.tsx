@@ -8,7 +8,7 @@ import { getProduct, getRelatedProducts } from '@/services/products-unified';
 import { ProductDetailClient } from './product-detail-client';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // Data fetching functions (server-side)
@@ -31,7 +31,8 @@ export async function generateMetadata(
   { params }: PageProps,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const product = await getProductData(params.id);
+  const { id } = await params;
+  const product = await getProductData(id);
 
   if (!product) {
     return {
@@ -78,7 +79,7 @@ export async function generateMetadata(
         ...previousImages,
       ],
       url: productUrl,
-      type: 'product',
+      type: 'website',
       siteName: 'Kraftika',
     },
     twitter: {
@@ -96,20 +97,46 @@ export async function generateMetadata(
 
 // The main page component (Server Component)
 export default async function ProductDetailPage({ params }: PageProps) {
-  const product = await getProductData(params.id);
+  const { id } = await params;
+  let product: Candle | null;
+  let relatedProducts: Candle[] = [];
+  let reviews: Review[] = [];
 
-  if (!product) {
+  try {
+    product = await getProductData(id);
+
+    if (!product) {
+      notFound();
+      return; // TypeScript guard - notFound() throws but TS doesn't know that
+    }
+
+    // Fetch data on the server with error handling
+    try {
+      [relatedProducts, reviews] = await Promise.all([
+        getRelatedProductsData(product.scentCategory, product.id),
+        getReviewsForProduct(product.id)
+      ]);
+    } catch (error) {
+      // If related products or reviews fail, continue with empty arrays
+      console.error("Error fetching related products or reviews:", error);
+      relatedProducts = [];
+      reviews = [];
+    }
+  } catch (error) {
+    console.error("Error fetching product:", error);
     notFound();
+    return; // TypeScript guard
   }
 
-  // Fetch data on the server
-  const [relatedProducts, reviews] = await Promise.all([
-    getRelatedProductsData(product.scentCategory, product.id),
-    getReviewsForProduct(product.id)
-  ]);
+  // Ensure product is not null at this point (TypeScript check)
+  if (!product) {
+    notFound();
+    return;
+  }
 
   const averageRating = reviews.length > 0 ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com';
+  const productUrl = `${siteUrl}/products/${product.id}`;
 
   // Enhanced JSON-LD for Rich Product Snippets
   const productImageUrl = product.imageUrl.startsWith('http') 
