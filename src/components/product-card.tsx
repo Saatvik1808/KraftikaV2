@@ -65,6 +65,11 @@ export function ProductCard({
   const { toast } = useToast();
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  
+  // Prefetch product page on hover for faster navigation
+  const handleMouseEnter = () => {
+    router.prefetch(`/products/${product.id}`);
+  };
 
   const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -101,6 +106,7 @@ export function ProductCard({
       initial="rest"
       whileHover="hover"
       animate="rest"
+      onMouseEnter={handleMouseEnter}
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-xl bg-white dark:bg-gray-900",
         "border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md",
@@ -117,6 +123,7 @@ export function ProductCard({
         href={`/products/${product.id}`} 
         className="absolute inset-0 z-20" 
         aria-label={`View details for ${product.name}`}
+        prefetch={true}
       />
 
       {/* Image container */}
@@ -204,7 +211,7 @@ export function ProductCard({
             className="h-9 w-9 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 group-hover:border-primary/30 transition-colors"
             asChild
           >
-            <Link href={`/products/${product.id}`}>
+            <Link href={`/products/${product.id}`} prefetch={true}>
               <Eye className="h-4 w-4 text-gray-700 dark:text-gray-300" />
             </Link>
           </Button>

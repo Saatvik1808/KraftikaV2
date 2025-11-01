@@ -2,7 +2,7 @@
 "use server";
 
 import { z } from "zod";
-import { sendEmail, type Message } from '@/services/email';
+import { API_BASE_URL } from "@/services/config";
 
 // Define the schema for the form data
 const formSchema = z.object({
@@ -42,44 +42,76 @@ export async function sendContactEmail(
    // Destructure validated data
    const { name, email, message } = validatedFields.data;
 
-   // Prepare the message for the email service
-   const emailMessage: Message = {
+   // Prepare the request body for the backend API
+   const requestBody = {
      name,
      email,
      message,
    };
 
   try {
-    // Call your email sending service
-    console.log("Attempting to send email with data:", emailMessage);
-    const emailSent = await sendEmail(emailMessage);
+    // Ensure URL is properly formatted (remove trailing slash if present)
+    const baseUrl = API_BASE_URL.replace(/\/$/, '');
+    const contactUrl = `${baseUrl}/contact`;
+    
+    // Call backend API to send email
+    console.log("Attempting to send email via backend API:", requestBody);
+    console.log("Contact API URL:", contactUrl);
+    const response = await fetch(contactUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
 
-    if (emailSent) {
-       console.log("Contact email processing successful for:", email);
-      return { success: true, message: "Message sent successfully!" };
-    } else {
-      console.error("Email service failed to send for:", email);
-      // Check if it's a configuration issue by checking environment variables
-      const requiredVars = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'EMAIL_TO'];
-      const missingVars = requiredVars.filter(varName => !process.env[varName]);
+    // Check if response is ok before trying to parse JSON
+    if (!response.ok) {
+      console.error("Email service failed - HTTP status:", response.status, response.statusText);
       
-      if (missingVars.length > 0) {
-        console.error("Missing email configuration:", missingVars.join(', '));
-        return { 
-          success: false, 
-          error: "Email service is not configured. Please contact the administrator." 
-        };
+      // Try to parse error response
+      let errorMessage = "Failed to send email. Please try again later.";
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (e) {
+        // If response is not JSON, use status text
+        errorMessage = response.statusText || errorMessage;
       }
       
       return { 
         success: false, 
-        error: "Failed to send email. Please try again later or contact us directly at studiokraftika@gmail.com." 
+        error: errorMessage 
+      };
+    }
+
+    const data = await response.json();
+
+    if (data.success) {
+       console.log("Contact email processing successful for:", email);
+      return { success: true, message: data.message || "Message sent successfully!" };
+    } else {
+      console.error("Email service failed to send for:", email);
+      console.error("Error response:", data);
+      
+      return { 
+        success: false, 
+        error: data.error || "Failed to send email. Please try again later or contact us directly at studiokraftika@gmail.com." 
       };
     }
   } catch (error) {
     console.error("Error sending contact email:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error details:", errorMessage);
+    
+    // Check if it's a network error
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      return { 
+        success: false, 
+        error: "Cannot connect to server. Please check your connection and try again." 
+      };
+    }
+    
     // Provide a generic error message to the client
     return { 
       success: false, 

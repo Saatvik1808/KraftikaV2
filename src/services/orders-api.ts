@@ -1,5 +1,6 @@
 import { apiClient } from "./api";
 import type { Order, Vendor, VendorOrder, GSTInvoice, Payout, ProfitLoss } from "@/types/order";
+import { VendorOrderStatus, InvoiceStatus, PayoutStatus, OrderStatus } from "@/types/order";
 
 // Vendor APIs - Integrated with backend
 export async function getAllVendors(): Promise<Vendor[]> {
@@ -108,87 +109,218 @@ export const getAllMerchants = getAllVendors;
 export const createMerchant = createVendor;
 export const updateMerchant = updateVendor;
 
-export async function getAllOrders(): Promise<Order[]> {
+export async function getAllOrders(userId?: string): Promise<Order[]> {
   try {
-    // TODO: Replace with actual backend endpoint
-    // For now, return mock data
-    return [];
-  } catch (error) {
+    const params = userId ? `?userId=${userId}` : '';
+    const response = await apiClient.get<any[]>(`/orders${params}`);
+    
+    // Transform backend response to frontend format
+    return response.map((order: any) => ({
+      id: order.id,
+      userId: order.userId,
+      totalAmount: order.totalAmount,
+      status: order.status as OrderStatus,
+      shippingAddress: typeof order.shippingAddress === 'string' 
+        ? JSON.parse(order.shippingAddress) 
+        : order.shippingAddress || {},
+      paymentMethod: order.paymentMethod || "",
+      orderItems: order.orderItems.map((item: any) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: item.subtotal,
+      })),
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    }));
+  } catch (error: any) {
     console.error("Error fetching orders:", error);
-    throw error;
+    return [];
   }
 }
 
 export async function getOrderById(id: string): Promise<Order | null> {
   try {
-    // TODO: Replace with actual backend endpoint
-    return null;
-  } catch (error) {
+    const response = await apiClient.get<any>(`/orders/${id}`);
+    
+    // Transform backend response to frontend format
+    return {
+      id: response.id,
+      userId: response.userId,
+      totalAmount: response.totalAmount,
+      status: response.status as OrderStatus,
+      shippingAddress: typeof response.shippingAddress === 'string' 
+        ? JSON.parse(response.shippingAddress) 
+        : response.shippingAddress || {},
+      paymentMethod: response.paymentMethod || "",
+      orderItems: response.orderItems.map((item: any) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: item.subtotal,
+      })),
+      createdAt: response.createdAt,
+      updatedAt: response.updatedAt,
+    };
+  } catch (error: any) {
     console.error("Error fetching order:", error);
-    throw error;
+    return null;
   }
 }
 
 export async function updateOrderStatus(orderId: string, status: string): Promise<Order> {
   try {
-    // TODO: Replace with actual backend endpoint
-    throw new Error("Not implemented");
-  } catch (error) {
+    const response = await apiClient.put<any>(`/orders/${orderId}/status?status=${status}`, {});
+    
+    // Transform backend response to frontend format
+    return {
+      id: response.id,
+      userId: response.userId,
+      totalAmount: response.totalAmount,
+      status: response.status as OrderStatus,
+      shippingAddress: typeof response.shippingAddress === 'string' 
+        ? JSON.parse(response.shippingAddress) 
+        : response.shippingAddress || {},
+      paymentMethod: response.paymentMethod || "",
+      orderItems: response.orderItems.map((item: any) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: item.subtotal,
+      })),
+      createdAt: response.createdAt,
+      updatedAt: response.updatedAt,
+    };
+  } catch (error: any) {
     console.error("Error updating order status:", error);
-    throw error;
+    throw new Error(error.message || "Failed to update order status");
   }
 }
 
 // Vendor Orders APIs
 export async function getVendorOrders(vendorId?: string): Promise<VendorOrder[]> {
   try {
-    // TODO: Replace with actual backend endpoint when VendorOrder entity is created
-    // For now, return empty array
-    return [];
-  } catch (error) {
+    const params = vendorId ? `?vendorId=${vendorId}` : '';
+    const response = await apiClient.get<any[]>(`/vendor-orders${params}`);
+    
+    // Transform backend response to frontend format
+    return response.map((order: any) => ({
+      id: order.id,
+      vendorId: order.vendorId,
+      vendorName: order.vendorName,
+      orderId: order.orderId,
+      orderItems: order.orderItems.map((item: any) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        wholesalePrice: item.wholesalePrice,
+        retailPrice: item.retailPrice,
+        margin: item.margin,
+      })),
+      totalAmount: order.totalAmount,
+      salePrice: order.salePrice,
+      margin: order.margin,
+      status: order.status as VendorOrderStatus,
+      sentDate: order.sentDate,
+      soldDate: order.soldDate,
+      createdAt: order.createdAt,
+    }));
+  } catch (error: any) {
     console.error("Error fetching vendor orders:", error);
-    throw error;
+    // Return empty array on error to avoid breaking the UI
+    return [];
   }
 }
 
 export async function createVendorOrder(order: Omit<VendorOrder, "id" | "createdAt">): Promise<VendorOrder> {
   try {
-    // TODO: Replace with actual backend endpoint when VendorOrder entity is created
-    // For now, create a mock response with generated ID
-    const mockResponse: VendorOrder = {
-      id: `vo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    const response = await apiClient.post<any>("/vendor-orders", {
       vendorId: order.vendorId,
-      vendorName: order.vendorName,
-      orderId: order.orderId || `ORDER_${Date.now()}`,
-      orderItems: order.orderItems,
-      totalAmount: order.totalAmount,
-      salePrice: order.salePrice,
-      margin: order.margin,
-      status: order.status,
-      sentDate: order.sentDate,
-      soldDate: order.soldDate,
-      createdAt: new Date().toISOString(),
+      orderId: order.orderId || undefined,
+      orderItems: order.orderItems.map(item => ({
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        wholesalePrice: item.wholesalePrice,
+        retailPrice: item.retailPrice,
+      })),
+    });
+    
+    // Transform backend response to frontend format
+    return {
+      id: response.id,
+      vendorId: response.vendorId,
+      vendorName: response.vendorName,
+      orderId: response.orderId,
+      orderItems: response.orderItems.map((item: any) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        wholesalePrice: item.wholesalePrice,
+        retailPrice: item.retailPrice,
+        margin: item.margin,
+      })),
+      totalAmount: response.totalAmount,
+      salePrice: response.salePrice,
+      margin: response.margin,
+      status: response.status as VendorOrderStatus,
+      sentDate: response.sentDate,
+      soldDate: response.soldDate,
+      createdAt: response.createdAt,
     };
-    
-    // TODO: Uncomment this when backend endpoint is ready
-    // const response = await apiClient.post<VendorOrder>("/vendor-orders", {
-    //   vendorId: order.vendorId,
-    //   vendorName: order.vendorName,
-    //   orderItems: order.orderItems,
-    //   totalAmount: order.totalAmount,
-    //   salePrice: order.salePrice,
-    //   margin: order.margin,
-    //   status: order.status,
-    //   sentDate: order.sentDate,
-    // });
-    // return response;
-    
-    // For now, return mock response
-    console.warn("createVendorOrder: Using mock response. Backend endpoint not yet implemented.");
-    return mockResponse;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating vendor order:", error);
-    throw error;
+    throw new Error(error.message || "Failed to create vendor order");
+  }
+}
+
+export async function updateVendorOrderStatus(orderId: string, status: VendorOrderStatus): Promise<VendorOrder> {
+  try {
+    const response = await apiClient.put<any>(`/vendor-orders/${orderId}/status?status=${status}`, {});
+    
+    // Transform backend response to frontend format
+    return {
+      id: response.id,
+      vendorId: response.vendorId,
+      vendorName: response.vendorName,
+      orderId: response.orderId,
+      orderItems: response.orderItems.map((item: any) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        wholesalePrice: item.wholesalePrice,
+        retailPrice: item.retailPrice,
+        margin: item.margin,
+      })),
+      totalAmount: response.totalAmount,
+      salePrice: response.salePrice,
+      margin: response.margin,
+      status: response.status as VendorOrderStatus,
+      sentDate: response.sentDate,
+      soldDate: response.soldDate,
+      createdAt: response.createdAt,
+    };
+  } catch (error: any) {
+    console.error("Error updating vendor order status:", error);
+    throw new Error(error.message || "Failed to update vendor order status");
+  }
+}
+
+export async function deleteVendorOrder(orderId: string): Promise<void> {
+  try {
+    await apiClient.delete(`/vendor-orders/${orderId}`);
+  } catch (error: any) {
+    console.error("Error deleting vendor order:", error);
+    throw new Error(error.message || "Failed to delete vendor order");
   }
 }
 
@@ -197,23 +329,145 @@ export const getMerchantOrders = getVendorOrders;
 export const createMerchantOrder = createVendorOrder;
 
 // GST Invoice APIs
-export async function getAllInvoices(): Promise<GSTInvoice[]> {
+export async function getAllInvoices(vendorId?: string): Promise<GSTInvoice[]> {
   try {
-    // TODO: Replace with actual backend endpoint when GSTInvoice entity is created
-    return [];
-  } catch (error) {
+    const params = vendorId ? `?vendorId=${vendorId}` : '';
+    const response = await apiClient.get<any[]>(`/gst-invoices${params}`);
+    
+    // Transform backend response to frontend format
+    return response.map((invoice: any) => ({
+      id: invoice.id,
+      invoiceNumber: invoice.invoiceNumber,
+      vendorId: invoice.vendorId,
+      vendorName: invoice.vendorName,
+      vendorGST: invoice.vendorGST,
+      invoiceDate: invoice.invoiceDate,
+      dueDate: invoice.dueDate,
+      items: invoice.items.map((item: any) => ({
+        id: item.id,
+        productName: item.productName,
+        hsnCode: item.hsnCode,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        gstRate: item.gstRate,
+        taxableAmount: item.taxableAmount,
+        cgst: item.cgst,
+        sgst: item.sgst,
+        igst: item.igst,
+        total: item.total,
+      })),
+      subtotal: invoice.subtotal,
+      cgst: invoice.cgst,
+      sgst: invoice.sgst,
+      igst: invoice.igst,
+      totalAmount: invoice.totalAmount,
+      status: invoice.status as InvoiceStatus,
+      createdAt: invoice.createdAt,
+    }));
+  } catch (error: any) {
     console.error("Error fetching invoices:", error);
-    throw error;
+    return [];
   }
 }
 
 export async function createInvoice(invoice: Omit<GSTInvoice, "id" | "invoiceNumber" | "createdAt">): Promise<GSTInvoice> {
   try {
-    // TODO: Replace with actual backend endpoint when GSTInvoice entity is created
-    throw new Error("Not implemented");
-  } catch (error) {
+    const response = await apiClient.post<any>("/gst-invoices", {
+      vendorId: invoice.vendorId,
+      invoiceDate: invoice.invoiceDate,
+      dueDate: invoice.dueDate,
+      isInterState: invoice.igst > 0, // If IGST > 0, it's inter-state
+      items: invoice.items.map(item => ({
+        productName: item.productName,
+        hsnCode: item.hsnCode,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        gstRate: item.gstRate,
+      })),
+    });
+    
+    // Transform backend response to frontend format
+    return {
+      id: response.id,
+      invoiceNumber: response.invoiceNumber,
+      vendorId: response.vendorId,
+      vendorName: response.vendorName,
+      vendorGST: response.vendorGST,
+      invoiceDate: response.invoiceDate,
+      dueDate: response.dueDate,
+      items: response.items.map((item: any) => ({
+        id: item.id,
+        productName: item.productName,
+        hsnCode: item.hsnCode,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        gstRate: item.gstRate,
+        taxableAmount: item.taxableAmount,
+        cgst: item.cgst,
+        sgst: item.sgst,
+        igst: item.igst,
+        total: item.total,
+      })),
+      subtotal: response.subtotal,
+      cgst: response.cgst,
+      sgst: response.sgst,
+      igst: response.igst,
+      totalAmount: response.totalAmount,
+      status: response.status as InvoiceStatus,
+      createdAt: response.createdAt,
+    };
+  } catch (error: any) {
     console.error("Error creating invoice:", error);
-    throw error;
+    throw new Error(error.message || "Failed to create invoice");
+  }
+}
+
+export async function updateInvoiceStatus(invoiceId: string, status: InvoiceStatus): Promise<GSTInvoice> {
+  try {
+    const response = await apiClient.put<any>(`/gst-invoices/${invoiceId}/status?status=${status}`, {});
+    
+    // Transform backend response to frontend format
+    return {
+      id: response.id,
+      invoiceNumber: response.invoiceNumber,
+      vendorId: response.vendorId,
+      vendorName: response.vendorName,
+      vendorGST: response.vendorGST,
+      invoiceDate: response.invoiceDate,
+      dueDate: response.dueDate,
+      items: response.items.map((item: any) => ({
+        id: item.id,
+        productName: item.productName,
+        hsnCode: item.hsnCode,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        gstRate: item.gstRate,
+        taxableAmount: item.taxableAmount,
+        cgst: item.cgst,
+        sgst: item.sgst,
+        igst: item.igst,
+        total: item.total,
+      })),
+      subtotal: response.subtotal,
+      cgst: response.cgst,
+      sgst: response.sgst,
+      igst: response.igst,
+      totalAmount: response.totalAmount,
+      status: response.status as InvoiceStatus,
+      createdAt: response.createdAt,
+    };
+  } catch (error: any) {
+    console.error("Error updating invoice status:", error);
+    throw new Error(error.message || "Failed to update invoice status");
+  }
+}
+
+export async function deleteInvoice(invoiceId: string): Promise<void> {
+  try {
+    await apiClient.delete(`/gst-invoices/${invoiceId}`);
+  } catch (error: any) {
+    console.error("Error deleting invoice:", error);
+    throw new Error(error.message || "Failed to delete invoice");
   }
 }
 
@@ -228,34 +482,140 @@ export async function generateInvoicePDF(invoiceId: string): Promise<Blob> {
 }
 
 // Payout APIs
-export async function getAllPayouts(): Promise<Payout[]> {
+export async function getAllPayouts(vendorId?: string): Promise<Payout[]> {
   try {
-    // TODO: Replace with actual backend endpoint
-    return [];
-  } catch (error) {
+    const params = vendorId ? `?vendorId=${vendorId}` : '';
+    const response = await apiClient.get<any[]>(`/payouts${params}`);
+    
+    // Transform backend response to frontend format
+    return response.map((payout: any) => ({
+      id: payout.id,
+      vendorId: payout.vendorId,
+      vendorName: payout.vendorName,
+      invoiceId: payout.invoiceId,
+      amount: payout.amount,
+      status: payout.status as PayoutStatus,
+      paymentDate: payout.paymentDate,
+      paymentMethod: payout.paymentMethod,
+      transactionId: payout.transactionId,
+      createdAt: payout.createdAt,
+    }));
+  } catch (error: any) {
     console.error("Error fetching payouts:", error);
-    throw error;
+    return [];
   }
 }
 
 export async function createPayout(payout: Omit<Payout, "id" | "createdAt">): Promise<Payout> {
   try {
-    // TODO: Replace with actual backend endpoint
-    throw new Error("Not implemented");
-  } catch (error) {
+    const response = await apiClient.post<any>("/payouts", {
+      invoiceId: payout.invoiceId,
+      paymentMethod: payout.paymentMethod,
+      transactionId: payout.transactionId,
+    });
+    
+    // Transform backend response to frontend format
+    return {
+      id: response.id,
+      vendorId: response.vendorId,
+      vendorName: response.vendorName,
+      invoiceId: response.invoiceId,
+      amount: response.amount,
+      status: response.status as PayoutStatus,
+      paymentDate: response.paymentDate,
+      paymentMethod: response.paymentMethod,
+      transactionId: response.transactionId,
+      createdAt: response.createdAt,
+    };
+  } catch (error: any) {
     console.error("Error creating payout:", error);
-    throw error;
+    throw new Error(error.message || "Failed to create payout");
   }
 }
 
-// Profit/Loss APIs
+// Profit/Loss APIs - Calculate from vendor orders
 export async function getProfitLoss(period?: string, merchantId?: string): Promise<ProfitLoss[]> {
   try {
-    // TODO: Replace with actual backend endpoint
-    return [];
+    // Get all vendor orders and calculate profit/loss from them
+    const vendorOrders = await getVendorOrders(merchantId);
+    
+    if (vendorOrders.length === 0) {
+      return [];
+    }
+    
+    // Group orders by period (month-year) and vendor
+    const profitMap = new Map<string, {
+      vendorId?: string;
+      vendorName?: string;
+      period: string;
+      totalSales: number;
+      totalCost: number;
+      expenses: number;
+    }>();
+    
+    vendorOrders.forEach(order => {
+      // Parse period from order date
+      const orderDate = new Date(order.sentDate);
+      const orderPeriod = period || `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;
+      const key = `${orderPeriod}_${order.vendorId || 'all'}`;
+      
+      if (!profitMap.has(key)) {
+        profitMap.set(key, {
+          vendorId: order.vendorId,
+          vendorName: order.vendorName,
+          period: orderPeriod,
+          totalSales: 0,
+          totalCost: 0,
+          expenses: 0,
+        });
+      }
+      
+      const profit = profitMap.get(key)!;
+      
+      // Total sales = what vendor sells at (retail price)
+      profit.totalSales += order.salePrice;
+      
+      // Total cost = what we charge vendor (wholesale price)
+      profit.totalCost += order.totalAmount;
+      
+      // For SOLD orders, add expenses (could be shipping, etc.)
+      if (order.status === VendorOrderStatus.SOLD) {
+        // Assuming 5% expenses on sold orders
+        profit.expenses += order.salePrice * 0.05;
+      }
+    });
+    
+    // Convert to ProfitLoss array
+    const profitLossData: ProfitLoss[] = Array.from(profitMap.values()).map((data, index) => {
+      const grossProfit = data.totalSales - data.totalCost;
+      const netProfit = grossProfit - data.expenses;
+      const netLoss = netProfit < 0 ? Math.abs(netProfit) : 0;
+      
+      return {
+        id: `pl_${index}_${Date.now()}`,
+        vendorId: data.vendorId,
+        vendorName: data.vendorName,
+        period: data.period,
+        totalSales: data.totalSales,
+        totalCost: data.totalCost,
+        grossProfit: grossProfit,
+        expenses: data.expenses,
+        netProfit: netProfit > 0 ? netProfit : 0,
+        netLoss: netLoss,
+        createdAt: new Date().toISOString(),
+      };
+    });
+    
+    // Filter by period if specified
+    if (period && period !== 'all') {
+      return profitLossData.filter(p => p.period === period);
+    }
+    
+    return profitLossData.sort((a, b) => b.period.localeCompare(a.period));
   } catch (error) {
     console.error("Error fetching profit/loss:", error);
-    throw error;
+    // Return empty array on error
+    return [];
   }
 }
 

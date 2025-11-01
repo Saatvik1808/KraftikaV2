@@ -31,73 +31,79 @@ export default function CartPage() {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   
-  // Fetch all products from Firestore on component mount
-  React.useEffect(() => {
-    const fetchAllProducts = async () => {
-      try {
-        setIsLoading(true);
-        const products = await getProducts();
-        setAllProducts(products);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        toast({ title: "Error", description: "Could not load product details.", variant: "destructive" });
-      }
-    };
-
-    fetchAllProducts();
-  }, [toast]);
-  
-  // Load cart items - from backend if authenticated, from localStorage otherwise
+  // Load cart items - optimized to fetch directly from backend when authenticated
   React.useEffect(() => {
     const loadCart = async () => {
-      if (allProducts.length === 0) return;
-      
       try {
         setIsLoading(true);
         let loadedCartItems: CartItem[] = [];
         
         if (isAuthenticated) {
-          // Load from backend API
+          // Load from backend API directly - backend already returns all needed product data
+          // This is much faster than fetching all products first
           try {
             const backendCart = await cartApi.getCart();
-            // Backend returns CartItem[] with productId, price, etc.
-            // Map to our CartItem format (which extends Candle)
+            // Backend returns cart items with productName, productImageUrl, price, etc.
+            // We can construct CartItem directly without fetching all products
             loadedCartItems = backendCart.map((backendItem: any) => {
-              const productDetails = allProducts.find(p => p.id === backendItem.productId);
-              if (productDetails) {
-                return {
-                  ...productDetails,
-                  quantity: backendItem.quantity,
-                  price: typeof backendItem.price === 'string' ? parseFloat(backendItem.price) : backendItem.price,
-                };
-              }
-              return null;
-            }).filter((item: any) => item !== null) as CartItem[];
+              const price = typeof backendItem.price === 'string' 
+                ? parseFloat(backendItem.price) 
+                : (typeof backendItem.price === 'number' ? backendItem.price : 0);
+              
+              return {
+                id: backendItem.productId,
+                name: backendItem.productName || '',
+                description: '',
+                price: price,
+                imageUrl: backendItem.productImageUrl || '',
+                scentCategory: '',
+                scentNotes: '',
+                burnTime: '',
+                ingredients: '',
+                popularity: 0,
+                createdAt: new Date().toISOString(),
+                quantity: backendItem.quantity || 1,
+              } as CartItem;
+            }).filter((item: CartItem) => item.id && item.name) as CartItem[];
           } catch (error: any) {
             console.error("Failed to load cart from backend:", error);
-            // Fallback to localStorage if backend fails
+            // Fallback to localStorage if backend fails - need products for this
+            try {
+              const products = await getProducts();
+              setAllProducts(products);
+              const cartString = localStorage.getItem('kraftikaCart');
+              const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+              loadedCartItems = storedCartItems.map(storedItem => {
+                const productDetails = products.find(p => p.id === storedItem.id);
+                if (productDetails) {
+                  return { ...productDetails, quantity: storedItem.quantity };
+                }
+                return null;
+              }).filter(item => item !== null) as CartItem[];
+            } catch (fallbackError) {
+              console.error("Failed to load products for fallback:", fallbackError);
+              loadedCartItems = [];
+            }
+          }
+        } else {
+          // Load from localStorage - need to fetch products first
+          try {
+            const products = await getProducts();
+            setAllProducts(products);
             const cartString = localStorage.getItem('kraftikaCart');
             const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+            
             loadedCartItems = storedCartItems.map(storedItem => {
-              const productDetails = allProducts.find(p => p.id === storedItem.id);
+              const productDetails = products.find(p => p.id === storedItem.id);
               if (productDetails) {
                 return { ...productDetails, quantity: storedItem.quantity };
               }
               return null;
             }).filter(item => item !== null) as CartItem[];
+          } catch (error) {
+            console.error("Failed to load products:", error);
+            loadedCartItems = [];
           }
-        } else {
-          // Load from localStorage
-          const cartString = localStorage.getItem('kraftikaCart');
-          const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
-          
-          loadedCartItems = storedCartItems.map(storedItem => {
-            const productDetails = allProducts.find(p => p.id === storedItem.id);
-            if (productDetails) {
-              return { ...productDetails, quantity: storedItem.quantity };
-            }
-            return null;
-          }).filter(item => item !== null) as CartItem[];
         }
         
         setCartItems(loadedCartItems);
@@ -111,7 +117,7 @@ export default function CartPage() {
     };
     
     loadCart();
-  }, [allProducts, isAuthenticated, toast]);
+  }, [isAuthenticated, toast]);
 
 
   const handleDecreaseQuantityOrRemove = async (itemId: string) => {
