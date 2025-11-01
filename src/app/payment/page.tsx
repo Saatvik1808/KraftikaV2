@@ -12,6 +12,8 @@ import { ArrowLeft, CheckCircle, Info, QrCode } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Candle } from "@/types/candle";
 import { getProducts } from "@/services/products-unified";
+import { useAuth } from "@/contexts/AuthContext";
+import { cartApi } from "@/services/cart-api";
 
 // Define CartItem types consistent with other parts of the app
 interface CartItem extends Candle {
@@ -29,61 +31,126 @@ export default function PaymentPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [paymentConfirmed, setPaymentConfirmed] = React.useState(false);
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
 
-  // Fetch all products from Firestore on component mount
+  // Load cart items - optimized to fetch directly from backend when authenticated
   React.useEffect(() => {
-    const fetchAllProducts = async () => {
+    const loadCart = async () => {
       try {
         setIsLoading(true);
-        const products = await getProducts();
-        setAllProducts(products);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        toast({ title: "Error", description: "Could not load product details.", variant: "destructive" });
-      }
-    };
-    fetchAllProducts();
-  }, [toast]);
-
-  // Hydrate cart items from localStorage once allProducts are available
-  React.useEffect(() => {
-    if (allProducts.length > 0) {
-      try {
-        const cartString = localStorage.getItem('kraftikaCart');
-        const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+        let loadedCartItems: CartItem[] = [];
         
-        const hydratedCartItems = storedCartItems.map(storedItem => {
-          const productDetails = allProducts.find(p => p.id === storedItem.id);
-          if (productDetails) {
-            return { ...productDetails, quantity: storedItem.quantity };
+        if (isAuthenticated) {
+          // Load from backend API directly - backend already returns all needed product data
+          // This is much faster than fetching all products first
+          try {
+            const backendCart = await cartApi.getCart();
+            // Backend returns cart items with productName, productImageUrl, price, etc.
+            // We can construct CartItem directly without fetching all products
+            loadedCartItems = backendCart.map((backendItem: any) => {
+              const price = typeof backendItem.price === 'string' 
+                ? parseFloat(backendItem.price) 
+                : (typeof backendItem.price === 'number' ? backendItem.price : 0);
+              
+              return {
+                id: backendItem.productId,
+                name: backendItem.productName || '',
+                description: '',
+                price: price,
+                imageUrl: backendItem.productImageUrl || '',
+                scentCategory: '',
+                scentNotes: '',
+                burnTime: '',
+                ingredients: '',
+                popularity: 0,
+                createdAt: new Date().toISOString(),
+                quantity: backendItem.quantity || 1,
+              } as CartItem;
+            }).filter((item: CartItem) => item.id && item.name) as CartItem[];
+          } catch (error: any) {
+            console.error("Failed to load cart from backend:", error);
+            // Fallback to localStorage if backend fails - need products for this
+            try {
+              const products = await getProducts();
+              setAllProducts(products);
+              const cartString = localStorage.getItem('kraftikaCart');
+              const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+              loadedCartItems = storedCartItems.map(storedItem => {
+                const productDetails = products.find(p => p.id === storedItem.id);
+                if (productDetails) {
+                  return { ...productDetails, quantity: storedItem.quantity };
+                }
+                return null;
+              }).filter(item => item !== null) as CartItem[];
+            } catch (fallbackError) {
+              console.error("Failed to load products for fallback:", fallbackError);
+              loadedCartItems = [];
+            }
           }
-          return null;
-        }).filter(item => item !== null) as CartItem[];
+        } else {
+          // Load from localStorage - need to fetch products first
+          try {
+            const products = await getProducts();
+            setAllProducts(products);
+            const cartString = localStorage.getItem('kraftikaCart');
+            const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
+            
+            loadedCartItems = storedCartItems.map(storedItem => {
+              const productDetails = products.find(p => p.id === storedItem.id);
+              if (productDetails) {
+                return { ...productDetails, quantity: storedItem.quantity };
+              }
+              return null;
+            }).filter(item => item !== null) as CartItem[];
+          } catch (error) {
+            console.error("Failed to load products:", error);
+            loadedCartItems = [];
+          }
+        }
         
-        setCartItems(hydratedCartItems);
+        setCartItems(loadedCartItems);
       } catch (error) {
-        console.error("Failed to load cart from localStorage", error);
+        console.error("Failed to load cart:", error);
         setCartItems([]);
         toast({ title: "Error", description: "Could not load your cart.", variant: "destructive" });
       } finally {
         setIsLoading(false);
       }
-    } else if (!isLoading) {
-        setIsLoading(false);
-    }
-  }, [allProducts, isLoading, toast]);
+    };
+    
+    loadCart();
+  }, [isAuthenticated, toast]);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shippingCost = subtotal > 50 || cartItems.length === 0 ? 0 : 5.99;
   const total = subtotal + shippingCost;
 
-  const handleConfirmPayment = () => {
-    setPaymentConfirmed(true);
-    localStorage.removeItem('kraftikaCart'); // Clear the cart after confirmation
-    toast({
-        title: "Payment Confirmed!",
-        description: "Thank you for your order. We'll process it shortly.",
-    });
+  const handleConfirmPayment = async () => {
+    try {
+      // Clear cart from backend if authenticated, otherwise from localStorage
+      if (isAuthenticated) {
+        try {
+          await cartApi.clearCart();
+        } catch (error) {
+          console.error("Failed to clear backend cart:", error);
+        }
+      } else {
+        localStorage.removeItem('kraftikaCart');
+      }
+      
+      setPaymentConfirmed(true);
+      toast({
+          title: "Payment Confirmed!",
+          description: "Thank you for your order. We'll process it shortly.",
+      });
+    } catch (error) {
+      console.error("Error confirming payment:", error);
+      toast({
+          title: "Error",
+          description: "Failed to confirm payment. Please try again.",
+          variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
@@ -148,12 +215,13 @@ export default function PaymentPage() {
             <CardContent className="p-0 flex flex-col items-center space-y-4">
               <div className="relative w-64 h-64 bg-white p-4 rounded-lg shadow-md border">
                 <Image
-                  src="/qr-code.png" // IMPORTANT: User needs to place their QR code here
+                  src="/qr-code.jpeg"
                   alt="Payment QR Code"
                   fill
                   sizes="256px"
                   className="object-contain"
-                  data-ai-hint="payment qr code"
+                  unoptimized
+                  priority
                 />
               </div>
               <div className="text-center text-muted-foreground">
@@ -162,12 +230,39 @@ export default function PaymentPage() {
               </div>
             </CardContent>
           </Card>
+          
+          {/* WhatsApp QR Code */}
+          <Card className="glassmorphism p-6 border border-[hsl(var(--border)/0.2)]">
+            <CardHeader className="p-0 mb-4">
+              <CardTitle className="text-xl flex items-center">
+                <QrCode className="mr-3 h-6 w-6 text-primary" />
+                Contact Us on WhatsApp
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 flex flex-col items-center space-y-4">
+              <div className="relative w-64 h-64 bg-white p-4 rounded-lg shadow-md border">
+                <Image
+                  src="/whatsapp-qr.jpg"
+                  alt="WhatsApp QR Code"
+                  fill
+                  sizes="256px"
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+              <div className="text-center text-muted-foreground">
+                <p className="text-sm font-medium">Scan this QR code after payment confirmation</p>
+                <p className="text-xs mt-1">Share your payment receipt and order details on WhatsApp</p>
+              </div>
+            </CardContent>
+          </Card>
+          
           <Alert>
               <Info className="h-4 w-4"/>
               <AlertTitle>Important!</AlertTitle>
               <AlertDescription>
                 After completing the payment, please click the "Confirm Payment" button below.
-                You will get an order confirmation on WhatsApp.
+                Then scan the WhatsApp QR code above to share your payment receipt and receive order confirmation.
               </AlertDescription>
           </Alert>
           <Button size="lg" className="w-full btn-primary" onClick={handleConfirmPayment}>
@@ -181,20 +276,29 @@ export default function PaymentPage() {
           <h2 className="text-2xl font-bold">Order Summary</h2>
           <Card className="glassmorphism p-4 border border-[hsl(var(--border)/0.1)]">
             <CardContent className="p-0 space-y-4">
-              {cartItems.map(item => (
-                <div key={item.id} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-3">
-                        <div className="relative w-12 h-12 rounded-md overflow-hidden bg-muted">
-                           <Image src={item.imageUrl} alt={item.name} fill className="object-cover"/>
-                        </div>
-                        <div>
-                           <p className="font-medium text-foreground">{item.name}</p>
-                           <p className="text-muted-foreground">Qty: {item.quantity}</p>
-                        </div>
-                    </div>
-                  <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
+              {cartItems.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Your cart is empty.</p>
+                  <Button asChild variant="outline" className="mt-4">
+                    <Link href="/products">Shop Now</Link>
+                  </Button>
                 </div>
-              ))}
+              ) : (
+                cartItems.map(item => (
+                  <div key={item.id} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 rounded-md overflow-hidden bg-muted">
+                        <Image src={item.imageUrl} alt={item.name} fill className="object-cover"/>
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{item.name}</p>
+                        <p className="text-muted-foreground">Qty: {item.quantity}</p>
+                      </div>
+                    </div>
+                    <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
           <Card className="glassmorphism p-4 border border-[hsl(var(--border)/0.1)]">

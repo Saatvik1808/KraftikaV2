@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { sendLeadNotification, type Lead } from '@/services/email';
+import { API_BASE_URL } from "@/services/config";
 
 // Define the schema for the lead form data
 const leadSchema = z.object({
@@ -57,26 +57,83 @@ export async function submitLead(
    // Destructure validated data
    const { name, email, phone } = validatedFields.data;
 
-   // Prepare the lead data
-   const lead: Lead = {
+   // Prepare the lead data for backend API (array format to match backend expectation)
+   const requestBody = [{
      name: name || undefined,
      email: email || undefined,
      phone: phone || undefined,
-   };
+   }];
 
   try {
-    console.log("Attempting to submit lead with data:", lead);
-    // This will always capture the lead (even if email fails, it logs to console)
-    await sendLeadNotification(lead);
+    // Build the API URL using the base URL from config (API_BASE_URL already includes /api)
+    const leadUrl = `${API_BASE_URL || 'https://kraftika-backend-production.up.railway.app/api'}/leads`;
     
-    console.log("Lead submission successful");
-    return { success: true, message: "Thank you for your interest! We'll contact you soon." };
+    // Call backend API to create lead and send email notification
+    console.log("Attempting to submit lead via backend API:", requestBody);
+    console.log("Lead API URL:", leadUrl);
+    const response = await fetch(leadUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    // Check if response is ok before trying to parse JSON
+    if (!response.ok) {
+      console.error("Lead submission failed - HTTP status:", response.status, response.statusText);
+      
+      // Try to parse error response
+      let errorMessage = "Failed to submit lead. Please try again later.";
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (e) {
+        // If response is not JSON, use status text
+        errorMessage = response.statusText || errorMessage;
+      }
+      
+      return { 
+        success: false, 
+        error: errorMessage 
+      };
+    }
+
+    const responseData = await response.json();
+
+    if (responseData.success) {
+      console.log("Lead submission successful for:", email || phone);
+      return { 
+        success: true, 
+        message: responseData.message || "Thank you for your interest! We'll contact you soon." 
+      };
+    } else {
+      console.error("Lead submission failed for:", email || phone);
+      console.error("Error response:", responseData);
+      
+      return { 
+        success: false, 
+        error: responseData.error || "Failed to submit lead. Please try again later." 
+      };
+    }
   } catch (error) {
     console.error("Error submitting lead:", error);
-    // Even on unexpected errors, log the lead to console as backup
-    console.log("📧 LEAD SUBMITTED (with error, but captured):", lead);
-    // Still return success since we captured the lead
-    return { success: true, message: "Thank you for your interest! We'll contact you soon." };
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error details:", errorMessage);
+    
+    // Check if it's a network error
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      return { 
+        success: false, 
+        error: "Cannot connect to server. Please check your connection and try again." 
+      };
+    }
+    
+    // Provide a generic error message to the client
+    return { 
+      success: false, 
+      error: "An unexpected error occurred while submitting your information. Please try again later." 
+    };
   }
 }
 

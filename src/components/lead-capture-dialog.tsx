@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { submitLead } from "@/app/lead/actions";
+import { API_BASE_URL } from "@/services/config";
 
 const leadFormSchema = z.object({
   name: z.string().min(2, {
@@ -93,11 +93,56 @@ export function LeadCaptureDialog({ open, onOpenChange }: LeadCaptureDialogProps
     form.clearErrors();
 
     try {
-      const result = await submitLead(values);
-      if (result.success) {
+      // Prepare the lead data for backend API (array format to match backend expectation)
+      const requestBody = [{
+        name: values.name || undefined,
+        email: values.email || undefined,
+        phone: values.phone || undefined,
+      }];
+
+      // Build the API URL using the base URL from config
+      const leadUrl = `${API_BASE_URL || 'https://kraftika-backend-production.up.railway.app/api'}/leads`;
+      
+      console.log("Submitting lead to:", leadUrl);
+      console.log("Lead data:", requestBody);
+
+      // Call backend API to create lead and send email notification
+      const response = await fetch(leadUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      // Check if response is ok
+      if (!response.ok) {
+        console.error("Lead submission failed - HTTP status:", response.status, response.statusText);
+        
+        // Try to parse error response
+        let errorMessage = "Failed to submit lead. Please try again later.";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (e) {
+          errorMessage = response.statusText || errorMessage;
+        }
+        
+        toast({
+          title: "Submission Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const responseData = await response.json();
+
+      if (responseData.success) {
+        console.log("Lead submission successful");
         toast({
           title: "Thank You!",
-          description: "We've received your information. We'll contact you soon!",
+          description: responseData.message || "We've received your information. We'll contact you soon!",
           className: "bg-green-50 dark:bg-green-900/90 border-green-200 dark:border-green-700 text-green-900 dark:text-green-50",
         });
         setIsSuccess(true);
@@ -107,27 +152,30 @@ export function LeadCaptureDialog({ open, onOpenChange }: LeadCaptureDialogProps
           onOpenChange(false);
         }, 2000);
       } else {
-        if (result.fieldErrors) {
-          (Object.keys(result.fieldErrors) as Array<keyof LeadFormData>).forEach((field) => {
-            const messages = result.fieldErrors?.[field];
-            if (messages && messages.length > 0) {
-              form.setError(field, { type: "server", message: messages.join(", ") });
-            }
-          });
-        }
         toast({
           title: "Submission Failed",
-          description: result.error || "Please check the form for errors.",
+          description: responseData.error || "Please check the form for errors.",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Lead form submission error:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        toast({
+          title: "Connection Error",
+          description: "Cannot connect to server. Please check your connection and try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

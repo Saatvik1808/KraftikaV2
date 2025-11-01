@@ -11,9 +11,15 @@ function validateEmailConfig(): { valid: boolean; missing: string[] } {
   const requiredVars = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'EMAIL_TO'];
   const missing: string[] = [];
 
+  // Debug: Log which variables are present (without showing values)
+  console.log("📧 Checking email configuration:");
   for (const varName of requiredVars) {
-    if (!process.env[varName]) {
+    const value = process.env[varName];
+    if (!value || value.trim() === '') {
       missing.push(varName);
+      console.log(`   ❌ ${varName}: NOT SET`);
+    } else {
+      console.log(`   ✅ ${varName}: SET (${value.length} chars)`);
     }
   }
 
@@ -23,23 +29,38 @@ function validateEmailConfig(): { valid: boolean; missing: string[] } {
   };
 }
 
-export async function sendEmail({ name, email, message }: Message): Promise<boolean> {
+export type EmailResult = {
+  success: boolean;
+  error?: string;
+  errorType?: 'config' | 'connection' | 'auth' | 'send' | 'unknown';
+};
+
+export async function sendEmail({ name, email, message }: Message): Promise<EmailResult> {
   // Validate environment variables first
   const configCheck = validateEmailConfig();
   if (!configCheck.valid) {
-    console.error("❌ Email configuration error: Missing required environment variables:", configCheck.missing.join(', '));
+    const missingVars = configCheck.missing.join(', ');
+    console.error("❌ Email configuration error: Missing required environment variables:", missingVars);
     console.error("Please set the following environment variables:");
     configCheck.missing.forEach(varName => {
       console.error(`  - ${varName}`);
     });
-    return false;
+    return {
+      success: false,
+      error: `Missing required environment variables: ${missingVars}`,
+      errorType: 'config'
+    };
   }
 
   try {
     const smtpPort = Number(process.env.SMTP_PORT);
     if (isNaN(smtpPort) || smtpPort <= 0) {
       console.error("❌ Email configuration error: SMTP_PORT must be a valid number");
-      return false;
+      return {
+        success: false,
+        error: 'SMTP_PORT must be a valid number',
+        errorType: 'config'
+      };
     }
 
     // Determine if secure connection should be used (typically port 465 uses secure)
@@ -84,25 +105,42 @@ export async function sendEmail({ name, email, message }: Message): Promise<bool
     const info = await transporter.sendMail(mailOptions);
     console.log("✅ Email sent successfully:", info.messageId);
     console.log("📧 Email sent to:", process.env.EMAIL_TO);
-    return true;
+    return { success: true };
   } catch (error) {
     console.error("❌ Error sending email:");
+    let errorType: EmailResult['errorType'] = 'unknown';
+    let errorMessage = 'Failed to send email';
+    
     if (error instanceof Error) {
       console.error("   Error message:", error.message);
       console.error("   Error stack:", error.stack);
       
       // Provide more specific error messages
       if (error.message.includes('ECONNECTION') || error.message.includes('ETIMEDOUT')) {
+        errorType = 'connection';
+        errorMessage = 'Cannot connect to SMTP server. Check SMTP_HOST and SMTP_PORT.';
         console.error("   Issue: Cannot connect to SMTP server. Check SMTP_HOST and SMTP_PORT.");
-      } else if (error.message.includes('EAUTH')) {
+      } else if (error.message.includes('EAUTH') || error.message.includes('authentication')) {
+        errorType = 'auth';
+        errorMessage = 'Authentication failed. Check SMTP_USER and SMTP_PASS.';
         console.error("   Issue: Authentication failed. Check SMTP_USER and SMTP_PASS.");
       } else if (error.message.includes('EENVELOPE')) {
+        errorType = 'send';
+        errorMessage = 'Invalid email address. Check EMAIL_TO.';
         console.error("   Issue: Invalid email address. Check EMAIL_TO.");
+      } else {
+        errorMessage = error.message;
       }
     } else {
       console.error("   Unknown error:", error);
+      errorMessage = 'Unknown error occurred';
     }
-    return false;
+    
+    return {
+      success: false,
+      error: errorMessage,
+      errorType
+    };
   }
 }
 

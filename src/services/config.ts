@@ -23,6 +23,6 @@ export function useFirebaseAPI(): boolean {
   return API_CONFIG.provider === 'firebase';
 }
 
-// API Base URL
-export const API_BASE_URL =  'https://kraftika-backend-production.up.railway.app/api';
+// API Base URL - use environment variable if available, otherwise default
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || API_CONFIG.springBoot.baseUrl;
 

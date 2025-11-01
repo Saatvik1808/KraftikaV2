@@ -50,9 +50,9 @@ import {
   Clock,
   BarChart3,
 } from "lucide-react";
-import { getAllOrders, getVendorOrders, getAllPayouts, getAllInvoices, getProfitLoss, getAllVendors, createVendorOrder, createVendor } from "@/services/orders-api";
-import type { Order, VendorOrder, Payout, GSTInvoice, ProfitLoss, Vendor, OrderStatus, InvoiceStatus, PayoutStatus } from "@/types/order";
-import { VendorOrderStatus } from "@/types/order";
+import { getAllOrders, getVendorOrders, getAllPayouts, getAllInvoices, getProfitLoss, getAllVendors, createVendorOrder, createVendor, updateVendorOrderStatus, deleteVendorOrder, createInvoice, createPayout, updateInvoiceStatus, deleteInvoice } from "@/services/orders-api";
+import type { Order, VendorOrder, Payout, GSTInvoice, ProfitLoss, Vendor, OrderStatus } from "@/types/order";
+import { InvoiceStatus, VendorOrderStatus, PayoutStatus } from "@/types/order";
 import { format } from "date-fns";
 import { getProducts } from "@/services/products-unified";
 import { Label } from "@/components/ui/label";
@@ -295,26 +295,12 @@ export function VendorOrdersTab() {
     const fetchVendorOrders = async () => {
       try {
         setIsLoading(true);
+        // getVendorOrders now reads from localStorage automatically
         const data = await getVendorOrders();
-        
-        // If no data from API, try loading from localStorage (demo mode)
-        if (data.length === 0) {
-          const demoOrders = localStorage.getItem("demo_vendor_orders");
-          if (demoOrders) {
-            setVendorOrders(JSON.parse(demoOrders));
-          } else {
-            setVendorOrders([]);
-          }
-        } else {
-          setVendorOrders(data);
-        }
+        setVendorOrders(data || []);
       } catch (error) {
         console.error("Error fetching vendor orders:", error);
-        // Try loading from localStorage as fallback
-        const demoOrders = localStorage.getItem("demo_vendor_orders");
-        if (demoOrders) {
-          setVendorOrders(JSON.parse(demoOrders));
-        }
+        setVendorOrders([]);
       } finally {
         setIsLoading(false);
       }
@@ -454,7 +440,7 @@ export function VendorOrdersTab() {
       };
 
       try {
-        await createVendorOrder(vendorOrder);
+        const createdOrder = await createVendorOrder(vendorOrder);
         
         // Reset form
         setFormData({
@@ -463,38 +449,14 @@ export function VendorOrdersTab() {
         });
         setShowCreateDialog(false);
         
-        // Refresh orders list
+        // Refresh orders list from API (which now reads from localStorage)
         const updatedOrders = await getVendorOrders();
         setVendorOrders(updatedOrders);
         
         alert("Order created successfully!");
       } catch (apiError: any) {
-        // If backend is not implemented, store locally for demo
-        if (apiError.message?.includes("Not implemented") || apiError.message?.includes("not implemented")) {
-          // Store in localStorage for demo purposes
-          const existingOrders = JSON.parse(localStorage.getItem("demo_vendor_orders") || "[]");
-          const newOrder = {
-            ...vendorOrder,
-            id: `demo_${Date.now()}`,
-            createdAt: new Date().toISOString(),
-          };
-          existingOrders.push(newOrder);
-          localStorage.setItem("demo_vendor_orders", JSON.stringify(existingOrders));
-          
-          // Add to local state
-          setVendorOrders(prev => [...prev, newOrder as VendorOrder]);
-          
-          // Reset form
-          setFormData({
-            vendorId: "",
-            orderItems: [],
-          });
-          setShowCreateDialog(false);
-          
-          alert("Order created successfully! (Stored locally - backend not connected yet)");
-        } else {
-          throw apiError;
-        }
+        console.error("Error creating vendor order:", apiError);
+        alert(apiError.message || "Failed to create order. Please try again.");
       }
     } catch (error: any) {
       console.error("Error creating order:", error);
@@ -963,7 +925,7 @@ export function VendorOrdersTab() {
                   const marginPercent = order.totalAmount > 0 ? (marginAmount / order.totalAmount) * 100 : 0;
                   return (
                     <TableRow key={order.id}>
-                      <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}...</TableCell>
+                      <TableCell className="font-mono text-xs">{order.orderId || order.id.slice(0, 8)}</TableCell>
                       <TableCell className="font-medium">{order.vendorName}</TableCell>
                       <TableCell>{format(new Date(order.sentDate), "MMM dd, yyyy")}</TableCell>
                       <TableCell className="font-semibold">₹{order.totalAmount.toFixed(2)}</TableCell>
@@ -977,9 +939,51 @@ export function VendorOrdersTab() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={order.status}
+                            onValueChange={async (newStatus) => {
+                              try {
+                                await updateVendorOrderStatus(order.id, newStatus as VendorOrderStatus);
+                                // Refresh orders list
+                                const updatedOrders = await getVendorOrders();
+                                setVendorOrders(updatedOrders);
+                              } catch (error: any) {
+                                alert(error.message || "Failed to update order status");
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-[140px] h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={VendorOrderStatus.SENT}>SENT</SelectItem>
+                              <SelectItem value={VendorOrderStatus.PARTIALLY_SOLD}>PARTIALLY_SOLD</SelectItem>
+                              <SelectItem value={VendorOrderStatus.SOLD}>SOLD</SelectItem>
+                              <SelectItem value={VendorOrderStatus.RETURNED}>RETURNED</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={async () => {
+                              if (confirm(`Are you sure you want to delete order ${order.orderId}?`)) {
+                                try {
+                                  await deleteVendorOrder(order.id);
+                                  // Refresh orders list
+                                  const updatedOrders = await getVendorOrders();
+                                  setVendorOrders(updatedOrders);
+                                  alert("Order deleted successfully!");
+                                } catch (error: any) {
+                                  alert(error.message || "Failed to delete order");
+                                }
+                              }
+                            }}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
@@ -1226,21 +1230,82 @@ export function PayoutsTab() {
   const [payouts, setPayouts] = React.useState<Payout[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
+  const [showCreateDialog, setShowCreateDialog] = React.useState(false);
+  const [invoices, setInvoices] = React.useState<GSTInvoice[]>([]);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  
+  const [payoutFormData, setPayoutFormData] = React.useState({
+    invoiceId: "",
+    paymentMethod: "BANK_TRANSFER",
+    transactionId: "",
+  });
 
   React.useEffect(() => {
-    const fetchPayouts = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const data = await getAllPayouts();
-        setPayouts(data);
+        const [payoutsData, invoicesData] = await Promise.all([
+          getAllPayouts(),
+          getAllInvoices(),
+        ]);
+        setPayouts(payoutsData);
+        setInvoices(invoicesData.filter(inv => inv.status === InvoiceStatus.PAID || inv.status === InvoiceStatus.SENT));
       } catch (error) {
-        console.error("Error fetching payouts:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchPayouts();
+    fetchData();
   }, []);
+  
+  const handleCreatePayout = async () => {
+    if (!payoutFormData.invoiceId) {
+      alert("Please select an invoice");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      const selectedInvoice = invoices.find(inv => inv.id === payoutFormData.invoiceId);
+      if (!selectedInvoice) {
+        alert("Invoice not found");
+        return;
+      }
+      
+      const payoutData: Omit<Payout, "id" | "createdAt"> = {
+        vendorId: selectedInvoice.vendorId,
+        vendorName: selectedInvoice.vendorName,
+        invoiceId: payoutFormData.invoiceId,
+        amount: selectedInvoice.totalAmount,
+        status: "PENDING" as PayoutStatus,
+        paymentMethod: payoutFormData.paymentMethod,
+        transactionId: payoutFormData.transactionId || undefined,
+      };
+      
+      await createPayout(payoutData);
+      
+      // Reset form
+      setPayoutFormData({
+        invoiceId: "",
+        paymentMethod: "BANK_TRANSFER",
+        transactionId: "",
+      });
+      setShowCreateDialog(false);
+      
+      // Refresh payouts
+      const updatedPayouts = await getAllPayouts();
+      setPayouts(updatedPayouts);
+      
+      alert("Payout created successfully!");
+    } catch (error: any) {
+      console.error("Error creating payout:", error);
+      alert(error.message || "Failed to create payout. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const filteredPayouts = payouts.filter(p => statusFilter === "all" || p.status === statusFilter);
 
@@ -1269,7 +1334,12 @@ export function PayoutsTab() {
               Track payments made to vendors
             </CardDescription>
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <div className="flex gap-2">
+            <Button onClick={() => setShowCreateDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Payout
+            </Button>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
@@ -1281,9 +1351,93 @@ export function PayoutsTab() {
               <SelectItem value="FAILED">Failed</SelectItem>
             </SelectContent>
           </Select>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
+        {/* Create Payout Dialog */}
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Create Payout</DialogTitle>
+              <DialogDescription>
+                Create a payout for a paid invoice
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Select Invoice *</Label>
+                <Select
+                  value={payoutFormData.invoiceId}
+                  onValueChange={(value) => setPayoutFormData(prev => ({ ...prev, invoiceId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select invoice" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {invoices.map((invoice) => (
+                      <SelectItem key={invoice.id} value={invoice.id}>
+                        {invoice.invoiceNumber} - {invoice.vendorName} - ₹{invoice.totalAmount.toFixed(2)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Payment Method *</Label>
+                <Select
+                  value={payoutFormData.paymentMethod}
+                  onValueChange={(value) => setPayoutFormData(prev => ({ ...prev, paymentMethod: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+                    <SelectItem value="UPI">UPI</SelectItem>
+                    <SelectItem value="CHEQUE">Cheque</SelectItem>
+                    <SelectItem value="CASH">Cash</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Transaction ID (Optional)</Label>
+                <Input
+                  value={payoutFormData.transactionId}
+                  onChange={(e) => setPayoutFormData(prev => ({ ...prev, transactionId: e.target.value }))}
+                  placeholder="Transaction reference number"
+                />
+              </div>
+              
+              {payoutFormData.invoiceId && (
+                <Card className="p-4 bg-muted/50">
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">Invoice Amount:</p>
+                    <p className="text-2xl font-bold">
+                      ₹{invoices.find(inv => inv.id === payoutFormData.invoiceId)?.totalAmount.toFixed(2) || "0.00"}
+                    </p>
+                  </div>
+                </Card>
+              )}
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreatePayout}
+                disabled={isSubmitting || !payoutFormData.invoiceId}
+              >
+                {isSubmitting ? "Creating..." : "Create Payout"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
         <div className="mb-6">
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="pt-6">
@@ -1356,21 +1510,142 @@ export function GSTInvoicesTab() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [showCreateDialog, setShowCreateDialog] = React.useState(false);
+  const [vendors, setVendors] = React.useState<Vendor[]>([]);
+  const [vendorOrders, setVendorOrders] = React.useState<VendorOrder[]>([]);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [selectedInvoice, setSelectedInvoice] = React.useState<GSTInvoice | null>(null);
+  
+  const [invoiceFormData, setInvoiceFormData] = React.useState({
+    vendorId: "",
+    invoiceDate: new Date().toISOString().split('T')[0],
+    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    isInterState: false,
+    items: [] as Array<{
+      productName: string;
+      hsnCode: string;
+      quantity: number;
+      unitPrice: number;
+      gstRate: number;
+    }>,
+  });
 
   React.useEffect(() => {
-    const fetchInvoices = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const data = await getAllInvoices();
-        setInvoices(data);
+        const [invoicesData, vendorsData, ordersData] = await Promise.all([
+          getAllInvoices(),
+          getAllVendors(),
+          getVendorOrders(),
+        ]);
+        setInvoices(invoicesData);
+        setVendors(vendorsData);
+        setVendorOrders(ordersData);
       } catch (error) {
-        console.error("Error fetching invoices:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchInvoices();
+    fetchData();
   }, []);
+  
+  const handleAddInvoiceItem = () => {
+    setInvoiceFormData(prev => ({
+      ...prev,
+      items: [...prev.items, {
+        productName: "",
+        hsnCode: "",
+        quantity: 1,
+        unitPrice: 0,
+        gstRate: 18, // Default 18% GST
+      }]
+    }));
+  };
+  
+  const handleRemoveInvoiceItem = (index: number) => {
+    setInvoiceFormData(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+  
+  const handleInvoiceItemChange = (index: number, field: string, value: any) => {
+    setInvoiceFormData(prev => ({
+      ...prev,
+      items: prev.items.map((item, i) => {
+        if (i === index) {
+          return { ...item, [field]: value };
+        }
+        return item;
+      })
+    }));
+  };
+  
+  const handleCreateInvoice = async () => {
+    if (!invoiceFormData.vendorId || invoiceFormData.items.length === 0) {
+      alert("Please select a vendor and add at least one item");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      const invoiceData: Omit<GSTInvoice, "id" | "invoiceNumber" | "createdAt"> = {
+        vendorId: invoiceFormData.vendorId,
+        vendorName: vendors.find(v => v.id === invoiceFormData.vendorId)?.name || "",
+        vendorGST: vendors.find(v => v.id === invoiceFormData.vendorId)?.gstNumber || "",
+        invoiceDate: invoiceFormData.invoiceDate,
+        dueDate: invoiceFormData.dueDate,
+        items: invoiceFormData.items.map(item => ({
+          id: "",
+          productName: item.productName,
+          hsnCode: item.hsnCode,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          gstRate: item.gstRate,
+          taxableAmount: item.unitPrice * item.quantity,
+          cgst: invoiceFormData.isInterState ? 0 : (item.unitPrice * item.quantity * item.gstRate / 100 / 2),
+          sgst: invoiceFormData.isInterState ? 0 : (item.unitPrice * item.quantity * item.gstRate / 100 / 2),
+          igst: invoiceFormData.isInterState ? (item.unitPrice * item.quantity * item.gstRate / 100) : 0,
+          total: item.unitPrice * item.quantity * (1 + item.gstRate / 100),
+        })),
+        subtotal: invoiceFormData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0),
+        cgst: invoiceFormData.items.reduce((sum, item) => 
+          sum + (invoiceFormData.isInterState ? 0 : (item.unitPrice * item.quantity * item.gstRate / 100 / 2)), 0),
+        sgst: invoiceFormData.items.reduce((sum, item) => 
+          sum + (invoiceFormData.isInterState ? 0 : (item.unitPrice * item.quantity * item.gstRate / 100 / 2)), 0),
+        igst: invoiceFormData.items.reduce((sum, item) => 
+          sum + (invoiceFormData.isInterState ? (item.unitPrice * item.quantity * item.gstRate / 100) : 0), 0),
+        totalAmount: invoiceFormData.items.reduce((sum, item) => 
+          sum + (item.unitPrice * item.quantity * (1 + item.gstRate / 100)), 0),
+        status: InvoiceStatus.DRAFT,
+      };
+      
+      await createInvoice(invoiceData);
+      
+      // Reset form
+      setInvoiceFormData({
+        vendorId: "",
+        invoiceDate: new Date().toISOString().split('T')[0],
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        isInterState: false,
+        items: [],
+      });
+      setShowCreateDialog(false);
+      
+      // Refresh invoices
+      const updatedInvoices = await getAllInvoices();
+      setInvoices(updatedInvoices);
+      
+      alert("Invoice created successfully!");
+    } catch (error: any) {
+      console.error("Error creating invoice:", error);
+      alert(error.message || "Failed to create invoice. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch = invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1432,6 +1707,203 @@ export function GSTInvoicesTab() {
         </div>
       </CardHeader>
       <CardContent>
+        {/* Create Invoice Dialog */}
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create GST Invoice</DialogTitle>
+              <DialogDescription>
+                Create a new GST invoice for a vendor
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Select Vendor *</Label>
+                  <Select
+                    value={invoiceFormData.vendorId}
+                    onValueChange={(value) => setInvoiceFormData(prev => ({ ...prev, vendorId: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select vendor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vendors.map((vendor) => (
+                        <SelectItem key={vendor.id} value={vendor.id}>
+                          {vendor.name} ({vendor.gstNumber})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Invoice Date *</Label>
+                  <Input
+                    type="date"
+                    value={invoiceFormData.invoiceDate}
+                    onChange={(e) => setInvoiceFormData(prev => ({ ...prev, invoiceDate: e.target.value }))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Due Date *</Label>
+                  <Input
+                    type="date"
+                    value={invoiceFormData.dueDate}
+                    onChange={(e) => setInvoiceFormData(prev => ({ ...prev, dueDate: e.target.value }))}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isInterState"
+                    checked={invoiceFormData.isInterState}
+                    onChange={(e) => setInvoiceFormData(prev => ({ ...prev, isInterState: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="isInterState">Inter-State (IGST) / Intra-State (CGST+SGST)</Label>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Invoice Items *</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={handleAddInvoiceItem}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Item
+                  </Button>
+                </div>
+                
+                {invoiceFormData.items.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                    <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No items added. Click "Add Item" to start.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {invoiceFormData.items.map((item, index) => (
+                      <Card key={index} className="p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                          <div className="space-y-2">
+                            <Label>Product Name *</Label>
+                            <Input
+                              value={item.productName}
+                              onChange={(e) => handleInvoiceItemChange(index, "productName", e.target.value)}
+                              placeholder="Product name"
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>HSN Code *</Label>
+                            <Input
+                              value={item.hsnCode}
+                              onChange={(e) => handleInvoiceItemChange(index, "hsnCode", e.target.value)}
+                              placeholder="HSN code"
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>Quantity *</Label>
+                            <Input
+                              type="number"
+                              min="1"
+                              value={item.quantity || ""}
+                              onChange={(e) => handleInvoiceItemChange(index, "quantity", parseInt(e.target.value) || 1)}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>Unit Price (₹) *</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.unitPrice || ""}
+                              onChange={(e) => handleInvoiceItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>GST Rate (%) *</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                              value={item.gstRate || ""}
+                              onChange={(e) => handleInvoiceItemChange(index, "gstRate", parseFloat(e.target.value) || 0)}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="mt-4 flex items-center justify-between pt-4 border-t">
+                          <div className="text-sm text-muted-foreground">
+                            <p>Subtotal: ₹{(item.unitPrice * item.quantity).toFixed(2)}</p>
+                            <p>GST: ₹{(item.unitPrice * item.quantity * item.gstRate / 100).toFixed(2)}</p>
+                            <p className="font-semibold">Total: ₹{(item.unitPrice * item.quantity * (1 + item.gstRate / 100)).toFixed(2)}</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveInvoiceItem(index)}
+                            className="text-destructive"
+                          >
+                            <XCircle className="h-4 w-4 mr-2" />
+                            Remove
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {invoiceFormData.items.length > 0 && (
+                <Card className="p-4 bg-muted/50">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm font-medium">Subtotal:</p>
+                      <p className="text-2xl font-bold">
+                        ₹{invoiceFormData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0).toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">Total GST:</p>
+                      <p className="text-2xl font-bold">
+                        ₹{invoiceFormData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity * item.gstRate / 100), 0).toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">Total Amount:</p>
+                      <p className="text-2xl font-bold">
+                        ₹{invoiceFormData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity * (1 + item.gstRate / 100)), 0).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateInvoice}
+                disabled={isSubmitting || !invoiceFormData.vendorId || invoiceFormData.items.length === 0}
+              >
+                {isSubmitting ? "Creating..." : "Create Invoice"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {isLoading ? (
           <div className="text-center py-8 text-muted-foreground">Loading invoices...</div>
         ) : filteredInvoices.length === 0 ? (
@@ -1473,19 +1945,56 @@ export function GSTInvoicesTab() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={invoice.status}
+                            onValueChange={async (newStatus) => {
+                              try {
+                                await updateInvoiceStatus(invoice.id, newStatus as InvoiceStatus);
+                                // Refresh invoices list
+                                const updatedInvoices = await getAllInvoices();
+                                setInvoices(updatedInvoices);
+                              } catch (error: any) {
+                                alert(error.message || "Failed to update invoice status");
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-[140px] h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={InvoiceStatus.DRAFT}>DRAFT</SelectItem>
+                              <SelectItem value={InvoiceStatus.SENT}>SENT</SelectItem>
+                              <SelectItem value={InvoiceStatus.PAID}>PAID</SelectItem>
+                              <SelectItem value={InvoiceStatus.OVERDUE}>OVERDUE</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              // TODO: Implement download invoice
-                              alert("Download functionality coming soon");
-                            }}
+                            onClick={() => setSelectedInvoice(invoice)}
                           >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
                             <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={async () => {
+                              if (confirm(`Are you sure you want to delete invoice ${invoice.invoiceNumber}?`)) {
+                                try {
+                                  await deleteInvoice(invoice.id);
+                                  // Refresh invoices list
+                                  const updatedInvoices = await getAllInvoices();
+                                  setInvoices(updatedInvoices);
+                                  alert("Invoice deleted successfully!");
+                                } catch (error: any) {
+                                  alert(error.message || "Failed to delete invoice");
+                                }
+                              }
+                            }}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <XCircle className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -1495,6 +2004,120 @@ export function GSTInvoicesTab() {
               </TableBody>
             </Table>
           </div>
+        )}
+        
+        {/* Invoice Details Dialog */}
+        {selectedInvoice && (
+          <Dialog open={!!selectedInvoice} onOpenChange={() => setSelectedInvoice(null)}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Invoice Details</DialogTitle>
+                <DialogDescription>
+                  Invoice Number: {selectedInvoice.invoiceNumber}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-muted-foreground">Vendor</Label>
+                    <p className="font-semibold">{selectedInvoice.vendorName}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">GST Number</Label>
+                    <p className="font-mono text-sm">{selectedInvoice.vendorGST}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Invoice Date</Label>
+                    <p>{format(new Date(selectedInvoice.invoiceDate), "MMM dd, yyyy")}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Due Date</Label>
+                    <p>{format(new Date(selectedInvoice.dueDate), "MMM dd, yyyy")}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Status</Label>
+                    <Badge variant={getStatusBadge(selectedInvoice.status).variant} className={getStatusBadge(selectedInvoice.status).className}>
+                      {selectedInvoice.status}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold mb-4">Invoice Items</h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>HSN Code</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead>Unit Price</TableHead>
+                        <TableHead>GST Rate</TableHead>
+                        <TableHead>Taxable Amount</TableHead>
+                        <TableHead>CGST</TableHead>
+                        <TableHead>SGST</TableHead>
+                        <TableHead>IGST</TableHead>
+                        <TableHead>Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedInvoice.items.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.productName}</TableCell>
+                          <TableCell className="font-mono text-xs">{item.hsnCode}</TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell>₹{item.unitPrice.toFixed(2)}</TableCell>
+                          <TableCell>{item.gstRate}%</TableCell>
+                          <TableCell>₹{item.taxableAmount.toFixed(2)}</TableCell>
+                          <TableCell>₹{item.cgst.toFixed(2)}</TableCell>
+                          <TableCell>₹{item.sgst.toFixed(2)}</TableCell>
+                          <TableCell>₹{item.igst.toFixed(2)}</TableCell>
+                          <TableCell className="font-semibold">₹{item.total.toFixed(2)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                
+                <div className="border-t pt-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Subtotal:</span>
+                    <span className="font-semibold">₹{selectedInvoice.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">CGST:</span>
+                    <span>₹{selectedInvoice.cgst.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">SGST:</span>
+                    <span>₹{selectedInvoice.sgst.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">IGST:</span>
+                    <span>₹{selectedInvoice.igst.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
+                    <span>Total Amount:</span>
+                    <span>₹{selectedInvoice.totalAmount.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSelectedInvoice(null)}>
+                  Close
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    // TODO: Implement PDF generation
+                    alert("PDF download functionality coming soon");
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         )}
       </CardContent>
     </Card>

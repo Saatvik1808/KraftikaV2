@@ -1,6 +1,7 @@
 
 import { notFound } from 'next/navigation';
 import type { Metadata, ResolvingMetadata } from 'next';
+import { cache } from 'react';
 
 import type { Candle } from '@/types/candle';
 import type { Review } from '@/types/review';
@@ -11,10 +12,11 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// Data fetching functions (server-side)
-async function getProductData(id: string): Promise<Candle | null> {
+// Cache the product fetch to avoid duplicate calls (for metadata + page)
+// This ensures we only fetch once even if both generateMetadata and page component need it
+const getProductData = cache(async (id: string): Promise<Candle | null> => {
   return await getProduct(id);
-}
+});
 
 async function getRelatedProductsData(currentCategory: string, currentId: string): Promise<Candle[]> {
    return await getRelatedProducts(currentCategory, currentId);
