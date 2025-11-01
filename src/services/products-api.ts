@@ -56,15 +56,23 @@ export async function getProduct(id: string): Promise<Candle | null> {
   }
 }
 
-export async function getRelatedProducts(categoryId: string, excludeId: string): Promise<Candle[]> {
+export async function getRelatedProducts(categoryName: string, excludeId: string): Promise<Candle[]> {
   try {
-    const products = await apiClient.get<any[]>(`/products/category/${categoryId}`);
-    return products
-      .filter(product => product.id !== excludeId)
+    // First, try to get all products and filter by category name
+    // This works because the backend returns scentCategoryName in the response
+    const allProducts = await apiClient.get<any[]>('/products');
+    const relatedProducts = allProducts
+      .filter(product => {
+        const productCategory = product.scentCategoryName || product.scentCategory || '';
+        return productCategory.toLowerCase() === categoryName.toLowerCase() && product.id !== excludeId;
+      })
       .slice(0, 4)
       .map(transformProductResponse);
+    
+    return relatedProducts;
   } catch (error) {
     console.error("Error fetching related products:", error);
+    // Return empty array instead of throwing to prevent server errors
     return [];
   }
 }
