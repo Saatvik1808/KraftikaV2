@@ -14,6 +14,7 @@ import type { Candle } from "@/types/candle";
 import { getProducts } from "@/services/products-unified";
 import { useAuth } from "@/contexts/AuthContext";
 import { cartApi } from "@/services/cart-api";
+import { PageLoader } from "@/components/ui/loader";
 
 // Define CartItem types consistent with other parts of the app
 interface CartItem extends Candle {
@@ -154,11 +155,7 @@ export default function PaymentPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto max-w-4xl px-4 py-12 text-center">
-        Loading payment details...
-      </div>
-    );
+    return <PageLoader text="Loading payment details..." />;
   }
 
   if (paymentConfirmed) {

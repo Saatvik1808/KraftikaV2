@@ -56,6 +56,7 @@ import { InvoiceStatus, VendorOrderStatus, PayoutStatus } from "@/types/order";
 import { format } from "date-fns";
 import { getProducts } from "@/services/products-unified";
 import { Label } from "@/components/ui/label";
+import { Loader, Spinner } from "@/components/ui/loader";
 
 // Orders Tab Component
 export function OrdersTab() {
@@ -140,7 +141,9 @@ export function OrdersTab() {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading orders...</div>
+          <div className="flex items-center justify-center py-12">
+            <Loader size="lg" text="Loading orders..." />
+          </div>
         ) : filteredOrders.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -687,7 +690,12 @@ export function VendorOrdersTab() {
                   </SelectTrigger>
                   <SelectContent>
                     {vendorsLoading ? (
-                      <SelectItem value="loading" disabled>Loading vendors...</SelectItem>
+                      <SelectItem value="loading" disabled>
+                        <div className="flex items-center gap-2">
+                          <Spinner size="sm" />
+                          <span>Loading vendors...</span>
+                        </div>
+                      </SelectItem>
                     ) : vendorsError ? (
                       <SelectItem value="error" disabled>Error: {vendorsError}</SelectItem>
                     ) : vendors.length === 0 ? (
@@ -926,7 +934,9 @@ export function VendorOrdersTab() {
           </DialogContent>
         </Dialog>
         {isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading vendor orders...</div>
+          <div className="flex items-center justify-center py-12">
+            <Loader size="lg" text="Loading vendor orders..." />
+          </div>
         ) : filteredOrders.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Store className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -1120,7 +1130,9 @@ export function ProfitTab() {
           </Card>
         </div>
         {isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading profit data...</div>
+          <div className="flex items-center justify-center py-12">
+            <Loader size="lg" text="Loading profit data..." />
+          </div>
         ) : profitData.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -1215,7 +1227,9 @@ export function LossTab() {
           </Card>
         </div>
         {isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading loss data...</div>
+          <div className="flex items-center justify-center py-12">
+            <Loader size="lg" text="Loading loss data..." />
+          </div>
         ) : lossData.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <TrendingDown className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -1481,7 +1495,9 @@ export function PayoutsTab() {
           </Card>
         </div>
         {isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading payouts...</div>
+          <div className="flex items-center justify-center py-12">
+            <Loader size="lg" text="Loading payouts..." />
+          </div>
         ) : filteredPayouts.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Wallet className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -1772,7 +1788,12 @@ export function GSTInvoicesTab() {
                     </SelectTrigger>
                     <SelectContent>
                       {isLoading ? (
-                        <SelectItem value="loading" disabled>Loading vendors...</SelectItem>
+                        <SelectItem value="loading" disabled>
+                          <div className="flex items-center gap-2">
+                            <Spinner size="sm" />
+                            <span>Loading vendors...</span>
+                          </div>
+                        </SelectItem>
                       ) : vendorsError ? (
                         <SelectItem value="error" disabled>Error: {vendorsError}</SelectItem>
                       ) : vendors.length === 0 ? (
@@ -1958,7 +1979,9 @@ export function GSTInvoicesTab() {
         </Dialog>
 
         {isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading invoices...</div>
+          <div className="flex items-center justify-center py-12">
+            <Loader size="lg" text="Loading invoices..." />
+          </div>
         ) : filteredInvoices.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
