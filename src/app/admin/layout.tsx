@@ -57,7 +57,7 @@ function AdminNavbar() {
                 {/* Logo and Desktop Nav */}
                 <div className="mr-4 hidden md:flex">
                      <Link href="/" className="mr-6 flex items-center space-x-2">
-                        <Logo width={120} height={30} />
+                        <Logo width={60} height={15} className="object-contain" />
                     </Link>
                     <nav className="flex items-center gap-6 text-sm">
                         {navItems.map(item => (
@@ -81,7 +81,7 @@ function AdminNavbar() {
                     </SheetTrigger>
                     <SheetContent side="left" className="pr-0">
                          <Link href="/" className="flex items-center" onClick={() => setIsSheetOpen(false)}>
-                            <Logo width={120} height={30} />
+                            <Logo width={60} height={15} className="object-contain" />
                         </Link>
                         <div className="my-4 h-px w-full bg-border" />
                         <div className="flex flex-col h-full">
@@ -107,7 +107,7 @@ function AdminNavbar() {
                 {/* Mobile Logo (center) */}
                  <div className="flex flex-1 items-center justify-center md:hidden">
                     <Link href="/" className="flex items-center">
-                         <Logo width={120} height={30} />
+                         <Logo width={60} height={15} className="object-contain" />
                     </Link>
                 </div>
                 
