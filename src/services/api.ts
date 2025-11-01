@@ -3,7 +3,7 @@ const API_BASE_URL =  'https://kraftika-backend-production.up.railway.app/api';
 
 // Generic API client
 class ApiClient {
-  private baseUrl: string;
+  public baseUrl: string;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -26,22 +26,38 @@ class ApiClient {
   }
 
   async get<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    });
+    const url = `${this.baseUrl}${endpoint}`;
+    console.log(`🌐 API GET: ${url}`);
+    
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      try {
-        const errorJson = JSON.parse(errorText);
-        throw new Error(errorJson.error || errorJson.message || `API Error: ${response.status} ${response.statusText}`);
-      } catch {
-        throw new Error(errorText || `API Error: ${response.status} ${response.statusText}`);
+      console.log(`📡 Response status: ${response.status} ${response.statusText}`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ API Error ${response.status}:`, errorText);
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.error || errorJson.message || `API Error: ${response.status} ${response.statusText}`);
+        } catch {
+          throw new Error(errorText || `API Error: ${response.status} ${response.statusText}`);
+        }
       }
-    }
 
-    return response.json();
+      const data = await response.json();
+      console.log(`✅ API Response:`, data);
+      return data;
+    } catch (error) {
+      console.error(`❌ Fetch error for ${url}:`, error);
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error(`Network error: Cannot connect to ${this.baseUrl}. Please check CORS and network connectivity.`);
+      }
+      throw error;
+    }
   }
 
   async post<T>(endpoint: string, data: any): Promise<T> {
