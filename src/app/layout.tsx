@@ -2,8 +2,7 @@
 import type { Metadata } from 'next';
 // Removed Forum and Lato imports
 import './globals.css';
-import { Navbar } from '@/components/layout/navbar';
-import { Footer } from '@/components/layout/footer';
+import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from './providers';
 
@@ -221,9 +220,9 @@ export default function RootLayout({
       {/* Apply the font-sans class which will now use Regalia Monarch via Tailwind config */}
       <body className="font-sans antialiased flex flex-col min-h-screen">
         <Providers>
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
+          <ConditionalLayout>
+            <main className="flex-grow">{children}</main>
+          </ConditionalLayout>
           <Toaster />
         </Providers>
       </body>
