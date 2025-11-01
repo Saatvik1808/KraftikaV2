@@ -9,18 +9,15 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    serverComponentsExternalPackages: ['multer'],
-    serverActions: {
-      bodySizeLimit: '800mb',
-    },
-  },
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
+  // Performance optimizations for better SEO scores
+  compress: true,
+  poweredByHeader: false,
+  // Enable image optimization
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',
@@ -53,6 +50,17 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       }
     ],
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['multer'],
+    serverActions: {
+      bodySizeLimit: '800mb',
+    },
+  },
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
   },
 };
 

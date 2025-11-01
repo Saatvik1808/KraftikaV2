@@ -8,19 +8,75 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fallback to a generic production URL if not set.
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com';
 
-  // Static routes
+  // Static routes with optimized priorities and change frequencies
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: siteUrl, lastModified: new Date(), changeFrequency: 'yearly', priority: 1 },
-    { url: `${siteUrl}/products`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${siteUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${siteUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${siteUrl}/quiz`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${siteUrl}/faq`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${siteUrl}/cart`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${siteUrl}/wishlist`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${siteUrl}/privacy-policy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${siteUrl}/terms-of-service`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${siteUrl}/shipping-returns`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { 
+      url: siteUrl, 
+      lastModified: new Date(), 
+      changeFrequency: 'daily', // Homepage updates frequently
+      priority: 1.0 
+    },
+    { 
+      url: `${siteUrl}/products`, 
+      lastModified: new Date(), 
+      changeFrequency: 'daily', // Products page updates when new products added
+      priority: 0.9 
+    },
+    { 
+      url: `${siteUrl}/about`, 
+      lastModified: new Date(), 
+      changeFrequency: 'monthly', 
+      priority: 0.7 
+    },
+    { 
+      url: `${siteUrl}/contact`, 
+      lastModified: new Date(), 
+      changeFrequency: 'monthly', 
+      priority: 0.6 
+    },
+    { 
+      url: `${siteUrl}/quiz`, 
+      lastModified: new Date(), 
+      changeFrequency: 'monthly', 
+      priority: 0.7 
+    },
+    { 
+      url: `${siteUrl}/faq`, 
+      lastModified: new Date(), 
+      changeFrequency: 'monthly', 
+      priority: 0.6 
+    },
+    // Low priority pages (noindex would be better, but keeping for completeness)
+    { 
+      url: `${siteUrl}/cart`, 
+      lastModified: new Date(), 
+      changeFrequency: 'yearly', 
+      priority: 0.1 
+    },
+    { 
+      url: `${siteUrl}/wishlist`, 
+      lastModified: new Date(), 
+      changeFrequency: 'yearly', 
+      priority: 0.1 
+    },
+    { 
+      url: `${siteUrl}/privacy-policy`, 
+      lastModified: new Date(), 
+      changeFrequency: 'yearly', 
+      priority: 0.3 
+    },
+    { 
+      url: `${siteUrl}/terms-of-service`, 
+      lastModified: new Date(), 
+      changeFrequency: 'yearly', 
+      priority: 0.3 
+    },
+    { 
+      url: `${siteUrl}/shipping-returns`, 
+      lastModified: new Date(), 
+      changeFrequency: 'monthly', 
+      priority: 0.5 
+    },
   ];
 
   try {
@@ -45,12 +101,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     });
 
-    // Dynamic product routes from Firestore data
+    // Dynamic product routes from Firestore data - optimized for SEO
     const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
       url: `${siteUrl}/products/${product.id}`,
-      lastModified: new Date(), // In a real app, you might use a 'product.updatedAt' field
-      changeFrequency: 'weekly',
-      priority: 0.9,
+      lastModified: product.updatedAt ? new Date(product.updatedAt) : new Date(),
+      changeFrequency: 'weekly', // Products may have price/stock updates
+      priority: 0.8, // High priority for product pages
     }));
 
     return [...staticRoutes, ...productRoutes];

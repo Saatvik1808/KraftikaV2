@@ -50,7 +50,7 @@ export async function sendContactEmail(
    };
 
   try {
-    // Call your email sending service (placeholder)
+    // Call your email sending service
     console.log("Attempting to send email with data:", emailMessage);
     const emailSent = await sendEmail(emailMessage);
 
@@ -59,11 +59,31 @@ export async function sendContactEmail(
       return { success: true, message: "Message sent successfully!" };
     } else {
       console.error("Email service failed to send for:", email);
-      return { success: false, error: "Failed to send email via service." };
+      // Check if it's a configuration issue by checking environment variables
+      const requiredVars = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'EMAIL_TO'];
+      const missingVars = requiredVars.filter(varName => !process.env[varName]);
+      
+      if (missingVars.length > 0) {
+        console.error("Missing email configuration:", missingVars.join(', '));
+        return { 
+          success: false, 
+          error: "Email service is not configured. Please contact the administrator." 
+        };
+      }
+      
+      return { 
+        success: false, 
+        error: "Failed to send email. Please try again later or contact us directly at studiokraftika@gmail.com." 
+      };
     }
   } catch (error) {
     console.error("Error sending contact email:", error);
-     // Provide a generic error message to the client
-    return { success: false, error: "An unexpected error occurred while sending your message. Please try again later." };
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error details:", errorMessage);
+    // Provide a generic error message to the client
+    return { 
+      success: false, 
+      error: "An unexpected error occurred while sending your message. Please try again later or contact us directly at studiokraftika@gmail.com." 
+    };
   }
 }
