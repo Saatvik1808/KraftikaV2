@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getProducts } from "@/services/products-unified";
 import { useAuth } from "@/contexts/AuthContext";
 import { cartApi } from "@/services/cart-api";
+import { PageLoader } from "@/components/ui/loader";
 
 // Define Candle and CartItem types consistent with other parts of the app
 interface CartItem extends Candle {
@@ -196,11 +197,7 @@ export default function CartPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto max-w-4xl px-4 py-12 md:py-16 min-h-[calc(100vh-var(--navbar-height,4rem))] flex justify-center items-center">
-        <p>Loading your cart...</p>
-      </div>
-    );
+    return <PageLoader text="Loading your cart..." />;
   }
 
   const isEmpty = cartItems.length === 0;

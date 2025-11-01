@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { HeartCrack, ShoppingBag } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getProducts } from "@/services/products-unified";
+import { PageLoader } from "@/components/ui/loader";
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -62,11 +63,7 @@ export default function WishlistPage() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto max-w-7xl px-4 py-16 text-center min-h-[calc(100vh-var(--navbar-height,4rem))] flex items-center justify-center">
-        Loading your wishlist...
-      </div>
-    );
+    return <PageLoader text="Loading your wishlist..." />;
   }
 
   return (

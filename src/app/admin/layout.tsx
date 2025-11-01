@@ -11,6 +11,7 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import "../globals.css"; // Import globals.css for admin pages
 import { Toaster } from "@/components/ui/toaster"; // Import Toaster for admin pages
+import { PageLoader } from "@/components/ui/loader";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -148,17 +149,7 @@ function AdminRootLayout({ children }: { children: React.ReactNode }) {
   }, [router, pathname]);
 
   if (loading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <div className="flex items-center space-x-4">
-          <Skeleton className="h-12 w-12 rounded-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[200px]" />
-          </div>
-        </div>
-      </div>
-    );
+    return <PageLoader text="Loading admin panel..." />;
   }
 
   if (pathname === '/admin/login' || !user) {

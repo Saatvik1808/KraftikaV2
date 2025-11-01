@@ -11,6 +11,7 @@ import Link from "next/link";
 import { getProducts } from "@/services/products-unified";
 import { getCategories } from "@/services/categories-unified";
 import type { Candle } from "@/types/candle";
+import { Spinner } from "@/components/ui/loader";
 import {
   OrdersTab,
   VendorOrdersTab,
@@ -104,8 +105,8 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground mb-1">
-              {isLoading ? '...' : stats.totalProducts}
+            <div className="text-3xl font-bold text-foreground mb-1 flex items-center gap-2">
+              {isLoading ? <Spinner size="sm" /> : stats.totalProducts}
             </div>
             <p className="text-xs text-muted-foreground font-medium">
               {isLoading ? 'Loading...' : 'Products in store'}
@@ -123,8 +124,8 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground mb-1">
-              {isLoading ? '...' : stats.totalCategories}
+            <div className="text-3xl font-bold text-foreground mb-1 flex items-center gap-2">
+              {isLoading ? <Spinner size="sm" /> : stats.totalCategories}
             </div>
             <p className="text-xs text-muted-foreground font-medium">
               Active scent categories
@@ -142,8 +143,8 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground mb-1">
-              {isLoading ? '...' : `₹${stats.avgPrice}`}
+            <div className="text-3xl font-bold text-foreground mb-1 flex items-center gap-2">
+              {isLoading ? <Spinner size="sm" /> : `₹${stats.avgPrice}`}
             </div>
             <p className="text-xs text-muted-foreground font-medium">
               Average product price
@@ -161,8 +162,8 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground mb-1 truncate">
-              {isLoading ? '...' : stats.topCategory}
+            <div className="text-3xl font-bold text-foreground mb-1 truncate flex items-center gap-2">
+              {isLoading ? <Spinner size="sm" /> : stats.topCategory}
             </div>
             <p className="text-xs text-muted-foreground font-medium">
               Most popular category

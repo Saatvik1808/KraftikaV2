@@ -17,6 +17,7 @@ import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PageLoader } from "@/components/ui/loader";
 
 interface PageProps {
   params: { id: string };
@@ -166,11 +167,7 @@ export default function EditProductPage({ params }: PageProps) {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+    return <PageLoader text="Loading product details..." />;
   }
 
   if (!product) {

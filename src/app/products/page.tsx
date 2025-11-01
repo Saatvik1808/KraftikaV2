@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ListFilter, X, Info } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { getProducts } from "@/services/products-unified";
+import { Loader } from "@/components/ui/loader";
 
 const scentCategories = ["All", "Citrus", "Floral", "Sweet", "Fresh", "Fruity"];
 const sortOptions = [
@@ -170,7 +171,14 @@ export default function ProductsPage() {
         className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
       >
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          {isLoading ? "Loading..." : `Showing ${filteredProducts.length} ${filteredProducts.length === 1 ? "product" : "products"}`}
+          {isLoading ? (
+            <span className="flex items-center gap-2">
+              <Loader size="sm" />
+              Loading...
+            </span>
+          ) : (
+            `Showing ${filteredProducts.length} ${filteredProducts.length === 1 ? "product" : "products"}`
+          )}
         </span>
         
         <div className="flex gap-3 w-full sm:w-auto">
@@ -246,11 +254,7 @@ export default function ProductsPage() {
                 transition={{ duration: 0.3 }}
                 className="col-span-full flex flex-col items-center justify-center text-center py-16 space-y-4"
               >
-                <div className="p-4 rounded-full bg-gray-100 dark:bg-gray-800">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white">Loading products...</h3>
-                <p className="text-gray-600 dark:text-gray-400">Please wait while we fetch your favorite scents</p>
+                <Loader size="lg" text="Loading products..." />
               </motion.div>
             ) : filteredProducts.length > 0 ? (
               filteredProducts.map((product, index) => (

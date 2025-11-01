@@ -52,6 +52,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Loader } from "@/components/ui/loader";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = React.useState<ScentCategory[]>([]);
@@ -264,7 +265,7 @@ export default function CategoriesPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader size="lg" text="Loading categories..." />
       </div>
     );
   }

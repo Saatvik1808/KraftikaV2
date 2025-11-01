@@ -28,6 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Loader } from "@/components/ui/loader";
 
 export default function AdminProductsPage() {
   const { toast } = useToast();
@@ -185,17 +186,8 @@ export default function AdminProductsPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center space-x-4 p-4 border rounded-lg">
-                  <div className="w-16 h-16 bg-muted rounded animate-pulse"></div>
-                  <div className="space-y-2 flex-1">
-                    <div className="h-4 bg-muted rounded animate-pulse"></div>
-                    <div className="h-3 bg-muted rounded w-2/3 animate-pulse"></div>
-                  </div>
-                  <div className="w-20 h-8 bg-muted rounded animate-pulse"></div>
-                </div>
-              ))}
+            <div className="flex items-center justify-center py-12">
+              <Loader size="lg" text="Loading products..." />
             </div>
           ) : filteredProducts.length > 0 ? (
             <div className="space-y-4">
