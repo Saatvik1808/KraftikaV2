@@ -42,6 +42,8 @@ next-env.d.ts
 
 # environment variables
 .env
+.env*.local
+.env.local
 
 *.mp4
 src/lib/kraftika-scents-firebase-adminsdk-fbsvc-d9615f23ce.json

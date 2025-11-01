@@ -128,7 +128,7 @@ export function ProductCard({
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
-              alt={product.name}
+              alt={`${product.name} - ${product.scentCategory} scented candle from Kraftika | Handcrafted soy candle India`}
               fill
               sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
               className="object-cover transition-transform duration-500 ease-out"

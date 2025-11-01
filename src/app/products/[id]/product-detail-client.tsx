@@ -140,7 +140,7 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
                           {imgUrl ? (
                             <Image
                               src={imgUrl}
-                              alt={`${product.name} - view ${index + 1}`}
+                              alt={`${product.name} - ${product.scentCategory} scented candle ${index === 0 ? 'main view' : `detail view ${index}`} from Kraftika | Premium handcrafted soy candle India`}
                               fill
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                               className="object-cover rounded-md"
