@@ -79,40 +79,46 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  try {
-    // Fetch products from Firestore
-    const productsSnapshot = await db.collection('products').get();
-    const products: Candle[] = [];
-    
-    productsSnapshot.forEach((doc) => {
-      const data = doc.data();
-      products.push({
-        id: doc.id,
-        name: data.name || '',
-        description: data.description || '',
-        price: Number(data.price) || 0,
-        imageUrl: data.imageUrl || '',
-        scentCategory: data.scentCategory || '',
-        scentNotes: data.scentNotes || '',
-        burnTime: data.burnTime || '',
-        ingredients: data.ingredients || '',
-        popularity: Number(data.popularity) || 0,
-        createdAt: data.createdAt || new Date().toISOString(),
+  // Only fetch products if Firebase Admin is initialized
+  if (db) {
+    try {
+      // Fetch products from Firestore
+      const productsSnapshot = await db.collection('products').get();
+      const products: Candle[] = [];
+      
+      productsSnapshot.forEach((doc) => {
+        const data = doc.data();
+        products.push({
+          id: doc.id,
+          name: data.name || '',
+          description: data.description || '',
+          price: Number(data.price) || 0,
+          imageUrl: data.imageUrl || '',
+          scentCategory: data.scentCategory || '',
+          scentNotes: data.scentNotes || '',
+          burnTime: data.burnTime || '',
+          ingredients: data.ingredients || '',
+          popularity: Number(data.popularity) || 0,
+          createdAt: data.createdAt || new Date().toISOString(),
+        });
       });
-    });
 
-    // Dynamic product routes from Firestore data - optimized for SEO
-    const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
-      url: `${siteUrl}/products/${product.id}`,
-      lastModified: product.updatedAt ? new Date(product.updatedAt) : new Date(),
-      changeFrequency: 'weekly', // Products may have price/stock updates
-      priority: 0.8, // High priority for product pages
-    }));
+      // Dynamic product routes from Firestore data - optimized for SEO
+      const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
+        url: `${siteUrl}/products/${product.id}`,
+        lastModified: product.updatedAt ? new Date(product.updatedAt) : new Date(),
+        changeFrequency: 'weekly', // Products may have price/stock updates
+        priority: 0.8, // High priority for product pages
+      }));
 
-    return [...staticRoutes, ...productRoutes];
-  } catch (error) {
-    console.error('Error fetching products for sitemap:', error);
-    // Return only static routes if there's an error
-    return staticRoutes;
+      return [...staticRoutes, ...productRoutes];
+    } catch (error) {
+      console.error('Error fetching products for sitemap:', error);
+      // Return only static routes if there's an error
+      return staticRoutes;
+    }
   }
+
+  // Return only static routes if Firebase Admin is not initialized
+  return staticRoutes;
 }
