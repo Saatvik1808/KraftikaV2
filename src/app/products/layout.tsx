@@ -23,10 +23,10 @@ export const metadata: Metadata = {
     title: 'Shop Handcrafted Scented Candles | Kraftika Products',
     description: 'Browse our complete collection of premium handcrafted scented soy candles. Find your perfect scent today!',
     type: 'website',
-    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com'}/products`,
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kraftikastudio.com'}/products`,
   },
   alternates: {
-    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com'}/products`,
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kraftikastudio.com'}/products`,
   },
 };
 

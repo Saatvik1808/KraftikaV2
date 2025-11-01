@@ -47,7 +47,7 @@
        google: 'YOUR_ACTUAL_VERIFICATION_CODE', // Replace this
      },
      ```
-   - Submit your sitemap: `https://kraftika-scents.com/sitemap.xml`
+   - Submit your sitemap: `https://www.kraftikastudio.com/sitemap.xml`
 
 2. **Google Business Profile**
    - Create/claim your Google Business Profile

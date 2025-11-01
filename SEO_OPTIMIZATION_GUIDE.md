@@ -31,7 +31,7 @@ This comprehensive guide will help you achieve #1 rankings for "kraftika candles
 
 1. **Verify Your Website**
    - Go to [Google Search Console](https://search.google.com/search-console)
-   - Add property: `https://kraftika-scents.com`
+   - Add property: `https://www.kraftikastudio.com`
    - Verify ownership using one of these methods:
      - HTML file upload
      - HTML tag (add verification code to layout.tsx)
@@ -39,7 +39,7 @@ This comprehensive guide will help you achieve #1 rankings for "kraftika candles
 
 2. **Submit Your Sitemap**
    - After verification, go to Sitemaps
-   - Submit: `https://kraftika-scents.com/sitemap.xml`
+   - Submit: `https://www.kraftikastudio.com/sitemap.xml`
    - Monitor for indexing status
 
 3. **Request Indexing for Key Pages**

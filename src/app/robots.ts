@@ -4,7 +4,7 @@ import { MetadataRoute } from 'next';
 export default function robots(): MetadataRoute.Robots {
   // Use NEXT_PUBLIC_SITE_URL which should be set in your environment variables.
   // Fallback to a generic production URL if not set.
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kraftikastudio.com';
 
   return {
     rules: {

@@ -40,7 +40,7 @@ export async function generateMetadata(
     };
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kraftikastudio.com';
   const productUrl = `${siteUrl}/products/${product.id}`;
   
   // SEO Optimized title and description with keywords
@@ -135,7 +135,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   }
 
   const averageRating = reviews.length > 0 ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kraftikastudio.com';
   const productUrl = `${siteUrl}/products/${product.id}`;
 
   // Enhanced JSON-LD for Rich Product Snippets
