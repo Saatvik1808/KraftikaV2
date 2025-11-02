@@ -5,7 +5,53 @@ import { Calendar, Clock, ArrowLeft, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { Metadata } from "next";
-import { blogPosts, type BlogPost } from "../page";
+
+// Define BlogPost type and blogPosts array locally
+export type BlogPost = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  image: string;
+};
+
+export const blogPosts: BlogPost[] = [
+  {
+    slug: "complete-guide-to-scented-candles",
+    title: "Complete Guide to Scented Candles",
+    excerpt: "Everything you need to know about scented candles, from choosing the right wax to understanding fragrance notes.",
+    date: "2024-01-15",
+    image: "/placeholder-image.jpg",
+  },
+  {
+    slug: "understanding-candle-scent-categories",
+    title: "Understanding Candle Scent Categories",
+    excerpt: "Learn about different scent categories and how to choose the perfect candle for your space.",
+    date: "2024-01-20",
+    image: "/placeholder-image.jpg",
+  },
+  {
+    slug: "how-to-burn-candles-safely",
+    title: "How to Burn Candles Safely",
+    excerpt: "Essential safety guidelines for enjoying scented candles responsibly.",
+    date: "2024-01-25",
+    image: "/placeholder-image.jpg",
+  },
+  {
+    slug: "product-faqs-answered",
+    title: "Product FAQs Answered",
+    excerpt: "Common questions about Kraftika candles answered by our experts.",
+    date: "2024-02-01",
+    image: "/placeholder-image.jpg",
+  },
+  {
+    slug: "benefits-of-scented-candles",
+    title: "Benefits of Scented Candles",
+    excerpt: "Discover the therapeutic and wellness benefits of scented candles.",
+    date: "2024-02-10",
+    image: "/placeholder-image.jpg",
+  },
+];
 
 interface PageProps {
   params: Promise<{ slug: string }>;
