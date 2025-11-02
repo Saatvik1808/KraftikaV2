@@ -12,19 +12,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, Phone, Chrome } from "lucide-react";
 import { motion } from "framer-motion";
+import SignInButton from "@/components/SignInButton";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, register, loginWithPhone, sendOtp, isAuthenticated } = useAuth();
+  const { login, register, loginWithPhoneEmail, isAuthenticated } = useAuth();
   const { toast } = useToast();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [firstName, setFirstName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isOtpSent, setIsOtpSent] = useState(false);
   const [activeTab, setActiveTab] = useState<"email" | "phone">("email");
 
   // Redirect if already authenticated
@@ -59,24 +56,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePhoneEmailSuccess = async (userJsonUrl: string) => {
     setIsLoading(true);
     try {
-      await sendOtp(phone);
-      setIsOtpSent(true);
-    } catch (error) {
-      // Error handled in context
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePhoneLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      await loginWithPhone(phone, otp, firstName || undefined);
+      await loginWithPhoneEmail(userJsonUrl);
       router.push("/");
     } catch (error) {
       // Error handled in context
@@ -204,77 +187,20 @@ export default function LoginPage() {
               </TabsContent>
 
               <TabsContent value="phone" className="space-y-4 mt-4">
-                {!isOtpSent ? (
-                  <form onSubmit={handleSendOtp} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="+1234567890"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        required
-                      />
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Sign in or sign up using your phone number
+                    </p>
+                  </div>
+                  {isLoading && (
+                    <div className="flex justify-center items-center py-4">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                      <span className="ml-2 text-sm">Verifying phone number...</span>
                     </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Sending OTP...
-                        </>
-                      ) : (
-                        <>
-                          <Phone className="mr-2 h-4 w-4" />
-                          Send OTP
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                ) : (
-                  <form onSubmit={handlePhoneLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="otp">Enter OTP</Label>
-                      <Input
-                        id="otp"
-                        type="text"
-                        placeholder="123456"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        required
-                        maxLength={6}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name (Optional)</Label>
-                      <Input
-                        id="firstName"
-                        type="text"
-                        placeholder="John"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Verifying...
-                        </>
-                      ) : (
-                        "Verify & Login"
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => setIsOtpSent(false)}
-                    >
-                      Resend OTP
-                    </Button>
-                  </form>
-                )}
+                  )}
+                  <SignInButton onSuccess={handlePhoneEmailSuccess} />
+                </div>
               </TabsContent>
             </Tabs>
 
