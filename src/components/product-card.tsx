@@ -29,17 +29,17 @@ const cardVariants = {
   rest: {
     scale: 1,
     y: 0,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
     transition: { duration: 0.3, ease: "easeOut" }
   },
   hover: {
-    scale: 1.02,
-    y: -4,
-    boxShadow: "0 10px 25px -5px rgba(0,0,0,0.15)",
+    scale: 1.03,
+    y: -8,
+    boxShadow: "0 20px 40px -10px rgba(0,0,0,0.15), 0 0 20px rgba(145,210,144,0.1)",
     transition: { 
       type: "spring", 
       stiffness: 300, 
-      damping: 15,
+      damping: 20,
       duration: 0.5
     },
   },
@@ -108,15 +108,18 @@ export function ProductCard({
       animate="rest"
       onMouseEnter={handleMouseEnter}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl bg-white dark:bg-gray-900",
-        "border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md",
-        "transition-all duration-300 ease-out",
+        "group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-gray-900",
+        "border border-gray-100/80 dark:border-gray-800/80 shadow-sm hover:shadow-xl",
+        "hover:border-primary/30 dark:hover:border-primary/40",
+        "transition-all duration-300 ease-out backdrop-blur-sm",
+        "bg-gradient-to-b from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-950/50",
         className
       )}
     >
-      {/* Quick view overlay */}
-      <div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
+      {/* Quick view overlay with enhanced gradient */}
+      <div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/15 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
       </div>
 
       <Link 
