@@ -20,16 +20,31 @@ function formatImageUrl(imageUrl: string): string {
 
 // Transform Spring Boot product response to Candle interface
 function transformProductResponse(product: any): Candle {
+  // Handle price - might be string, number, or BigDecimal object
+  let price = product.price;
+  if (typeof price === 'string') {
+    price = parseFloat(price);
+  } else if (price && typeof price === 'object' && price.value) {
+    // Handle BigDecimal-like objects
+    price = parseFloat(price.value.toString());
+  }
+  if (isNaN(price) || price <= 0) {
+    price = 0;
+  }
+  
+  // Ensure ID is a string
+  const id = String(product.id || '');
+  
   return {
-    id: product.id,
-    name: product.name,
+    id: id,
+    name: product.name || 'Unnamed Product',
     description: product.description || '',
-    price: product.price,
+    price: price,
     imageUrl: formatImageUrl(product.imageUrl || ''),
     scentCategory: product.scentCategoryName || product.scentCategory || '',
-    scentNotes: Array.isArray(product.scentNotes) ? product.scentNotes.join(', ') : product.scentNotes || '',
+    scentNotes: Array.isArray(product.scentNotes) ? product.scentNotes.join(', ') : (product.scentNotes || ''),
     burnTime: product.burnTime || '',
-    ingredients: Array.isArray(product.ingredients) ? product.ingredients.join(', ') : product.ingredients || '',
+    ingredients: Array.isArray(product.ingredients) ? product.ingredients.join(', ') : (product.ingredients || ''),
     popularity: product.popularity || 0,
     createdAt: product.createdAt || new Date().toISOString(),
     updatedAt: product.updatedAt || new Date().toISOString(),
@@ -38,8 +53,25 @@ function transformProductResponse(product: any): Candle {
 
 export async function getProducts(): Promise<Candle[]> {
   try {
-    const products = await apiClient.get<any[]>('/products');
-    return products.map(transformProductResponse);
+    const response = await apiClient.get<any>('/products');
+    
+    // Handle different response structures
+    let productsArray: any[] = [];
+    
+    if (Array.isArray(response)) {
+      productsArray = response;
+    } else if (response?.data && Array.isArray(response.data)) {
+      productsArray = response.data;
+    } else if (response?.products && Array.isArray(response.products)) {
+      productsArray = response.products;
+    } else if (response?.content && Array.isArray(response.content)) {
+      productsArray = response.content;
+    } else {
+      return [];
+    }
+    
+    const transformed = productsArray.map(transformProductResponse);
+    return transformed;
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];

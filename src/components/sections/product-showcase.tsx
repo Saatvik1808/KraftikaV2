@@ -68,6 +68,9 @@ export function ProductShowcase() {
         setCategories(["all", ...productCategories]);
       } catch (error) {
         console.error('Error fetching data:', error);
+        // Set empty arrays on error to show empty state
+        setAllProducts([]);
+        setCategories(["all"]);
       } finally {
         setIsLoading(false);
       }
@@ -215,12 +218,13 @@ export function ProductShowcase() {
         {/* Enhanced product grid with staggered animations */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${selectedCategory}-${sortBy}`}
+            key={`${selectedCategory}-${sortBy}-${featuredProducts.length}`}
             className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
             variants={containerVariants}
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            animate={!isLoading ? "visible" : "hidden"}
+            whileInView={!isLoading ? "visible" : undefined}
+            viewport={{ once: false, amount: 0.1 }}
             exit="hidden"
           >
             {isLoading ? (
@@ -237,19 +241,27 @@ export function ProductShowcase() {
                 </motion.div>
               ))
             ) : featuredProducts.length > 0 ? (
-              featuredProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  variants={itemVariants}
-                  custom={index}
-                  layout
-                >
-                  <ShowcaseProductCard 
-                    product={product} 
-                    priority={index < 4}
-                  />
-                </motion.div>
-              ))
+              featuredProducts.map((product, index) => {
+                // Validate product before rendering
+                if (!product || !product.id) {
+                  return null;
+                }
+                
+                return (
+                  <motion.div
+                    key={product.id || `product-${index}`}
+                    variants={itemVariants}
+                    custom={index}
+                    layout
+                    style={{ opacity: 1, visibility: 'visible' }}
+                  >
+                    <ShowcaseProductCard 
+                      product={product} 
+                      priority={index < 4}
+                    />
+                  </motion.div>
+                );
+              })
             ) : (
               <motion.div
                 variants={itemVariants}
@@ -259,7 +271,9 @@ export function ProductShowcase() {
                   <Filter className="h-12 w-12 text-muted-foreground/50" />
                 </div>
                 <p className="text-lg text-muted-foreground">
-                  No candles found in this category. Try selecting a different scent!
+                  {allProducts.length === 0 
+                    ? "No products available at the moment. Please check back later!"
+                    : `No candles found in this category. Try selecting a different scent!`}
                 </p>
               </motion.div>
             )}
