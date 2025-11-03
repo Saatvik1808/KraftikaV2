@@ -20,28 +20,77 @@ function formatImageUrl(imageUrl: string): string {
 
 // Transform Spring Boot product response to Candle interface
 function transformProductResponse(product: any): Candle {
-  return {
-    id: product.id,
-    name: product.name,
+  console.log('🔄 Transforming product:', product);
+  
+  // Handle price - might be string, number, or BigDecimal object
+  let price = product.price;
+  if (typeof price === 'string') {
+    price = parseFloat(price);
+  } else if (price && typeof price === 'object' && price.value) {
+    // Handle BigDecimal-like objects
+    price = parseFloat(price.value.toString());
+  }
+  if (isNaN(price) || price <= 0) {
+    console.warn('⚠️ Invalid price for product:', product.id, product.name, 'price:', product.price);
+    price = 0;
+  }
+  
+  // Ensure ID is a string
+  const id = String(product.id || '');
+  if (!id) {
+    console.error('❌ Product missing ID:', product);
+  }
+  
+  const transformed = {
+    id: id,
+    name: product.name || 'Unnamed Product',
     description: product.description || '',
-    price: product.price,
+    price: price,
     imageUrl: formatImageUrl(product.imageUrl || ''),
     scentCategory: product.scentCategoryName || product.scentCategory || '',
-    scentNotes: Array.isArray(product.scentNotes) ? product.scentNotes.join(', ') : product.scentNotes || '',
+    scentNotes: Array.isArray(product.scentNotes) ? product.scentNotes.join(', ') : (product.scentNotes || ''),
     burnTime: product.burnTime || '',
-    ingredients: Array.isArray(product.ingredients) ? product.ingredients.join(', ') : product.ingredients || '',
+    ingredients: Array.isArray(product.ingredients) ? product.ingredients.join(', ') : (product.ingredients || ''),
     popularity: product.popularity || 0,
     createdAt: product.createdAt || new Date().toISOString(),
     updatedAt: product.updatedAt || new Date().toISOString(),
   };
+  
+  console.log('✅ Transformed to:', transformed);
+  return transformed;
 }
 
 export async function getProducts(): Promise<Candle[]> {
   try {
-    const products = await apiClient.get<any[]>('/products');
-    return products.map(transformProductResponse);
+    const response = await apiClient.get<any>('/products');
+    console.log('📦 Raw API response:', response);
+    
+    // Handle different response structures
+    let productsArray: any[] = [];
+    
+    if (Array.isArray(response)) {
+      productsArray = response;
+    } else if (response?.data && Array.isArray(response.data)) {
+      productsArray = response.data;
+    } else if (response?.products && Array.isArray(response.products)) {
+      productsArray = response.products;
+    } else if (response?.content && Array.isArray(response.content)) {
+      productsArray = response.content;
+    } else {
+      console.warn('⚠️ Unexpected response structure:', response);
+      return [];
+    }
+    
+    console.log(`✅ Found ${productsArray.length} products from API`);
+    const transformed = productsArray.map(transformProductResponse);
+    console.log('✅ Transformed products:', transformed);
+    return transformed;
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("❌ Error fetching products:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     return [];
   }
 }

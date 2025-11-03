@@ -60,16 +60,26 @@ export function ProductShowcase() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+        console.log('🔄 Fetching products and categories...');
         const [products, productCategories] = await Promise.all([
           getProducts(),
           getProductCategories()
         ]);
+        console.log('✅ Products fetched:', products.length, products);
+        console.log('✅ Categories fetched:', productCategories);
         setAllProducts(products);
         setCategories(["all", ...productCategories]);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('❌ Error fetching data:', error);
+        if (error instanceof Error) {
+          console.error('Error details:', error.message, error.stack);
+        }
+        // Set empty arrays on error to show empty state
+        setAllProducts([]);
+        setCategories(["all"]);
       } finally {
         setIsLoading(false);
+        console.log('✅ Loading complete');
       }
     };
 
@@ -215,12 +225,13 @@ export function ProductShowcase() {
         {/* Enhanced product grid with staggered animations */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${selectedCategory}-${sortBy}`}
+            key={`${selectedCategory}-${sortBy}-${featuredProducts.length}`}
             className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
             variants={containerVariants}
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            animate={!isLoading ? "visible" : "hidden"}
+            whileInView={!isLoading ? "visible" : undefined}
+            viewport={{ once: false, amount: 0.1 }}
             exit="hidden"
           >
             {isLoading ? (
@@ -237,19 +248,28 @@ export function ProductShowcase() {
                 </motion.div>
               ))
             ) : featuredProducts.length > 0 ? (
-              featuredProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  variants={itemVariants}
-                  custom={index}
-                  layout
-                >
-                  <ShowcaseProductCard 
-                    product={product} 
-                    priority={index < 4}
-                  />
-                </motion.div>
-              ))
+              featuredProducts.map((product, index) => {
+                // Validate product before rendering
+                if (!product || !product.id) {
+                  console.warn('⚠️ Invalid product at index', index, product);
+                  return null;
+                }
+                
+                return (
+                  <motion.div
+                    key={product.id || `product-${index}`}
+                    variants={itemVariants}
+                    custom={index}
+                    layout
+                    style={{ opacity: 1, visibility: 'visible' }}
+                  >
+                    <ShowcaseProductCard 
+                      product={product} 
+                      priority={index < 4}
+                    />
+                  </motion.div>
+                );
+              })
             ) : (
               <motion.div
                 variants={itemVariants}
@@ -258,9 +278,16 @@ export function ProductShowcase() {
                 <div className="inline-block p-6 bg-muted/50 rounded-full mb-4">
                   <Filter className="h-12 w-12 text-muted-foreground/50" />
                 </div>
-                <p className="text-lg text-muted-foreground">
-                  No candles found in this category. Try selecting a different scent!
+                <p className="text-lg text-muted-foreground mb-2">
+                  {allProducts.length === 0 
+                    ? "No products available at the moment. Please check back later!"
+                    : `No candles found in this category. Try selecting a different scent!`}
                 </p>
+                {allProducts.length === 0 && (
+                  <p className="text-sm text-muted-foreground/70">
+                    Debug: Products array is empty. Check console for API errors.
+                  </p>
+                )}
               </motion.div>
             )}
           </motion.div>
