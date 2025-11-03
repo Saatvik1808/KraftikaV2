@@ -60,26 +60,19 @@ export function ProductShowcase() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        console.log('🔄 Fetching products and categories...');
         const [products, productCategories] = await Promise.all([
           getProducts(),
           getProductCategories()
         ]);
-        console.log('✅ Products fetched:', products.length, products);
-        console.log('✅ Categories fetched:', productCategories);
         setAllProducts(products);
         setCategories(["all", ...productCategories]);
       } catch (error) {
-        console.error('❌ Error fetching data:', error);
-        if (error instanceof Error) {
-          console.error('Error details:', error.message, error.stack);
-        }
+        console.error('Error fetching data:', error);
         // Set empty arrays on error to show empty state
         setAllProducts([]);
         setCategories(["all"]);
       } finally {
         setIsLoading(false);
-        console.log('✅ Loading complete');
       }
     };
 
@@ -251,7 +244,6 @@ export function ProductShowcase() {
               featuredProducts.map((product, index) => {
                 // Validate product before rendering
                 if (!product || !product.id) {
-                  console.warn('⚠️ Invalid product at index', index, product);
                   return null;
                 }
                 
@@ -278,16 +270,11 @@ export function ProductShowcase() {
                 <div className="inline-block p-6 bg-muted/50 rounded-full mb-4">
                   <Filter className="h-12 w-12 text-muted-foreground/50" />
                 </div>
-                <p className="text-lg text-muted-foreground mb-2">
+                <p className="text-lg text-muted-foreground">
                   {allProducts.length === 0 
                     ? "No products available at the moment. Please check back later!"
                     : `No candles found in this category. Try selecting a different scent!`}
                 </p>
-                {allProducts.length === 0 && (
-                  <p className="text-sm text-muted-foreground/70">
-                    Debug: Products array is empty. Check console for API errors.
-                  </p>
-                )}
               </motion.div>
             )}
           </motion.div>

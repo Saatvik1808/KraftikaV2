@@ -20,8 +20,6 @@ function formatImageUrl(imageUrl: string): string {
 
 // Transform Spring Boot product response to Candle interface
 function transformProductResponse(product: any): Candle {
-  console.log('🔄 Transforming product:', product);
-  
   // Handle price - might be string, number, or BigDecimal object
   let price = product.price;
   if (typeof price === 'string') {
@@ -31,17 +29,13 @@ function transformProductResponse(product: any): Candle {
     price = parseFloat(price.value.toString());
   }
   if (isNaN(price) || price <= 0) {
-    console.warn('⚠️ Invalid price for product:', product.id, product.name, 'price:', product.price);
     price = 0;
   }
   
   // Ensure ID is a string
   const id = String(product.id || '');
-  if (!id) {
-    console.error('❌ Product missing ID:', product);
-  }
   
-  const transformed = {
+  return {
     id: id,
     name: product.name || 'Unnamed Product',
     description: product.description || '',
@@ -55,15 +49,11 @@ function transformProductResponse(product: any): Candle {
     createdAt: product.createdAt || new Date().toISOString(),
     updatedAt: product.updatedAt || new Date().toISOString(),
   };
-  
-  console.log('✅ Transformed to:', transformed);
-  return transformed;
 }
 
 export async function getProducts(): Promise<Candle[]> {
   try {
     const response = await apiClient.get<any>('/products');
-    console.log('📦 Raw API response:', response);
     
     // Handle different response structures
     let productsArray: any[] = [];
@@ -77,20 +67,13 @@ export async function getProducts(): Promise<Candle[]> {
     } else if (response?.content && Array.isArray(response.content)) {
       productsArray = response.content;
     } else {
-      console.warn('⚠️ Unexpected response structure:', response);
       return [];
     }
     
-    console.log(`✅ Found ${productsArray.length} products from API`);
     const transformed = productsArray.map(transformProductResponse);
-    console.log('✅ Transformed products:', transformed);
     return transformed;
   } catch (error) {
-    console.error("❌ Error fetching products:", error);
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-    }
+    console.error("Error fetching products:", error);
     return [];
   }
 }
