@@ -101,7 +101,7 @@ export function LeadCaptureDialog({ open, onOpenChange }: LeadCaptureDialogProps
       }];
 
       // Build the API URL using the base URL from config
-      const leadUrl = `${API_BASE_URL || 'https://kraftika-backend-production.up.railway.app/api'}/leads`;
+      const leadUrl = `${API_BASE_URL || 'http://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api'}/leads`;
       
       console.log("Submitting lead to:", leadUrl);
       console.log("Lead data:", requestBody);
