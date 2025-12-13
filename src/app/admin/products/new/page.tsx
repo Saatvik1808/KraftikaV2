@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { VideoUpload } from "@/components/admin/video-upload";
 import { Label } from "@/components/ui/label";
 import { getProductCategories } from "@/services/products-unified";
 
@@ -41,6 +42,7 @@ const productSchema = z.object({
   burnTime: z.string().min(3, "Burn time is required."),
   ingredients: z.string().min(10, "Ingredients are required."),
   image: z.instanceof(File).refine(file => file.size > 0, "Product image is required."),
+  video: z.instanceof(File).optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -50,8 +52,10 @@ export default function AddProductPage() {
   const [uploadResult, setUploadResult] = React.useState<{
     imageUrl?: string;
     fileName?: string;
+    videoUrl?: string;
   } | null>(null);
   const [scentCategories, setScentCategories] = React.useState<string[]>([]);
+  const [selectedVideo, setSelectedVideo] = React.useState<File | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<ProductFormData>({
@@ -92,6 +96,11 @@ export default function AddProductPage() {
         formData.append(key, value);
       }
     });
+    
+    // Add video if selected
+    if (selectedVideo) {
+      formData.append('video', selectedVideo);
+    }
 
     try {
       const result = await addProductAction(formData);
@@ -99,12 +108,13 @@ export default function AddProductPage() {
       if (result.success) {
         setUploadResult({
           imageUrl: result.imageUrl,
-          fileName: result.fileName
+          fileName: result.fileName,
+          videoUrl: result.videoUrl
         });
         
         toast({
           title: "Product Added!",
-          description: `"${data.name}" has been successfully added with image.`,
+          description: `"${data.name}" has been successfully added.`,
         });
         
         // Redirect after a short delay to show the success message
@@ -275,6 +285,26 @@ export default function AddProductPage() {
                         value={value}
                         onChange={onChange}
                         required
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="video"
+                render={({ field: { onChange, value, ...rest } }) => (
+                  <FormItem>
+                    <FormControl>
+                      <VideoUpload
+                        value={selectedVideo}
+                        onChange={(file) => {
+                          setSelectedVideo(file);
+                          onChange(file);
+                        }}
+                        required={false}
                       />
                     </FormControl>
                     <FormMessage />

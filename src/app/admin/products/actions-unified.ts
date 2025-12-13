@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { uploadImageToCloudinary, uploadVideoToCloudinary } from "@/lib/cloudinary";
 import { addProduct, updateProduct } from "@/services/products-unified";
 import { useSpringBootAPI } from "@/services/config";
 import { getCategories } from "@/services/categories-unified";
@@ -28,6 +28,7 @@ const addProductSchema = z.object({
   burnTime: z.string().min(3, "Burn time is required"),
   ingredients: z.string().min(10, "Ingredients are required"),
   image: z.instanceof(File).refine(file => file.size > 0, "Product image is required."),
+  video: z.instanceof(File).optional(),
 });
 
 type AddFormState = {
@@ -36,10 +37,14 @@ type AddFormState = {
   error?: string;
   imageUrl?: string;
   fileName?: string;
+  videoUrl?: string;
 };
 
 export async function addProductAction(formData: FormData): Promise<AddFormState> {
   const rawData = Object.fromEntries(formData.entries());
+  
+  // Extract video file separately since it might not be in the schema
+  const videoFile = formData.get('video') as File | null;
   
   const validatedFields = addProductSchema.safeParse(rawData);
 
@@ -50,16 +55,30 @@ export async function addProductAction(formData: FormData): Promise<AddFormState
     };
   }
   
-  const { image, ...productData } = validatedFields.data;
+  const { image, video, ...productData } = validatedFields.data;
   const imageFile = image as File;
 
   try {
-    // Upload to Cloudinary
+    // Upload image to Cloudinary
     const { url: imageUrl } = await uploadImageToCloudinary(imageFile, 'kraftika-products');
+
+    // Upload video to Cloudinary if provided
+    let videoUrl: string | undefined;
+    const videoToUpload = video || videoFile;
+    if (videoToUpload && videoToUpload.size > 0) {
+      try {
+        const { url } = await uploadVideoToCloudinary(videoToUpload, 'kraftika-products/videos');
+        videoUrl = url;
+      } catch (videoError) {
+        console.error('Video upload error:', videoError);
+        // Continue without video if upload fails
+      }
+    }
 
     const newProductData = {
       ...productData,
       imageUrl: imageUrl,
+      videoUrl: videoUrl,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       popularity: 0,
@@ -94,7 +113,8 @@ export async function addProductAction(formData: FormData): Promise<AddFormState
         return { 
           success: true, 
           message: "Product added successfully!",
-          imageUrl: imageUrl
+          imageUrl: imageUrl,
+          videoUrl: videoUrl
         };
       } else {
         return { 
@@ -125,8 +145,10 @@ const updateProductSchema = z.object({
     burnTime: z.string().min(3, "Burn time is required"),
     ingredients: z.string().min(10, "Ingredients are required"),
     imageUrl: z.string(), // Keep track of current/new URL
+    videoUrl: z.string().optional(), // Keep track of current/new video URL
     popularity: z.coerce.number().min(0),
     image: z.any().optional(), // New image is optional - using z.any() to handle File or undefined
+    video: z.any().optional(), // New video is optional
 });
 
 type UpdateFormState = {
@@ -134,6 +156,7 @@ type UpdateFormState = {
   message?: string;
   error?: string;
   imageUrl?: string;
+  videoUrl?: string;
 };
 
 export async function updateProductAction(id: string, formData: FormData): Promise<UpdateFormState> {
@@ -151,16 +174,21 @@ export async function updateProductAction(id: string, formData: FormData): Promi
             burnTime: rawData['1_burnTime'] || rawData.burnTime || '',
             ingredients: rawData['1_ingredients'] || rawData.ingredients || '',
             imageUrl: rawData['1_imageUrl'] || rawData.imageUrl || '',
+            videoUrl: rawData['1_videoUrl'] || rawData.videoUrl || '',
             popularity: rawData['1_popularity'] || rawData.popularity || '0',
         };
 
         // Get the image file (it might be named '1_image' or 'image')
         const imageFile = formData.get('1_image') as File || formData.get('image') as File;
         
+        // Get the video file (it might be named '1_video' or 'video')
+        const videoFile = formData.get('1_video') as File || formData.get('video') as File;
+        
         // Validate the extracted data
         const validatedFields = updateProductSchema.safeParse({
             ...productData,
-            image: imageFile
+            image: imageFile,
+            video: videoFile
         });
 
         if (!validatedFields.success) {
@@ -171,8 +199,9 @@ export async function updateProductAction(id: string, formData: FormData): Promi
             };
         }
 
-        const { image, ...validatedProductData } = validatedFields.data;
+        const { image, video, ...validatedProductData } = validatedFields.data;
         let finalImageUrl = validatedProductData.imageUrl;
+        let finalVideoUrl = validatedProductData.videoUrl;
 
         // If a new image is provided, upload it
         if (image && image.size > 0) {
@@ -188,6 +217,17 @@ export async function updateProductAction(id: string, formData: FormData): Promi
             }
         }
 
+        // If a new video is provided, upload it
+        if (video && video.size > 0) {
+            try {
+                const { url } = await uploadVideoToCloudinary(video, 'kraftika-products/videos');
+                finalVideoUrl = url;
+            } catch (uploadError) {
+                console.error('Video upload error:', uploadError);
+                // Continue without video if upload fails, but log the error
+            }
+        }
+
         if (useSpringBootAPI()) {
             // Get category ID from category name
             const categoryId = await getCategoryIdByName(validatedProductData.scentCategory);
@@ -199,7 +239,7 @@ export async function updateProductAction(id: string, formData: FormData): Promi
             }
 
             // Transform data for Spring Boot API
-            const springBootData = {
+            const springBootData: any = {
                 name: validatedProductData.name,
                 description: validatedProductData.description,
                 price: validatedProductData.price,
@@ -210,6 +250,11 @@ export async function updateProductAction(id: string, formData: FormData): Promi
                 ingredients: validatedProductData.ingredients.split(',').map(ingredient => ingredient.trim()),
                 scentCategoryId: categoryId,
             };
+            
+            // Add videoUrl if it exists
+            if (finalVideoUrl) {
+                springBootData.videoUrl = finalVideoUrl;
+            }
 
             const result = await updateProduct(id, springBootData);
             
@@ -217,7 +262,8 @@ export async function updateProductAction(id: string, formData: FormData): Promi
                 return {
                     success: true,
                     message: "Product updated successfully!",
-                    imageUrl: finalImageUrl
+                    imageUrl: finalImageUrl,
+                    videoUrl: finalVideoUrl
                 };
             } else {
                 return {

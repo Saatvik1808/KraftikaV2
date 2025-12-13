@@ -10,8 +10,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      // Disallow specific paths if needed, e.g., /cart, /wishlist
-      // disallow: ['/cart/', '/wishlist/'], 
+      // Disallow user-specific and admin pages from indexing
+      disallow: [
+        '/cart/',
+        '/wishlist/',
+        '/login/',
+        '/payment/',
+        '/orders/',
+        '/admin/',
+        '/admin/login/',
+      ],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
   };

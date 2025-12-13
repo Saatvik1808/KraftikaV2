@@ -205,7 +205,18 @@ export default function RootLayout({
               gtag('js', new Date());
               gtag('config', 'G-2PE2MFNQ1L', {
                 page_path: window.location.pathname,
-                send_page_view: true
+                send_page_view: true,
+                // Enhanced tracking for India market
+                country_id: 'IN',
+                currency: 'INR',
+                // Enable enhanced ecommerce tracking
+                send_to: 'G-2PE2MFNQ1L'
+              });
+              
+              // Track geographic data
+              gtag('set', {
+                'country': 'IN',
+                'currency': 'INR'
               });
               
               // Track conversions

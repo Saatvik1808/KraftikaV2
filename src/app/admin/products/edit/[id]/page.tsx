@@ -2,35 +2,36 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Save, Loader2, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Image as ImageIcon, Video } from "lucide-react";
 import Link from "next/link";
 import { getProduct, getProductCategories } from "@/services/products-unified";
 import { updateProductAction } from "../../actions-unified"; // Import the unified server action
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { VideoUpload } from "@/components/admin/video-upload";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { PageLoader } from "@/components/ui/loader";
 
-interface PageProps {
-  params: { id: string };
-}
-
-export default function EditProductPage({ params }: PageProps) {
+export default function EditProductPage() {
   const router = useRouter();
+  const params = useParams();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
   const [product, setProduct] = React.useState<Candle | null>(null);
   const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
+  const [selectedVideo, setSelectedVideo] = React.useState<File | null>(null);
   const [imagePreview, setImagePreview] = React.useState<string>("");
+
+  const productId = params?.id as string;
 
   const [formData, setFormData] = React.useState({
     name: "",
@@ -41,16 +42,27 @@ export default function EditProductPage({ params }: PageProps) {
     burnTime: "",
     ingredients: "",
     imageUrl: "",
+    videoUrl: "",
     popularity: ""
   });
 
   const [categories, setCategories] = React.useState<string[]>(["Citrus", "Floral", "Sweet", "Fresh", "Fruity"]);
 
   React.useEffect(() => {
+    if (!productId || productId === 'undefined') {
+      toast({
+        title: "Invalid Product ID",
+        description: "The product ID is missing or invalid.",
+        variant: "destructive"
+      });
+      router.push("/admin/products");
+      return;
+    }
+
     const fetchProduct = async () => {
       try {
         setIsLoading(true);
-        const fetchedProduct = await getProduct(params.id);
+        const fetchedProduct = await getProduct(productId);
         if (fetchedProduct) {
           setProduct(fetchedProduct);
           setFormData({
@@ -62,6 +74,7 @@ export default function EditProductPage({ params }: PageProps) {
             burnTime: fetchedProduct.burnTime,
             ingredients: fetchedProduct.ingredients,
             imageUrl: fetchedProduct.imageUrl,
+            videoUrl: fetchedProduct.videoUrl || "",
             popularity: fetchedProduct.popularity.toString()
           });
           setImagePreview(fetchedProduct.imageUrl);
@@ -86,7 +99,7 @@ export default function EditProductPage({ params }: PageProps) {
     };
 
     fetchProduct();
-  }, [params.id, router, toast]);
+  }, [productId, router, toast]);
 
   React.useEffect(() => {
     const fetchCategories = async () => {
@@ -125,9 +138,25 @@ export default function EditProductPage({ params }: PageProps) {
     setImagePreview("");
   };
 
+  const handleVideoChange = (file: File | null) => {
+    setSelectedVideo(file);
+  };
+
+  const handleRemoveCurrentVideo = () => {
+    setFormData(prev => ({ ...prev, videoUrl: "" }));
+    setSelectedVideo(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product) return;
+    if (!product || !productId || productId === 'undefined') {
+      toast({
+        title: "Error",
+        description: "Invalid product ID. Cannot save changes.",
+        variant: "destructive"
+      });
+      return;
+    }
     setIsSaving(true);
 
     const formDataToSubmit = new FormData();
@@ -137,9 +166,12 @@ export default function EditProductPage({ params }: PageProps) {
     if (selectedImage) {
         formDataToSubmit.append('image', selectedImage);
     }
+    if (selectedVideo) {
+        formDataToSubmit.append('video', selectedVideo);
+    }
 
     try {
-      const result = await updateProductAction(product.id, formDataToSubmit);
+      const result = await updateProductAction(productId, formDataToSubmit);
       
       if (result && result.success) {
         toast({
@@ -369,6 +401,76 @@ export default function EditProductPage({ params }: PageProps) {
               />
               <p className="text-sm text-muted-foreground">
                 You can manually set a custom image path. This overrides the current image and any new upload.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <CardTitle>Product Video</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-3">
+              <Label>Current Video</Label>
+              {formData.videoUrl ? (
+                <div className="flex items-center gap-4">
+                  <div className="w-32 h-32 border rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                    <Video className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      <strong>Current video:</strong> {formData.videoUrl}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
+                        <a href={formData.videoUrl} target="_blank" rel="noopener noreferrer">
+                          View Video
+                        </a>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRemoveCurrentVideo}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        Remove Current Video
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No video currently set</p>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <Label>Upload New Video (Optional)</Label>
+              <VideoUpload
+                value={selectedVideo}
+                onChange={handleVideoChange}
+                currentVideoUrl={formData.videoUrl}
+                required={false}
+                onRemove={handleRemoveCurrentVideo}
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="videoUrl">Video URL Override</Label>
+              <Input
+                id="videoUrl"
+                value={formData.videoUrl}
+                onChange={(e) => handleInputChange("videoUrl", e.target.value)}
+                placeholder="https://example.com/video.mp4"
+              />
+              <p className="text-sm text-muted-foreground">
+                You can manually set a custom video URL. This overrides the current video and any new upload.
               </p>
             </div>
           </CardContent>

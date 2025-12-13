@@ -41,6 +41,8 @@ function transformProductResponse(product: any): Candle {
     description: product.description || '',
     price: price,
     imageUrl: formatImageUrl(product.imageUrl || ''),
+    videoUrl: product.videoUrl || undefined,
+    videoUrls: product.videoUrls || undefined,
     scentCategory: product.scentCategoryName || product.scentCategory || '',
     scentNotes: Array.isArray(product.scentNotes) ? product.scentNotes.join(', ') : (product.scentNotes || ''),
     burnTime: product.burnTime || '',

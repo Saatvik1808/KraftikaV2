@@ -46,19 +46,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly', 
       priority: 0.6 
     },
-    // Low priority pages (noindex would be better, but keeping for completeness)
-    { 
-      url: `${siteUrl}/cart`, 
-      lastModified: new Date(), 
-      changeFrequency: 'yearly', 
-      priority: 0.1 
-    },
-    { 
-      url: `${siteUrl}/wishlist`, 
-      lastModified: new Date(), 
-      changeFrequency: 'yearly', 
-      priority: 0.1 
-    },
+    // Note: Cart, wishlist, login, payment, and orders pages are excluded from sitemap
+    // as they should not be indexed (noindex tags added via layout.tsx files)
     { 
       url: `${siteUrl}/privacy-policy`, 
       lastModified: new Date(), 

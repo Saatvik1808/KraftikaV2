@@ -169,6 +169,7 @@ function AdminRootLayout({ children }: { children: React.ReactNode }) {
 }
 
 // This is the new root layout for the /admin route
+// Note: Metadata is exported from a separate metadata.ts file since this is a client component
 export default function AdminLayout({
   children,
 }: {
@@ -176,6 +177,10 @@ export default function AdminLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Add noindex meta tag for admin pages */}
+        <meta name="robots" content="noindex, nofollow" />
+      </head>
       <body>
         <AdminRootLayout>{children}</AdminRootLayout>
         <Toaster />
