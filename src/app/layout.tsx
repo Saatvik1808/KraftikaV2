@@ -5,6 +5,7 @@ import './globals.css';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from './providers';
+import { PWAInstallPrompt } from '@/components/pwa-install-prompt';
 
 // Comprehensive SEO Optimized Metadata
 export const metadata: Metadata = {
@@ -68,6 +69,12 @@ export const metadata: Metadata = {
   icons: {
     icon: '/KraftikaV2.png',
     apple: '/KraftikaV2.png',
+  },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Kraftika',
   },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com'),
   verification: {
@@ -236,6 +243,18 @@ export default function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3381696955327461"
           crossOrigin="anonymous"
         />
+        {/* PWA Meta Tags */}
+        <meta name="application-name" content="Kraftika" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Kraftika" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="msapplication-TileColor" content="#000000" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <meta name="theme-color" content="#000000" />
+        <link rel="apple-touch-icon" href="/KraftikaV2.png" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       {/* Apply the font-sans class which will now use Regalia Monarch via Tailwind config */}
       <body className="font-sans antialiased flex flex-col min-h-screen">
@@ -244,6 +263,7 @@ export default function RootLayout({
             <main className="flex-grow">{children}</main>
           </ConditionalLayout>
           <Toaster />
+          <PWAInstallPrompt />
         </Providers>
       </body>
     </html>

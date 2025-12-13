@@ -1,0 +1,67 @@
+{
+  "name": "Kraftika - Handcrafted Scented Candles",
+  "short_name": "Kraftika",
+  "description": "Premium handcrafted scented soy candles in India. Perfect Christmas and New Year gifts! Shop the finest collection of aromatherapy candles, fragrance candles, and luxury candles.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["shopping", "lifestyle", "home"],
+  "icons": [
+    {
+      "src": "/KraftikaV2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/KraftikaV2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/KraftikaV3.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/KraftikaV3.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/KraftikaV2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Products",
+      "short_name": "Shop",
+      "description": "Browse our candle collection",
+      "url": "/products",
+      "icons": [{ "src": "/KraftikaV2.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Cart",
+      "short_name": "Cart",
+      "description": "View your cart",
+      "url": "/cart",
+      "icons": [{ "src": "/KraftikaV2.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
+

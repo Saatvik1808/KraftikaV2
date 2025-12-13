@@ -47,3 +47,13 @@ next-env.d.ts
 
 *.mp4
 src/lib/kraftika-scents-firebase-adminsdk-fbsvc-d9615f23ce.json
+
+# PWA files
+/public/sw.js
+/public/workbox-*.js
+/public/worker-*.js
+/public/sw.js.map
+/public/workbox-*.js.map
+/public/worker-*.js.map
+/public/fallback-*.js
+/public/fallback-*.js.map
