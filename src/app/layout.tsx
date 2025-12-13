@@ -216,6 +216,12 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3381696955327461"
+          crossOrigin="anonymous"
+        />
       </head>
       {/* Apply the font-sans class which will now use Regalia Monarch via Tailwind config */}
       <body className="font-sans antialiased flex flex-col min-h-screen">
