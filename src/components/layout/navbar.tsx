@@ -4,7 +4,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, ShoppingBag, Heart, User, LogOut } from "lucide-react";
+import { Menu, X, ShoppingBag, Heart, User, LogOut, Download } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Logo } from "@/components/logo";
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from "@/contexts/AuthContext";
+import { usePWAInstall } from "@/hooks/use-pwa-install";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +37,7 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
+  const { isInstallable, install } = usePWAInstall();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -122,6 +124,20 @@ export function Navbar() {
               <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
             </Link>
           </Button>
+
+          {/* Install App Button */}
+          {isInstallable && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={install}
+              className="hover:bg-gray-100 dark:hover:bg-gray-800"
+              aria-label="Install App"
+            >
+              <Download className="mr-2 h-4 w-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden lg:inline text-sm font-medium text-gray-600 dark:text-gray-400">Install App</span>
+            </Button>
+          )}
 
           {/* User Menu */}
           {isAuthenticated && user ? (
@@ -229,6 +245,24 @@ export function Navbar() {
                     {item.name}
                   </Link>
                 ))}
+                
+                {/* Install App Button in Mobile Menu */}
+                {isInstallable && (
+                  <button
+                    onClick={async () => {
+                      await install();
+                      setIsOpen(false);
+                    }}
+                    className={cn(
+                      "font-sans text-base font-medium transition-colors py-3 px-2 -mx-2 rounded-md",
+                      "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50",
+                      "flex items-center gap-2"
+                    )}
+                  >
+                    <Download className="h-4 w-4" />
+                    Install App
+                  </button>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
