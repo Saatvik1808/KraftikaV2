@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LeadCaptureDialog } from "@/components/lead-capture-dialog";
-import { Mail } from "lucide-react";
+import { Mail, Gift } from "lucide-react";
+import { ChristmasHeroOverlay } from "./christmas-hero-overlay";
 
 export function HeroSection() {
   const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
@@ -55,6 +56,9 @@ export function HeroSection() {
       
       {/* Enhanced overlay for better contrast */}
       <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-black/70 via-black/20 to-transparent -z-5"></div>
+      
+      {/* Christmas-themed overlay with decorative elements */}
+      <ChristmasHeroOverlay />
 
       <div className="container mx-auto px-4 md:px-6 lg:px-8 z-10 relative">
         <motion.div
@@ -65,6 +69,21 @@ export function HeroSection() {
         >
           {/* Text Content and CTA */}
           <div className="space-y-8 md:space-y-10 text-center sm:text-left">
+            <motion.div
+              className="flex items-center gap-3 mb-2"
+              variants={itemVariants}
+            >
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+              >
+                <Gift className="h-8 w-8 text-red-400" />
+              </motion.div>
+              <span className="text-red-300 font-bold text-lg md:text-xl">
+                🎄 Christmas Special - Perfect Gift Candles 🎁
+              </span>
+            </motion.div>
+            
             <motion.h1
               className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl leading-tight font-heading"
               variants={itemVariants}
@@ -75,13 +94,13 @@ export function HeroSection() {
             >
               Where Scents{' '}
               <span 
-                className="bg-clip-text text-transparent bg-gradient-to-r from-[#caa494] via-[#b8d4a8] to-[#b1e4c7]"
+                className="bg-clip-text text-transparent bg-gradient-to-r from-red-300 via-pink-300 to-yellow-200"
                 style={{
                   display: 'inline-block',
                   padding: '0.05em 0',
                   backgroundSize: '200% auto',
                   animation: 'gradientShift 6s ease infinite',
-                  textShadow: '0 0 20px rgba(177, 228, 199, 0.5), 0 0 40px rgba(202, 164, 148, 0.3)',
+                  textShadow: '0 0 20px rgba(239, 68, 68, 0.5), 0 0 40px rgba(236, 72, 153, 0.3)',
                 }}
               >
                 Spark Joy
@@ -96,7 +115,7 @@ export function HeroSection() {
                 lineHeight: '1.6'
               }} 
             >
-              Indulge in handcrafted scented candles made with love, designed to brighten your space and soothe your soul.
+              Make this Christmas magical with handcrafted scented candles - perfect gifts that brighten homes and warm hearts. 🎅✨
             </motion.p>
             
             <motion.div
@@ -118,9 +137,11 @@ export function HeroSection() {
                 <Button 
                   asChild 
                   size="lg" 
-                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium bg-gradient-to-r from-[#caa494] to-[#b8d4a8] hover:from-[#b8a08e] hover:to-[#a8c498] shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium bg-gradient-to-r from-red-600 via-red-500 to-pink-500 hover:from-red-700 hover:via-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-red-500/50 transition-all duration-300"
                 >
-                  <Link href="/products">Shop Now</Link>
+                  <Link href="/products">
+                    🎁 Shop Christmas Candles
+                  </Link>
                 </Button>
               </motion.div>
               

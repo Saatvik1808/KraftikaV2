@@ -12,14 +12,17 @@ export const metadata: Metadata = {
     default: 'Kraftika - Premium Handcrafted Scented Candles | Best Candle Shop in India',
     template: '%s | Kraftika - Handcrafted Scented Candles',
   },
-  description: 'Kraftika offers premium handcrafted scented soy candles in India. Shop the finest collection of aromatherapy candles, fragrance candles, and luxury candles. Where scents spark joy! Buy Kraftika candles online - best scented candles India.',
+  description: 'Kraftika offers premium handcrafted scented soy candles in India. Perfect Christmas and New Year gifts! Shop the finest collection of aromatherapy candles, fragrance candles, and luxury candles. Where scents spark joy! Buy Kraftika candles online - best scented candles India.',
   keywords: [
     'kraftika candles', 'kraftika scented candles', 'handcrafted candles', 'scented candles india', 
     'soy candles', 'aromatherapy candles', 'fragrance candles', 'luxury candles', 'premium candles',
     'best scented candles india', 'buy candles online', 'candle shop india', 'soy wax candles',
     'natural candles', 'hand poured candles', 'homemade candles', 'artisan candles',
     'candles for home decor', 'gift candles', 'wedding candles', 'gift ideas',
-    'kraftika studio', 'kraftika candle shop', 'kraftika online store'
+    'kraftika studio', 'kraftika candle shop', 'kraftika online store',
+    'christmas candles', 'christmas gift candles', 'new year candles', 'christmas candles india',
+    'holiday candles', 'christmas scented candles', 'festive candles', 'christmas gift ideas',
+    'best christmas candles', 'luxury christmas candles', 'handmade christmas candles', 'christmas candle gift sets'
   ],
   authors: [{ name: 'Kraftika' }],
   creator: 'Kraftika',
@@ -40,8 +43,8 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kraftikastudio.com',
     siteName: 'Kraftika - Handcrafted Scented Candles',
-    title: 'Kraftika - Premium Handcrafted Scented Candles | Best Candle Shop in India',
-    description: 'Kraftika offers premium handcrafted scented soy candles in India. Shop the finest collection of aromatherapy candles, fragrance candles, and luxury candles. Where scents spark joy!',
+    title: 'Kraftika - Premium Handcrafted Scented Candles | Best Candle Shop in India | Perfect Christmas Gifts',
+    description: 'Kraftika offers premium handcrafted scented soy candles in India. Perfect Christmas and New Year gifts! Shop the finest collection of aromatherapy candles, fragrance candles, and luxury candles. Where scents spark joy!',
     images: [
       {
         url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com'}/KraftikaV2.png`,
@@ -53,8 +56,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kraftika - Premium Handcrafted Scented Candles | Best Candle Shop in India',
-    description: 'Shop premium handcrafted scented soy candles from Kraftika. Where scents spark joy!',
+    title: 'Kraftika - Premium Handcrafted Scented Candles | Perfect Christmas Gifts',
+    description: 'Perfect Christmas and New Year gifts! Shop premium handcrafted scented soy candles from Kraftika. Where scents spark joy!',
     images: [`${process.env.NEXT_PUBLIC_SITE_URL || 'https://kraftika-scents.com'}/KraftikaV2.png`],
     creator: '@kraftika_studio',
     site: '@kraftika_studio',
