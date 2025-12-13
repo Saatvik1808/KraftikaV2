@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Backend URL for server-side proxy
 // This can be overridden with BACKEND_API_URL environment variable
-// Default to localhost:5000 for local development
-const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:5000/api';
+// Default based on environment: localhost for dev, production URL for production
+const BACKEND_URL = process.env.BACKEND_API_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? 'http://65.2.121.137/api' 
+    : 'http://localhost:5000/api');
 
 export async function GET(
   request: NextRequest,
@@ -128,13 +131,23 @@ async function handleRequest(
     });
   } catch (error) {
     console.error('[Proxy] Error:', error);
+    console.error('[Proxy] Backend URL:', BACKEND_URL);
+    console.error('[Proxy] Target URL:', `${BACKEND_URL}/${params.path.join('/')}`);
+    
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    // Provide more helpful error message
+    let userMessage = errorMessage;
+    if (errorMessage.includes('fetch failed') || errorMessage.includes('ECONNREFUSED')) {
+      userMessage = `Cannot connect to backend server at ${BACKEND_URL}. Please check if the backend is running and accessible.`;
+    }
     
     return NextResponse.json(
       { 
         error: 'Failed to proxy request', 
-        message: errorMessage,
+        message: userMessage,
+        backendUrl: process.env.NODE_ENV === 'development' ? BACKEND_URL : undefined,
         stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
       },
       { status: 500 }
