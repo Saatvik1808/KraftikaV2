@@ -110,11 +110,11 @@ export default function ScentQuizPage() {
     
     // First filter by scent category if selected
     let candidates = scentType 
-      ? allProductsData.filter(candle => 
+      ? allProducts.filter(candle => 
           candle.scentCategory.toLowerCase().includes(scentType.toLowerCase()) ||
           candle.scentNotes.toLowerCase().includes(scentType.toLowerCase())
         )
-      : [...allProductsData];
+      : [...allProducts];
   
     // Then prioritize by mood
     if (mood) {
@@ -139,7 +139,7 @@ export default function ScentQuizPage() {
     
     // If no matches found, return some popular defaults
     if (recommended.length === 0) {
-      recommended = allProductsData
+      recommended = allProducts
         .filter(c => ['1', '2', '3', '4'].includes(c.id))
         .slice(0, 2);
     }
