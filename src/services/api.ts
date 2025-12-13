@@ -1,5 +1,5 @@
 // API configuration for Spring Boot backend
-const API_BASE_URL =  process.env.NEXT_PUBLIC_API_URL || 'http://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api';
+const API_BASE_URL =  process.env.NEXT_PUBLIC_API_URL || 'https://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api';
 
 // Generic API client
 class ApiClient {
