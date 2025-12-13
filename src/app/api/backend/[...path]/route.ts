@@ -6,37 +6,42 @@ const BACKEND_URL = process.env.BACKEND_API_URL || 'http://kraftika-env.eba-vyn6
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'GET');
+  const resolvedParams = await params;
+  return handleRequest(request, resolvedParams, 'GET');
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'POST');
+  const resolvedParams = await params;
+  return handleRequest(request, resolvedParams, 'POST');
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'PUT');
+  const resolvedParams = await params;
+  return handleRequest(request, resolvedParams, 'PUT');
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'DELETE');
+  const resolvedParams = await params;
+  return handleRequest(request, resolvedParams, 'DELETE');
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return handleRequest(request, params, 'PATCH');
+  const resolvedParams = await params;
+  return handleRequest(request, resolvedParams, 'PATCH');
 }
 
 export async function OPTIONS() {
@@ -62,6 +67,8 @@ async function handleRequest(
     
     // Build the backend URL
     const backendUrl = `${BACKEND_URL}/${path}${queryString}`;
+    
+    console.log(`[Proxy] ${method} ${path} -> ${backendUrl}`);
     
     // Get headers from the request
     const headers: HeadersInit = {
@@ -89,7 +96,7 @@ async function handleRequest(
         }
       } catch (error) {
         // If body parsing fails, continue without body
-        console.warn('Failed to parse request body:', error);
+        console.warn('[Proxy] Failed to parse request body:', error);
       }
     }
     
@@ -107,6 +114,8 @@ async function handleRequest(
       jsonData = data;
     }
     
+    console.log(`[Proxy] Response status: ${response.status}`);
+    
     // Return the response with appropriate headers
     return NextResponse.json(jsonData, {
       status: response.status,
@@ -117,9 +126,16 @@ async function handleRequest(
       },
     });
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('[Proxy] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
     return NextResponse.json(
-      { error: 'Failed to proxy request', message: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        error: 'Failed to proxy request', 
+        message: errorMessage,
+        stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
+      },
       { status: 500 }
     );
   }
