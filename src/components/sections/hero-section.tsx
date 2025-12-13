@@ -79,8 +79,8 @@ export function HeroSection() {
               >
                 <Gift className="h-8 w-8 text-red-400" />
               </motion.div>
-              <span className="text-red-300 font-bold text-lg md:text-xl">
-                🎄 Christmas Special - Perfect Gift Candles 🎁
+              <span className="text-red-300 font-bold text-lg md:text-l">
+                 Christmas Special - Perfect Gift Candles 
               </span>
             </motion.div>
             
