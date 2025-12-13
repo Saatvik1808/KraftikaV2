@@ -140,7 +140,7 @@ export function HeroSection() {
                   className="w-full sm:w-auto px-10 py-6 text-lg font-medium bg-gradient-to-r from-red-600 via-red-500 to-pink-500 hover:from-red-700 hover:via-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-red-500/50 transition-all duration-300"
                 >
                   <Link href="/products">
-                    🎁 Shop Christmas Candles
+                     Shop Christmas Candles
                   </Link>
                 </Button>
               </motion.div>

@@ -13,6 +13,7 @@ import { Logo } from "@/components/logo";
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from "@/contexts/AuthContext";
 import { usePWAInstall } from "@/hooks/use-pwa-install";
+import { IOSInstallInstructions } from "@/components/ios-install-instructions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +38,7 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
-  const { isInstallable, install } = usePWAInstall();
+  const { isInstallable, install, deviceType, isIOS, isMobile, showIOSInstructions, dismissIOSInstructions } = usePWAInstall();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -132,10 +133,12 @@ export function Navbar() {
               size="sm"
               onClick={install}
               className="hover:bg-gray-100 dark:hover:bg-gray-800"
-              aria-label="Install App"
+              aria-label={isIOS ? "Add to Home Screen" : "Install App"}
             >
               <Download className="mr-2 h-4 w-4 text-gray-600 dark:text-gray-400" />
-              <span className="hidden lg:inline text-sm font-medium text-gray-600 dark:text-gray-400">Install App</span>
+              <span className="hidden lg:inline text-sm font-medium text-gray-600 dark:text-gray-400">
+                {isIOS ? "Add to Home" : "Install App"}
+              </span>
             </Button>
           )}
 
@@ -260,7 +263,7 @@ export function Navbar() {
                     )}
                   >
                     <Download className="h-4 w-4" />
-                    Install App
+                    {isIOS ? "Add to Home Screen" : "Install App"}
                   </button>
                 )}
               </nav>
@@ -268,6 +271,12 @@ export function Navbar() {
           </Sheet>
         </div>
       </div>
+      
+      {/* iOS Install Instructions Dialog */}
+      <IOSInstallInstructions 
+        open={showIOSInstructions} 
+        onClose={dismissIOSInstructions} 
+      />
     </motion.nav>
   );
 }

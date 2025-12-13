@@ -9,11 +9,39 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+// Detect if device is iOS
+function isIOS(): boolean {
+  if (typeof window === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+// Detect if device is mobile
+function isMobile(): boolean {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
 
   useEffect(() => {
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setShowPrompt(false);
+      return;
+    }
+
+    // Check if iOS
+    if (isIOS() && isMobile()) {
+      setIsIOSDevice(true);
+      // For iOS, we'll let the navbar handle it
+      return;
+    }
+
+    // Android/Chrome supports beforeinstallprompt
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -24,11 +52,6 @@ export function PWAInstallPrompt() {
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-
-    // Check if already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setShowPrompt(false);
-    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
@@ -66,7 +89,8 @@ export function PWAInstallPrompt() {
     }
   }, []);
 
-  if (!showPrompt || !deferredPrompt) {
+  // Don't show for iOS (navbar handles it)
+  if (isIOSDevice || !showPrompt || !deferredPrompt) {
     return null;
   }
 
