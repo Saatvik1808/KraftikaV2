@@ -16,8 +16,9 @@ class ApiClient {
     };
     
     // Get JWT token from localStorage if available
+    // AuthContext stores it as 'kraftikaToken'
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const token = localStorage.getItem('kraftikaToken') || sessionStorage.getItem('kraftikaToken');
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }

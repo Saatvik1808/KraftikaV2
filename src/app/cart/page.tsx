@@ -202,7 +202,7 @@ export default function CartPage() {
 
   const isEmpty = cartItems.length === 0;
   const subtotal = isEmpty ? 0 : cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingCost = subtotal > 50 || isEmpty ? 0 : 5.99;
+  const shippingCost = subtotal > 500 || isEmpty ? 0 : 50; // Free shipping above ₹500
   const total = subtotal + shippingCost;
 
   return (
@@ -301,7 +301,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Shipping</span>
-                  <span>{shippingCost === 0 ? "Free" : `₹${shippingCost.toFixed(2)}`}</span>
+                  <span>{shippingCost === 0 ? "Free" : `₹${shippingCost}`}</span>
                 </div>
                 <Separator className="my-2 bg-border/30" />
                 <div className="flex justify-between text-lg font-semibold text-foreground">

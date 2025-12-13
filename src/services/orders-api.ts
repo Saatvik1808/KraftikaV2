@@ -156,6 +156,63 @@ export async function getAllOrders(userId?: string): Promise<Order[]> {
   }
 }
 
+export async function createOrder(orderData: {
+  shippingAddress: any;
+  paymentMethod: string;
+  orderItems: Array<{
+    productId: string;
+    quantity: number;
+  }>;
+}): Promise<Order> {
+  try {
+    const response = await apiClient.post<any>("/orders", {
+      shippingAddress: typeof orderData.shippingAddress === 'string' 
+        ? orderData.shippingAddress 
+        : JSON.stringify(orderData.shippingAddress),
+      paymentMethod: orderData.paymentMethod,
+      orderItems: orderData.orderItems,
+    });
+    
+    console.log("Order creation response:", response);
+    
+    // Validate response has required fields
+    if (!response || !response.id) {
+      console.error("Invalid order response - missing id:", response);
+      throw new Error("Invalid order response: missing order ID");
+    }
+    
+    // Transform backend response to frontend format
+    return {
+      id: response.id,
+      userId: response.userId,
+      totalAmount: response.totalAmount,
+      status: response.status as OrderStatus,
+      shippingAddress: typeof response.shippingAddress === 'string' 
+        ? JSON.parse(response.shippingAddress) 
+        : response.shippingAddress || {},
+      paymentMethod: response.paymentMethod || "",
+      orderItems: (response.orderItems || []).map((item: any) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: item.subtotal,
+      })),
+      createdAt: response.createdAt,
+      updatedAt: response.updatedAt,
+    };
+  } catch (error: any) {
+    console.error("Error creating order:", error);
+    console.error("Error details:", {
+      message: error.message,
+      response: error.response,
+      stack: error.stack
+    });
+    throw new Error(error.message || "Failed to create order");
+  }
+}
+
 export async function getOrderById(id: string): Promise<Order | null> {
   try {
     const response = await apiClient.get<any>(`/orders/${id}`);

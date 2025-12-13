@@ -16,6 +16,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cartApi } from "@/services/cart-api";
 import { PageLoader } from "@/components/ui/loader";
 import type { ShippingAddress } from "@/types/order";
+import { createOrder } from "@/services/orders-api";
+import { createRazorpayOrder, verifyPayment } from "@/services/payment-api";
 
 interface CartItem {
   id: string;
@@ -87,6 +89,18 @@ export default function PaymentPage() {
     loadCart();
   }, [isAuthenticated, router, toast]);
 
+  // Load Razorpay script
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -125,42 +139,130 @@ export default function PaymentPage() {
     try {
       // Calculate totals
       const subtotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
-      const shippingCost = subtotal > 50 ? 0 : 5.99;
+      const shippingCost = subtotal > 500 ? 0 : 50; // Free shipping above ₹500
       const total = subtotal + shippingCost;
 
-      // TODO: Create order via API when backend endpoint is ready
-      // For now, we'll show a success message and clear the cart
-      
-      // Create order object
+      // Create order in backend first (status: PENDING)
       const orderData = {
-        totalAmount: total,
         shippingAddress,
         paymentMethod,
         orderItems: cartItems.map(item => ({
           productId: item.productId,
-          productName: item.productName,
           quantity: item.quantity,
-          price: item.price,
-          subtotal: item.subtotal,
         })),
       };
 
-      console.log("Order data:", orderData);
+      let createdOrder;
       
-      // Clear cart after successful order
-      if (isAuthenticated) {
-        await cartApi.clearCart();
-      } else {
-        localStorage.removeItem('kraftikaCart');
+      // Handle COD payment
+      if (paymentMethod === "COD") {
+        createdOrder = await createOrder(orderData);
+        
+        if (!createdOrder || !createdOrder.id) {
+          toast({
+            title: "Order Creation Failed",
+            description: "Failed to create order. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        toast({
+          title: "Order Placed Successfully!",
+          description: "Your order has been placed. You will receive a confirmation email shortly.",
+        });
+
+        router.push(`/orders/${createdOrder.id}`);
+        return;
       }
 
-      toast({
-        title: "Order Placed Successfully!",
-        description: "Your order has been placed. You will receive a confirmation email shortly.",
-      });
+      // Handle online payment (Razorpay)
+      // First create order in our system
+      createdOrder = await createOrder(orderData);
+      
+      if (!createdOrder || !createdOrder.id) {
+        toast({
+          title: "Order Creation Failed",
+          description: "Failed to create order. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Create Razorpay order
+      // Razorpay receipt must be <= 40 characters
+      // Use last 32 chars of UUID (after removing dashes) = 32 + "ord" = 35 chars
+      const receiptId = createdOrder.id.replace(/-/g, '').slice(-32);
+      const razorpayOrder = await createRazorpayOrder(
+        total,
+        "INR",
+        `ord${receiptId}`
+      );
 
-      // Redirect to order confirmation or home
-      router.push("/");
+      // Initialize Razorpay checkout
+      const options = {
+        key: razorpayOrder.keyId,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        name: "Kraftika",
+        description: `Order #${createdOrder.id}`,
+        order_id: razorpayOrder.id,
+        handler: async function (response: any) {
+          try {
+            // Verify payment signature
+            const isValid = await verifyPayment({
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+            });
+
+            if (isValid) {
+              // Payment successful - order status will be updated via webhook
+              toast({
+                title: "Payment Successful!",
+                description: "Your order has been confirmed.",
+              });
+              router.push(`/orders/${createdOrder.id}`);
+            } else {
+              toast({
+                title: "Payment Verification Failed",
+                description: "Please contact support if payment was deducted.",
+                variant: "destructive",
+              });
+            }
+          } catch (error: any) {
+            console.error("Payment verification error:", error);
+            toast({
+              title: "Error",
+              description: "Payment verification failed. Please contact support.",
+              variant: "destructive",
+            });
+          } finally {
+            setIsSubmitting(false);
+          }
+        },
+        prefill: {
+          name: user?.name || "",
+          email: user?.email || "",
+          contact: user?.phone || "",
+        },
+        theme: {
+          color: "#caa494",
+        },
+        modal: {
+          ondismiss: function() {
+            setIsSubmitting(false);
+            toast({
+              title: "Payment Cancelled",
+              description: "You can complete the payment later from your orders.",
+            });
+          },
+        },
+      };
+
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
+      
     } catch (error: any) {
       console.error("Failed to place order:", error);
       toast({
@@ -168,7 +270,6 @@ export default function PaymentPage() {
         description: error.message || "Failed to place order. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -198,7 +299,7 @@ export default function PaymentPage() {
   }
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
-  const shippingCost = subtotal > 50 ? 0 : 5.99;
+  const shippingCost = subtotal > 500 ? 0 : 50; // Free shipping above ₹500
   const total = subtotal + shippingCost;
   
   return (
@@ -398,7 +499,7 @@ export default function PaymentPage() {
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Shipping</span>
-                    <span>{shippingCost === 0 ? "Free" : `₹${shippingCost.toFixed(2)}`}</span>
+                    <span>{shippingCost === 0 ? "Free" : `₹${shippingCost}`}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between text-lg font-semibold">
