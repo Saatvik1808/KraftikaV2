@@ -7,12 +7,11 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   // Performance optimizations for better SEO scores
   compress: true,
   poweredByHeader: false,
+  // Move serverExternalPackages to root level (not experimental)
+  serverExternalPackages: ['multer'],
   // Enable image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -53,14 +52,8 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    serverComponentsExternalPackages: ['multer'],
     serverActions: {
       bodySizeLimit: '800mb',
-    },
-  },
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
     },
   },
 };
