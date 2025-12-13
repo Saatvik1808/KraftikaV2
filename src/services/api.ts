@@ -1,5 +1,6 @@
 // API configuration for Spring Boot backend
-const API_BASE_URL =  process.env.NEXT_PUBLIC_API_URL || 'https://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api';
+// Use proxy route in browser to avoid HTTPS/CORS issues, direct URL for server-side
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api/backend' : 'http://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api');
 
 // Generic API client
 class ApiClient {

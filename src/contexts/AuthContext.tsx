@@ -29,7 +29,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL =  process.env.NEXT_PUBLIC_API_URL || 'https://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api/backend' : 'http://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api')
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

@@ -4,8 +4,9 @@ export const API_CONFIG = {
   provider:  'springboot',
   
   // Spring Boot API configuration
+  // Use proxy route in production to avoid HTTPS/CORS issues
   springBoot: {
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api',
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api/backend' : 'http://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api'),
   },
   
   // Firebase configuration (keeping existing)
