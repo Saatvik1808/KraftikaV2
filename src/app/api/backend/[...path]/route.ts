@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Backend URL for server-side proxy (use HTTP since HTTPS isn't configured on EB)
+// Backend URL for server-side proxy
 // This can be overridden with BACKEND_API_URL environment variable
-const BACKEND_URL = process.env.BACKEND_API_URL || 'http://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api';
+const BACKEND_URL = process.env.BACKEND_API_URL || 'http://65.2.121.137/api';
 
 export async function GET(
   request: NextRequest,

@@ -66,7 +66,7 @@ export async function submitLead(
 
   try {
     // Build the API URL using the base URL from config (API_BASE_URL already includes /api)
-    const leadUrl = `${API_BASE_URL || (typeof window !== 'undefined' ? '/api/backend' : 'http://kraftika-env.eba-vyn62iv2.ap-south-1.elasticbeanstalk.com/api')}/leads`;
+    const leadUrl = `${API_BASE_URL || (typeof window !== 'undefined' ? '/api/backend' : 'http://65.2.121.137/api')}/leads`;
     
     // Call backend API to create lead and send email notification
     console.log("Attempting to submit lead via backend API:", requestBody);
