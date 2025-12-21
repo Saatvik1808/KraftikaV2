@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBag, AlertTriangle, Trash2, Image as ImageIcon } from "lucide-react";
+import { ShoppingBag, AlertTriangle, Trash2, Image as ImageIcon, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -26,74 +26,50 @@ interface CartStorageItem {
 }
 
 export default function CartPage() {
-  const [allProducts, setAllProducts] = React.useState<Candle[]>([]);
   const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isUpdating, setIsUpdating] = React.useState<string | null>(null); // Track which item is being updated
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   
-  // Load cart items - optimized to fetch directly from backend when authenticated
-  React.useEffect(() => {
-    const loadCart = async () => {
-      try {
-        setIsLoading(true);
-        let loadedCartItems: CartItem[] = [];
-        
-        if (isAuthenticated) {
-          // Load from backend API directly - backend already returns all needed product data
-          // This is much faster than fetching all products first
-          try {
-            const backendCart = await cartApi.getCart();
-            // Backend returns cart items with productName, productImageUrl, price, etc.
-            // We can construct CartItem directly without fetching all products
-            loadedCartItems = backendCart.map((backendItem: any) => {
-              const price = typeof backendItem.price === 'string' 
-                ? parseFloat(backendItem.price) 
-                : (typeof backendItem.price === 'number' ? backendItem.price : 0);
-              
-              return {
-                id: backendItem.productId,
-                name: backendItem.productName || '',
-                description: '',
-                price: price,
-                imageUrl: backendItem.productImageUrl || '',
-                scentCategory: '',
-                scentNotes: '',
-                burnTime: '',
-                ingredients: '',
-                popularity: 0,
-                createdAt: new Date().toISOString(),
-                quantity: backendItem.quantity || 1,
-              } as CartItem;
-            }).filter((item: CartItem) => item.id && item.name) as CartItem[];
-          } catch (error: any) {
-            console.error("Failed to load cart from backend:", error);
-            // Fallback to localStorage if backend fails - need products for this
-            try {
-              const products = await getProducts();
-              setAllProducts(products);
-              const cartString = localStorage.getItem('kraftikaCart');
-              const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
-              loadedCartItems = storedCartItems.map(storedItem => {
-                const productDetails = products.find(p => p.id === storedItem.id);
-                if (productDetails) {
-                  return { ...productDetails, quantity: storedItem.quantity };
-                }
-                return null;
-              }).filter(item => item !== null) as CartItem[];
-            } catch (fallbackError) {
-              console.error("Failed to load products for fallback:", fallbackError);
-              loadedCartItems = [];
-            }
-          }
-        } else {
-          // Load from localStorage - need to fetch products first
-          try {
+  // Load cart items
+  const loadCart = React.useCallback(async () => {
+    try {
+      setIsLoading(true);
+      let loadedCartItems: CartItem[] = [];
+      
+      if (isAuthenticated) {
+        // Load from backend API
+        try {
+          const backendCart = await cartApi.getCart();
+          // Backend returns cart items with all product data
+          loadedCartItems = backendCart.map((backendItem: any) => {
+            const price = typeof backendItem.price === 'string' 
+              ? parseFloat(backendItem.price) 
+              : (typeof backendItem.price === 'number' ? backendItem.price : 0);
+            
+            return {
+              id: backendItem.productId,
+              name: backendItem.productName || '',
+              description: backendItem.productDescription || '',
+              price: price,
+              imageUrl: backendItem.productImageUrl || '',
+              scentCategory: backendItem.scentCategory || '',
+              scentNotes: backendItem.scentNotes || '',
+              burnTime: backendItem.burnTime || '',
+              ingredients: backendItem.ingredients || '',
+              popularity: 0,
+              createdAt: new Date().toISOString(),
+              quantity: backendItem.quantity || 1,
+            } as CartItem;
+          }).filter((item: CartItem) => item.id && item.name) as CartItem[];
+        } catch (error: any) {
+          // If auth failed, fall back to localStorage
+          if (error.message === "NOT_AUTHENTICATED") {
+            console.log("Not authenticated, loading from localStorage");
             const products = await getProducts();
-            setAllProducts(products);
             const cartString = localStorage.getItem('kraftikaCart');
             const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
-            
             loadedCartItems = storedCartItems.map(storedItem => {
               const productDetails = products.find(p => p.id === storedItem.id);
               if (productDetails) {
@@ -101,98 +77,203 @@ export default function CartPage() {
               }
               return null;
             }).filter(item => item !== null) as CartItem[];
-          } catch (error) {
-            console.error("Failed to load products:", error);
-            loadedCartItems = [];
+          } else {
+            throw error;
           }
         }
+      } else {
+        // Load from localStorage
+        const products = await getProducts();
+        const cartString = localStorage.getItem('kraftikaCart');
+        const storedCartItems: CartStorageItem[] = cartString ? JSON.parse(cartString) : [];
         
-        setCartItems(loadedCartItems);
-      } catch (error) {
-        console.error("Failed to load cart:", error);
-        setCartItems([]);
-        toast({ title: "Error", description: "Could not load your cart.", variant: "destructive" });
-      } finally {
-        setIsLoading(false);
+        loadedCartItems = storedCartItems.map(storedItem => {
+          const productDetails = products.find(p => p.id === storedItem.id);
+          if (productDetails) {
+            return { ...productDetails, quantity: storedItem.quantity };
+          }
+          return null;
+        }).filter(item => item !== null) as CartItem[];
       }
-    };
-    
-    loadCart();
+      
+      setCartItems(loadedCartItems);
+    } catch (error) {
+      console.error("Failed to load cart:", error);
+      setCartItems([]);
+      toast({ 
+        title: "Error", 
+        description: "Could not load your cart.", 
+        variant: "destructive" 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [isAuthenticated, toast]);
 
+  React.useEffect(() => {
+    loadCart();
+    
+    // Listen for cart updates (e.g., when items are added from product page)
+    const handleCartUpdate = () => {
+      loadCart();
+    };
+    
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, [loadCart]);
 
-  const handleDecreaseQuantityOrRemove = async (itemId: string) => {
-    let itemUpdated = false;
-    let itemRemoved = false;
-    let itemName = "";
+  // Update quantity
+  const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
+    if (newQuantity < 1) {
+      handleRemoveItem(itemId);
+      return;
+    }
+
     const item = cartItems.find(i => i.id === itemId);
     if (!item) return;
-    
-    itemName = item.name;
-    const productId = item.id; // This is the product ID, not cart item ID
-    const newQuantity = item.quantity - 1;
+
+    setIsUpdating(itemId);
 
     try {
       if (isAuthenticated) {
-        // Update via backend API - use productId, not cart item id
-        let backendCart: any[];
-        if (newQuantity <= 0) {
-          backendCart = await cartApi.removeItem(productId);
-          itemRemoved = true;
-        } else {
-          backendCart = await cartApi.updateItem(productId, newQuantity);
-          itemUpdated = true;
-        }
-        // Use response directly - it already contains the updated cart
+        // Update via backend API
+        const backendCart = await cartApi.updateItem(itemId, newQuantity);
+        
+        // Map backend response directly - it has all product data
         const updatedCartItems = backendCart.map((backendItem: any) => {
-          const productDetails = allProducts.find(p => p.id === backendItem.productId);
-          if (productDetails) {
-            return {
-              ...productDetails,
-              quantity: backendItem.quantity,
-              price: typeof backendItem.price === 'string' ? parseFloat(backendItem.price) : backendItem.price,
-            };
-          }
-          return null;
-        }).filter((item: any) => item !== null) as CartItem[];
+          const price = typeof backendItem.price === 'string' 
+            ? parseFloat(backendItem.price) 
+            : (typeof backendItem.price === 'number' ? backendItem.price : 0);
+          
+          return {
+            id: backendItem.productId,
+            name: backendItem.productName || '',
+            description: backendItem.productDescription || '',
+            price: price,
+            imageUrl: backendItem.productImageUrl || '',
+            scentCategory: backendItem.scentCategory || '',
+            scentNotes: backendItem.scentNotes || '',
+            burnTime: backendItem.burnTime || '',
+            ingredients: backendItem.ingredients || '',
+            popularity: 0,
+            createdAt: new Date().toISOString(),
+            quantity: backendItem.quantity || 1,
+          } as CartItem;
+        }).filter((item: CartItem) => item.id && item.name) as CartItem[];
+        
         setCartItems(updatedCartItems);
+        toast({
+          title: "Quantity Updated",
+          description: `${item.name} quantity updated to ${newQuantity}.`,
+        });
       } else {
         // Update localStorage
         const updatedCartItems = cartItems.map(cartItem => {
           if (cartItem.id === itemId) {
-            if (newQuantity <= 0) {
-              itemRemoved = true;
-              return null;
-            }
-            itemUpdated = true;
             return { ...cartItem, quantity: newQuantity };
           }
           return cartItem;
-        }).filter(item => item !== null) as CartItem[];
+        });
 
         setCartItems(updatedCartItems);
-        const updatedStorageCart = updatedCartItems.map(item => ({ id: item.id, quantity: item.quantity }));
+        const updatedStorageCart = updatedCartItems.map(item => ({ 
+          id: item.id, 
+          quantity: item.quantity 
+        }));
         localStorage.setItem('kraftikaCart', JSON.stringify(updatedStorageCart));
-      }
-
-      if (itemRemoved) {
-        toast({
-          title: "Item Removed",
-          description: `${itemName} has been removed from your cart.`,
-        });
-      } else if (itemUpdated) {
+        
+        // Trigger cart update event
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        
         toast({
           title: "Quantity Updated",
-          description: `Quantity for ${itemName} is now ${newQuantity}.`,
+          description: `${item.name} quantity updated to ${newQuantity}.`,
         });
       }
     } catch (error: any) {
-      console.error("Failed to update cart:", error);
+      console.error("Failed to update quantity:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to update cart. Please try again.",
+        description: error.message || "Failed to update quantity. Please try again.",
         variant: "destructive",
       });
+      // Reload cart on error
+      loadCart();
+    } finally {
+      setIsUpdating(null);
+    }
+  };
+
+  // Remove item
+  const handleRemoveItem = async (itemId: string) => {
+    const item = cartItems.find(i => i.id === itemId);
+    if (!item) return;
+
+    setIsUpdating(itemId);
+
+    try {
+      if (isAuthenticated) {
+        // Remove via backend API
+        const backendCart = await cartApi.removeItem(itemId);
+        
+        // Map backend response directly
+        const updatedCartItems = backendCart.map((backendItem: any) => {
+          const price = typeof backendItem.price === 'string' 
+            ? parseFloat(backendItem.price) 
+            : (typeof backendItem.price === 'number' ? backendItem.price : 0);
+          
+          return {
+            id: backendItem.productId,
+            name: backendItem.productName || '',
+            description: backendItem.productDescription || '',
+            price: price,
+            imageUrl: backendItem.productImageUrl || '',
+            scentCategory: backendItem.scentCategory || '',
+            scentNotes: backendItem.scentNotes || '',
+            burnTime: backendItem.burnTime || '',
+            ingredients: backendItem.ingredients || '',
+            popularity: 0,
+            createdAt: new Date().toISOString(),
+            quantity: backendItem.quantity || 1,
+          } as CartItem;
+        }).filter((item: CartItem) => item.id && item.name) as CartItem[];
+        
+        setCartItems(updatedCartItems);
+        toast({
+          title: "Item Removed",
+          description: `${item.name} has been removed from your cart.`,
+        });
+      } else {
+        // Remove from localStorage
+        const updatedCartItems = cartItems.filter(cartItem => cartItem.id !== itemId);
+        setCartItems(updatedCartItems);
+        const updatedStorageCart = updatedCartItems.map(item => ({ 
+          id: item.id, 
+          quantity: item.quantity 
+        }));
+        localStorage.setItem('kraftikaCart', JSON.stringify(updatedStorageCart));
+        
+        // Trigger cart update event
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        
+        toast({
+          title: "Item Removed",
+          description: `${item.name} has been removed from your cart.`,
+        });
+      }
+    } catch (error: any) {
+      console.error("Failed to remove item:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove item. Please try again.",
+        variant: "destructive",
+      });
+      // Reload cart on error
+      loadCart();
+    } finally {
+      setIsUpdating(null);
     }
   };
 
@@ -218,7 +299,9 @@ export default function CartPage() {
           Your Shopping Cart
         </h1>
         {!isEmpty && cartItems.length > 0 && (
-            <span className="text-muted-foreground">{cartItems.reduce((acc, item) => acc + item.quantity, 0)} item(s)</span>
+          <span className="text-muted-foreground">
+            {cartItems.reduce((acc, item) => acc + item.quantity, 0)} item(s)
+          </span>
         )}
       </div>
 
@@ -271,14 +354,41 @@ export default function CartPage() {
                     <p className="text-sm text-muted-foreground">{item.scentCategory}</p>
                     <p className="text-md font-semibold text-primary mt-1">₹{item.price.toFixed(2)}</p>
                   </div>
-                  <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:ml-auto">
-                    <span className="text-sm text-muted-foreground">Qty: {item.quantity}</span>
+                  <div className="flex items-center gap-3 mt-2 sm:mt-0 sm:ml-auto">
+                    {/* Quantity Controls */}
+                    <div className="flex items-center gap-2 border rounded-md">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                        disabled={isUpdating === item.id}
+                        aria-label="Decrease quantity"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="text-sm font-medium w-8 text-center">
+                        {item.quantity}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                        disabled={isUpdating === item.id}
+                        aria-label="Increase quantity"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {/* Remove Button */}
                     <Button
                       variant="outline"
                       size="icon"
                       className="text-destructive hover:bg-destructive/10 border-destructive/30 hover:border-destructive/50 h-8 w-8"
-                      onClick={() => handleDecreaseQuantityOrRemove(item.id)}
-                      aria-label={`Decrease quantity or remove ${item.name} from cart`}
+                      onClick={() => handleRemoveItem(item.id)}
+                      disabled={isUpdating === item.id}
+                      aria-label={`Remove ${item.name} from cart`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

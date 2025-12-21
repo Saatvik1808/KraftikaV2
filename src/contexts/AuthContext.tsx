@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { isTokenExpired, clearAuthData } from "@/lib/jwt-utils";
 
 interface User {
   userId: string;
@@ -43,8 +44,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = localStorage.getItem("kraftikaUser");
     
     if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      // Check if token is expired before using it
+      if (isTokenExpired(storedToken)) {
+        // Clear expired token
+        clearAuthData();
+        setToken(null);
+        setUser(null);
+      } else {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      }
     }
     
     setIsLoading(false);
