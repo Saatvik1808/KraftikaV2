@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { motion } from 'framer-motion';
 import { Flame, Scissors, Clock, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -13,11 +12,7 @@ export default function CandleCarePage() {
   return (
     <div className="w-full py-16 md:py-24 bg-gradient-to-b from-background to-secondary/5">
       <div className="container mx-auto max-w-4xl px-4 md:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <div>
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-4">
               Complete Candle Care Guide
@@ -205,7 +200,7 @@ export default function CandleCarePage() {
               </Button>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
