@@ -220,10 +220,13 @@ export default function CartPage() {
     try {
       if (isAuthenticated) {
         // Remove via backend API
+        console.log('[Cart Page] Removing item:', itemId);
         const backendCart = await cartApi.removeItem(itemId);
+        console.log('[Cart Page] Backend cart response:', backendCart);
         
         // Handle empty cart (all items removed)
         if (!backendCart || backendCart.length === 0) {
+          console.log('[Cart Page] Cart is now empty');
           setCartItems([]);
           toast({
             title: "Item Removed",
@@ -238,7 +241,7 @@ export default function CartPage() {
             ? parseFloat(backendItem.price) 
             : (typeof backendItem.price === 'number' ? backendItem.price : 0);
           
-          return {
+          const mappedItem = {
             id: backendItem.productId,
             name: backendItem.productName || '',
             description: backendItem.productDescription || '',
@@ -252,13 +255,27 @@ export default function CartPage() {
             createdAt: new Date().toISOString(),
             quantity: backendItem.quantity || 1,
           } as CartItem;
+          
+          return mappedItem;
         }).filter((item: CartItem) => item && item.id && item.name) as CartItem[];
         
+        console.log('[Cart Page] Mapped cart items:', updatedCartItems);
+        console.log('[Cart Page] Previous cart items count:', cartItems.length);
+        console.log('[Cart Page] New cart items count:', updatedCartItems.length);
+        console.log('[Cart Page] Item IDs in response:', updatedCartItems.map(i => i.id));
+        console.log('[Cart Page] Removed item ID:', itemId);
+        
+        // Update state immediately with new array
         setCartItems(updatedCartItems);
+        
         toast({
           title: "Item Removed",
           description: `${itemName} has been removed from your cart.`,
         });
+        
+        // Reload cart immediately to ensure UI matches backend exactly
+        // This ensures any edge cases are handled
+        await loadCart();
       } else {
         // Remove from localStorage
         const updatedCartItems = cartItems.filter(cartItem => cartItem.id !== itemId);
