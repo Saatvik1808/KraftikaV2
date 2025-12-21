@@ -26,9 +26,11 @@ import {
 const navItems = [
   { name: "Home", href: "/" },
   { name: "Products", href: "/products" },
+  { name: "Blog", href: "/blog" },
   { name: "About Us", href: "/about" },
+  { name: "Candle Care", href: "/candle-care" },
+  { name: "FAQ", href: "/faq"},
   { name: "Contact", href: "/contact" },
-  { name: "FAQ", href: "/faq"}
 ];
 
 export function Navbar() {

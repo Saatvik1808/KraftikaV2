@@ -2,6 +2,7 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/firebase-admin';
 import type { Candle } from '@/types/candle';
+import { getAllBlogPosts } from '@/lib/blog.posts';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Use NEXT_PUBLIC_SITE_URL which should be set in your environment variables.
@@ -66,6 +67,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly', 
       priority: 0.5 
     },
+    { 
+      url: `${siteUrl}/blog`, 
+      lastModified: new Date(), 
+      changeFrequency: 'weekly', 
+      priority: 0.8 
+    },
+    { 
+      url: `${siteUrl}/candle-care`, 
+      lastModified: new Date(), 
+      changeFrequency: 'monthly', 
+      priority: 0.7 
+    },
   ];
 
   // Only fetch products if Firebase Admin is initialized
@@ -100,7 +113,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8, // High priority for product pages
       }));
 
-      return [...staticRoutes, ...productRoutes];
+      // Dynamic blog post routes
+      const blogPosts = getAllBlogPosts();
+      const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+        url: `${siteUrl}/blog/${post.slug}`,
+        lastModified: new Date(post.date),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      }));
+
+      return [...staticRoutes, ...productRoutes, ...blogRoutes];
     } catch (error) {
       console.error('Error fetching products for sitemap:', error);
       // Return only static routes if there's an error
@@ -108,6 +130,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Return only static routes if Firebase Admin is not initialized
-  return staticRoutes;
+  // Return static routes + blog routes even if Firebase Admin is not initialized
+  const blogPosts = getAllBlogPosts();
+  const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${siteUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  return [...staticRoutes, ...blogRoutes];
 }

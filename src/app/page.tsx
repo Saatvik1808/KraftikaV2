@@ -7,6 +7,7 @@ import { AboutSection } from '@/components/sections/about-section'; // Import Ab
 import { Testimonials } from '@/components/sections/testimonials';
 import { ScentQuizSection } from '@/components/sections/scent-quiz-section';
 import { ChristmasBanner } from '@/components/sections/christmas-banner';
+import { ContentSection } from '@/components/sections/content-section';
 import dynamic from 'next/dynamic';
 
 // Dynamically import the FloatingWhatsAppButton with SSR disabled for performance
@@ -23,6 +24,8 @@ export default function Home() {
       {/* Add Section Dividers if desired between sections */}
       {/* <SectionDivider /> */}
       <ProductShowcase />
+      {/* <SectionDivider /> */}
+      <ContentSection />
       {/* <SectionDivider /> */}
       <AboutSection /> {/* Add About Section */}
       {/* <SectionDivider /> */}

@@ -202,3 +202,5 @@ Disallow: /admin/login/
 
 **Note:** It's normal and correct for these pages to show "Excluded by 'noindex' tag" in Search Console. This is the desired behavior for cart, wishlist, login, payment, and admin pages.
 
+
+
