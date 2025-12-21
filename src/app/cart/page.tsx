@@ -209,8 +209,12 @@ export default function CartPage() {
   // Remove item
   const handleRemoveItem = async (itemId: string) => {
     const item = cartItems.find(i => i.id === itemId);
-    if (!item) return;
+    if (!item) {
+      console.warn("Item not found in cart:", itemId);
+      return;
+    }
 
+    const itemName = item.name;
     setIsUpdating(itemId);
 
     try {
@@ -218,7 +222,17 @@ export default function CartPage() {
         // Remove via backend API
         const backendCart = await cartApi.removeItem(itemId);
         
-        // Map backend response directly
+        // Handle empty cart (all items removed)
+        if (!backendCart || backendCart.length === 0) {
+          setCartItems([]);
+          toast({
+            title: "Item Removed",
+            description: `${itemName} has been removed from your cart.`,
+          });
+          return;
+        }
+        
+        // Map backend response directly - it has all product data
         const updatedCartItems = backendCart.map((backendItem: any) => {
           const price = typeof backendItem.price === 'string' 
             ? parseFloat(backendItem.price) 
@@ -238,12 +252,12 @@ export default function CartPage() {
             createdAt: new Date().toISOString(),
             quantity: backendItem.quantity || 1,
           } as CartItem;
-        }).filter((item: CartItem) => item.id && item.name) as CartItem[];
+        }).filter((item: CartItem) => item && item.id && item.name) as CartItem[];
         
         setCartItems(updatedCartItems);
         toast({
           title: "Item Removed",
-          description: `${item.name} has been removed from your cart.`,
+          description: `${itemName} has been removed from your cart.`,
         });
       } else {
         // Remove from localStorage
@@ -260,18 +274,42 @@ export default function CartPage() {
         
         toast({
           title: "Item Removed",
-          description: `${item.name} has been removed from your cart.`,
+          description: `${itemName} has been removed from your cart.`,
         });
       }
     } catch (error: any) {
       console.error("Failed to remove item:", error);
+      const errorMessage = error?.message || "Failed to remove item. Please try again.";
+      
+      // If it's an auth error, try localStorage fallback
+      if (error?.message === "NOT_AUTHENTICATED" && isAuthenticated) {
+        console.log("Auth failed, falling back to localStorage removal");
+        try {
+          const updatedCartItems = cartItems.filter(cartItem => cartItem.id !== itemId);
+          setCartItems(updatedCartItems);
+          const updatedStorageCart = updatedCartItems.map(item => ({ 
+            id: item.id, 
+            quantity: item.quantity 
+          }));
+          localStorage.setItem('kraftikaCart', JSON.stringify(updatedStorageCart));
+          window.dispatchEvent(new CustomEvent('cartUpdated'));
+          toast({
+            title: "Item Removed",
+            description: `${itemName} has been removed from your cart.`,
+          });
+          return;
+        } catch (fallbackError) {
+          console.error("Fallback removal also failed:", fallbackError);
+        }
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to remove item. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
-      // Reload cart on error
-      loadCart();
+      // Always reload cart on error to sync state
+      await loadCart();
     } finally {
       setIsUpdating(null);
     }

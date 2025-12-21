@@ -117,21 +117,52 @@ export const cartApi = {
       throw new Error("NOT_AUTHENTICATED");
     }
     
+    console.log('[Cart API] Removing item:', productId);
     const response = await fetch(`${API_BASE_URL}/cart/items/${productId}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });
 
+    console.log('[Cart API] Remove response status:', response.status, response.statusText);
+
     if (!response.ok) {
       if (response.status === 401 || response.status === 403) {
+        console.log('[Cart API] Auth error, clearing auth data');
         clearAuthData();
         throw new Error("NOT_AUTHENTICATED");
       }
-      const error = await response.json();
-      throw new Error(error.message || "Failed to remove item from cart");
+      let errorMessage = "Failed to remove item from cart";
+      try {
+        const error = await response.json();
+        errorMessage = error.message || error.error || errorMessage;
+        console.error('[Cart API] Remove error:', error);
+      } catch (e) {
+        // If response is not JSON, use status text
+        errorMessage = response.statusText || errorMessage;
+        console.error('[Cart API] Failed to parse error response:', e);
+      }
+      throw new Error(errorMessage);
     }
 
-    return response.json();
+    // Handle empty response (empty cart) - return empty array
+    const text = await response.text();
+    console.log('[Cart API] Remove response text:', text);
+    
+    if (!text || text.trim() === '' || text.trim() === 'null') {
+      console.log('[Cart API] Empty response, returning empty array');
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(text);
+      console.log('[Cart API] Parsed response:', parsed);
+      // Ensure it's an array
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error('[Cart API] Failed to parse removeItem response:', e, 'Response text:', text);
+      // If parsing fails but status was ok, return empty array (cart might be empty)
+      return [];
+    }
   },
 
   /**
