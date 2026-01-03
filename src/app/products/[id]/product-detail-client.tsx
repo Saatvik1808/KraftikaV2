@@ -79,6 +79,8 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('kraftikaWishlist', JSON.stringify(wishlistedItems));
+      // Dispatch event to notify other components (like wishlist page) of the update
+      window.dispatchEvent(new CustomEvent('wishlistUpdated'));
     }
   }, [wishlistedItems]);
 
