@@ -204,23 +204,30 @@ function AdminRootLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-// This is the new root layout for the /admin route
-// Note: Metadata is exported from a separate metadata.ts file since this is a client component
+// This is the layout for the /admin route
+// Note: We don't include <html> and <body> tags here as they're provided by the root layout
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Add noindex meta tag for admin pages using useEffect to avoid hydration issues
+  React.useEffect(() => {
+    if (typeof document !== 'undefined') {
+      let meta = document.querySelector('meta[name="robots"]') as HTMLMetaElement;
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'robots';
+        document.head.appendChild(meta);
+      }
+      meta.content = 'noindex, nofollow';
+    }
+  }, []);
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Add noindex meta tag for admin pages */}
-        <meta name="robots" content="noindex, nofollow" />
-      </head>
-      <body>
-        <AdminRootLayout>{children}</AdminRootLayout>
-        <Toaster />
-      </body>
-    </html>
+    <>
+      <AdminRootLayout>{children}</AdminRootLayout>
+      <Toaster />
+    </>
   );
 }
