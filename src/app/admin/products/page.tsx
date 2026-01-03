@@ -7,11 +7,14 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle, Search, Edit3, Trash2, Eye, MoreHorizontal, Package } from "lucide-react";
+import { PlusCircle, Search, Edit3, Trash2, Eye, MoreHorizontal, Package, CheckSquare, Square } from "lucide-react";
 import Link from "next/link";
-import { getProducts, deleteProduct } from "@/services/products-unified";
+import { getProducts, deleteProduct, bulkUpdateProducts } from "@/services/products-unified";
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
+import { BulkUpdateDialog, type BulkUpdateFields } from "@/components/admin/bulk-update-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +42,8 @@ export default function AdminProductsPage() {
   const [selectedCategory, setSelectedCategory] = React.useState("All");
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [productToDelete, setProductToDelete] = React.useState<Candle | null>(null);
+  const [selectedProducts, setSelectedProducts] = React.useState<Set<string>>(new Set());
+  const [bulkUpdateDialogOpen, setBulkUpdateDialogOpen] = React.useState(false);
 
   const categories = ["All", "Citrus", "Floral", "Sweet", "Fresh", "Fruity"];
 
@@ -126,6 +131,60 @@ export default function AdminProductsPage() {
     }).format(price);
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedProducts(new Set(filteredProducts.map(p => p.id)));
+    } else {
+      setSelectedProducts(new Set());
+    }
+  };
+
+  const handleSelectProduct = (productId: string, checked: boolean) => {
+    const newSelected = new Set(selectedProducts);
+    if (checked) {
+      newSelected.add(productId);
+    } else {
+      newSelected.delete(productId);
+    }
+    setSelectedProducts(newSelected);
+  };
+
+  const handleBulkUpdate = async (updates: BulkUpdateFields) => {
+    if (selectedProducts.size === 0) return;
+
+    const productIds = Array.from(selectedProducts);
+    const result = await bulkUpdateProducts(productIds, updates);
+
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: `Successfully updated ${result.updatedCount} product(s).`,
+      });
+      
+      // Refresh products
+      const fetchedProducts = await getProducts();
+      setProducts(fetchedProducts);
+      setFilteredProducts(fetchedProducts);
+      
+      // Clear selection
+      setSelectedProducts(new Set());
+    } else {
+      toast({
+        title: "Update Completed with Errors",
+        description: result.error || "Some products could not be updated.",
+        variant: "destructive",
+      });
+      
+      // Still refresh to show updated products
+      const fetchedProducts = await getProducts();
+      setProducts(fetchedProducts);
+      setFilteredProducts(fetchedProducts);
+    }
+  };
+
+  const isAllSelected = filteredProducts.length > 0 && selectedProducts.size === filteredProducts.length;
+  const isSomeSelected = selectedProducts.size > 0 && selectedProducts.size < filteredProducts.length;
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -176,12 +235,49 @@ export default function AdminProductsPage() {
       <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
         <CardHeader className="border-b border-gray-200 dark:border-gray-800">
           <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Product List</CardTitle>
-              <CardDescription className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {filteredProducts.length} of {products.length} products
-              </CardDescription>
+            <div className="flex items-center gap-4">
+              <div>
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Product List</CardTitle>
+                <CardDescription className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {filteredProducts.length} of {products.length} products
+                </CardDescription>
+              </div>
+              {filteredProducts.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAll}
+                    className="h-5 w-5"
+                  />
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Select All
+                  </span>
+                </div>
+              )}
             </div>
+            {selectedProducts.size > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {selectedProducts.size} selected
+                </span>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => setBulkUpdateDialogOpen(true)}
+                  className="font-semibold"
+                >
+                  <Edit3 className="mr-2 h-4 w-4" />
+                  Bulk Update
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedProducts(new Set())}
+                >
+                  Clear
+                </Button>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -194,9 +290,17 @@ export default function AdminProductsPage() {
               {filteredProducts.map((product) => (
                 <div 
                   key={product.id} 
-                  className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  className={cn(
+                    "flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors",
+                    selectedProducts.has(product.id) && "bg-primary/5 dark:bg-primary/10"
+                  )}
                 >
                   <div className="flex items-center space-x-4 flex-1 min-w-0">
+                    <Checkbox
+                      checked={selectedProducts.has(product.id)}
+                      onCheckedChange={(checked) => handleSelectProduct(product.id, checked as boolean)}
+                      className="h-5 w-5 flex-shrink-0"
+                    />
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                       <img 
                         src={product.imageUrl} 
@@ -290,6 +394,14 @@ export default function AdminProductsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Bulk Update Dialog */}
+      <BulkUpdateDialog
+        open={bulkUpdateDialogOpen}
+        onOpenChange={setBulkUpdateDialogOpen}
+        selectedCount={selectedProducts.size}
+        onUpdate={handleBulkUpdate}
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

@@ -97,3 +97,60 @@ export async function getProductCategories(): Promise<string[]> {
     return firebaseProducts.getProductCategories();
   }
 }
+
+export async function bulkUpdateProducts(
+  productIds: string[],
+  updates: {
+    price?: number;
+    scentCategory?: string;
+    isActive?: boolean;
+    stockQuantity?: number;
+    popularity?: number;
+  }
+): Promise<{
+  success: boolean;
+  updatedCount?: number;
+  error?: string;
+}> {
+  if (useSpringBootAPI()) {
+    // Update products one by one (Spring Boot doesn't have bulk update endpoint)
+    let successCount = 0;
+    let errorCount = 0;
+    const errors: string[] = [];
+
+    for (const id of productIds) {
+      try {
+        const result = await springBootProducts.updateProduct(id, updates);
+        if (result.success) {
+          successCount++;
+        } else {
+          errorCount++;
+          if (result.error) {
+            errors.push(result.error);
+          }
+        }
+      } catch (error) {
+        errorCount++;
+        errors.push(error instanceof Error ? error.message : "Unknown error");
+      }
+    }
+
+    if (errorCount === 0) {
+      return {
+        success: true,
+        updatedCount: successCount,
+      };
+    } else {
+      return {
+        success: false,
+        updatedCount: successCount,
+        error: `Failed to update ${errorCount} product(s). ${errors.slice(0, 3).join(", ")}`,
+      };
+    }
+  } else {
+    return {
+      success: false,
+      error: "Bulk update not implemented for Firebase service",
+    };
+  }
+}
