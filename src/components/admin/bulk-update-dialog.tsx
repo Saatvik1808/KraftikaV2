@@ -143,15 +143,15 @@ export function BulkUpdateDialog({
           <div className="space-y-2">
             <Label htmlFor="bulk-category">Scent Category</Label>
             <Select
-              value={updates.scentCategory || ""}
-              onValueChange={(value) => handleFieldChange("scentCategory", value || undefined)}
+              value={updates.scentCategory || "__keep_current__"}
+              onValueChange={(value) => handleFieldChange("scentCategory", value === "__keep_current__" ? undefined : value)}
               disabled={isUpdating}
             >
               <SelectTrigger id="bulk-category">
                 <SelectValue placeholder="Select category (optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Keep current</SelectItem>
+                <SelectItem value="__keep_current__">Keep current</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -204,9 +204,9 @@ export function BulkUpdateDialog({
             </div>
             <div className="flex items-center gap-3">
               <Select
-                value={updates.isActive === undefined ? "" : updates.isActive ? "true" : "false"}
+                value={updates.isActive === undefined ? "__keep_current__" : updates.isActive ? "true" : "false"}
                 onValueChange={(value) => {
-                  if (value === "") {
+                  if (value === "__keep_current__") {
                     handleFieldChange("isActive", undefined);
                   } else {
                     handleFieldChange("isActive", value === "true");
@@ -218,7 +218,7 @@ export function BulkUpdateDialog({
                   <SelectValue placeholder="Keep current" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Keep current</SelectItem>
+                  <SelectItem value="__keep_current__">Keep current</SelectItem>
                   <SelectItem value="true">Active</SelectItem>
                   <SelectItem value="false">Inactive</SelectItem>
                 </SelectContent>
