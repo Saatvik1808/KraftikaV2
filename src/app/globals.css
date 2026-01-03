@@ -168,12 +168,15 @@
         @apply bg-gradient-to-br from-accent/20 via-accent/40 to-accent/20;
     }
     
-    /* Christmas theme gradients */
-    .bg-gradient-christmas {
-        @apply bg-gradient-to-br from-red-50 via-pink-50 to-red-50;
+    /* Valentine's Day theme gradients */
+    .bg-gradient-valentine {
+        @apply bg-gradient-to-br from-pink-50 via-rose-50 to-red-50;
     }
-    .bg-gradient-christmas-dark {
-        @apply bg-gradient-to-br from-red-600 via-red-500 to-pink-500;
+    .bg-gradient-valentine-dark {
+        @apply bg-gradient-to-br from-pink-600 via-rose-500 to-red-500;
+    }
+    .bg-gradient-valentine-soft {
+        @apply bg-gradient-to-br from-pink-100 via-rose-100 to-red-100;
     }
 
   /* Smooth Scroll */

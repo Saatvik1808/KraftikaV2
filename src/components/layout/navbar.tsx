@@ -4,7 +4,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, ShoppingBag, Heart, User, LogOut, Download } from "lucide-react";
+import { Menu, X, ShoppingBag, Heart, User, LogOut, Download, ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,15 +23,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const navItems = [
+// Main navigation items (always visible)
+const mainNavItems = [
   { name: "Home", href: "/" },
   { name: "Products", href: "/products" },
-  { name: "Blog", href: "/blog" },
-  { name: "About Us", href: "/about" },
-  { name: "Candle Care", href: "/candle-care" },
-  { name: "FAQ", href: "/faq"},
-  { name: "Contact", href: "/contact" },
 ];
+
+// Shop dropdown items
+const shopItems = [
+  { name: "Candle Care", href: "/candle-care" },
+  { name: "FAQ", href: "/faq" },
+];
+
+// About dropdown items
+const aboutItems = [
+  { name: "About Us", href: "/about" },
+  { name: "Blog", href: "/blog" },
+];
+
+// Contact (always visible)
+const contactItem = { name: "Contact", href: "/contact" };
 
 export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -78,7 +89,8 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden items-center space-x-1 md:flex">
-          {navItems.map((item) => (
+          {/* Main Nav Items */}
+          {mainNavItems.map((item) => (
             <motion.div
               key={item.name}
               whileHover="hover"
@@ -113,6 +125,140 @@ export function Navbar() {
               </Link>
             </motion.div>
           ))}
+
+          {/* Shop Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <motion.button
+                whileHover="hover"
+                animate={shopItems.some(item => pathname === item.href) ? "hover" : "rest"}
+                variants={{
+                  hover: { y: -2 },
+                  rest: { y: 0 }
+                }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className={cn(
+                  "relative group font-sans text-sm font-medium transition-colors relative z-10 px-3 py-2 flex items-center gap-1",
+                  "[&[data-state=open]_svg]:rotate-180",
+                  shopItems.some(item => pathname === item.href)
+                    ? "text-gray-900 dark:text-gray-100 font-semibold" 
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                )}
+              >
+                Shop
+                <ChevronDown className="h-3 w-3 transition-transform duration-200" />
+                <motion.span
+                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-primary origin-center"
+                  initial={{ scaleX: 0 }}
+                  variants={{
+                    hover: { scaleX: 1 },
+                    rest: { scaleX: shopItems.some(item => pathname === item.href) ? 1 : 0 }
+                  }}
+                  transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  style={{ transformOrigin: 'center' }}
+                />
+              </motion.button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48">
+              {shopItems.map((item) => (
+                <DropdownMenuItem key={item.href} asChild>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "cursor-pointer",
+                      pathname === item.href && "bg-accent"
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* About Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <motion.button
+                whileHover="hover"
+                animate={aboutItems.some(item => pathname === item.href) ? "hover" : "rest"}
+                variants={{
+                  hover: { y: -2 },
+                  rest: { y: 0 }
+                }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className={cn(
+                  "relative group font-sans text-sm font-medium transition-colors relative z-10 px-3 py-2 flex items-center gap-1",
+                  "[&[data-state=open]_svg]:rotate-180",
+                  aboutItems.some(item => pathname === item.href)
+                    ? "text-gray-900 dark:text-gray-100 font-semibold" 
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                )}
+              >
+                About
+                <ChevronDown className="h-3 w-3 transition-transform duration-200" />
+                <motion.span
+                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-primary origin-center"
+                  initial={{ scaleX: 0 }}
+                  variants={{
+                    hover: { scaleX: 1 },
+                    rest: { scaleX: aboutItems.some(item => pathname === item.href) ? 1 : 0 }
+                  }}
+                  transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  style={{ transformOrigin: 'center' }}
+                />
+              </motion.button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48">
+              {aboutItems.map((item) => (
+                <DropdownMenuItem key={item.href} asChild>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "cursor-pointer",
+                      pathname === item.href && "bg-accent"
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Contact Link */}
+          <motion.div
+            whileHover="hover"
+            animate={pathname === contactItem.href ? "hover" : "rest"}
+            variants={{
+              hover: { y: -2 },
+              rest: { y: 0 }
+            }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            className="relative group"
+          >
+            <Link
+              href={contactItem.href}
+              className={cn(
+                "font-sans text-sm font-medium transition-colors relative z-10 px-3 py-2",
+                pathname === contactItem.href 
+                  ? "text-gray-900 dark:text-gray-100 font-semibold" 
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              )}
+            >
+              {contactItem.name}
+              <motion.span
+                className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-primary origin-center"
+                initial={{ scaleX: 0 }}
+                variants={{
+                  hover: { scaleX: 1 },
+                  rest: { scaleX: pathname === contactItem.href ? 1 : 0 }
+                }}
+                transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
+                style={{ transformOrigin: 'center' }}
+              />
+            </Link>
+          </motion.div>
           
           {/* Wishlist Icon Link */}
           <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="View Wishlist">
@@ -234,8 +380,9 @@ export function Navbar() {
                   </SheetTitle>
               </SheetHeader>
 
-              <nav className="flex flex-col p-6">
-                {navItems.map((item) => (
+              <nav className="flex flex-col p-6 space-y-1">
+                {/* Main Nav Items */}
+                {mainNavItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
@@ -250,6 +397,64 @@ export function Navbar() {
                     {item.name}
                   </Link>
                 ))}
+
+                {/* Shop Section */}
+                <div className="pt-2 pb-1">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2 mb-2">
+                    Shop
+                  </p>
+                  {shopItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        "font-sans text-base font-medium transition-colors py-2 px-4 -mx-2 rounded-md block",
+                        pathname === item.href 
+                          ? "text-gray-900 dark:text-gray-100 font-semibold bg-gray-100 dark:bg-gray-800" 
+                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                      )}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+
+                {/* About Section */}
+                <div className="pt-2 pb-1">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2 mb-2">
+                    About
+                  </p>
+                  {aboutItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        "font-sans text-base font-medium transition-colors py-2 px-4 -mx-2 rounded-md block",
+                        pathname === item.href 
+                          ? "text-gray-900 dark:text-gray-100 font-semibold bg-gray-100 dark:bg-gray-800" 
+                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                      )}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Contact */}
+                <Link
+                  href={contactItem.href}
+                  className={cn(
+                    "font-sans text-base font-medium transition-colors py-3 px-2 -mx-2 rounded-md",
+                    pathname === contactItem.href 
+                      ? "text-gray-900 dark:text-gray-100 font-semibold bg-gray-100 dark:bg-gray-800" 
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {contactItem.name}
+                </Link>
                 
                 {/* Install App Button in Mobile Menu */}
                 {isInstallable && (

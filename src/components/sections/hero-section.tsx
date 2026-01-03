@@ -6,8 +6,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LeadCaptureDialog } from "@/components/lead-capture-dialog";
-import { Mail, Gift } from "lucide-react";
-import { ChristmasHeroOverlay } from "./christmas-hero-overlay";
+import { Mail, Heart } from "lucide-react";
+import { ValentineHeroOverlay } from "./valentine-hero-overlay";
 
 export function HeroSection() {
   const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
@@ -57,8 +57,8 @@ export function HeroSection() {
       {/* Enhanced overlay for better contrast */}
       <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-black/70 via-black/20 to-transparent -z-5"></div>
       
-      {/* Christmas-themed overlay with decorative elements */}
-      <ChristmasHeroOverlay />
+      {/* Valentine's Day-themed overlay with decorative elements */}
+      <ValentineHeroOverlay />
 
       <div className="container mx-auto px-4 md:px-6 lg:px-8 z-10 relative">
         <motion.div
@@ -74,13 +74,13 @@ export function HeroSection() {
               variants={itemVariants}
             >
               <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
+                animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
                 transition={{ duration: 2, repeat: Infinity, delay: 1 }}
               >
-                <Gift className="h-8 w-8 text-red-400" />
+                <Heart className="h-8 w-8 text-pink-400 fill-pink-400" />
               </motion.div>
-              <span className="text-red-300 font-bold text-lg md:text-l">
-                 Christmas Special - Perfect Gift Candles 
+              <span className="text-pink-300 font-bold text-lg md:text-l">
+                 Valentine's Special - Perfect Gift Candles for Your Loved Ones
               </span>
             </motion.div>
             
@@ -94,16 +94,16 @@ export function HeroSection() {
             >
               Where Scents{' '}
               <span 
-                className="bg-clip-text text-transparent bg-gradient-to-r from-red-300 via-pink-300 to-yellow-200"
+                className="bg-clip-text text-transparent bg-gradient-to-r from-pink-300 via-rose-300 to-red-300"
                 style={{
                   display: 'inline-block',
                   padding: '0.05em 0',
                   backgroundSize: '200% auto',
                   animation: 'gradientShift 6s ease infinite',
-                  textShadow: '0 0 20px rgba(239, 68, 68, 0.5), 0 0 40px rgba(236, 72, 153, 0.3)',
+                  textShadow: '0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(244, 63, 94, 0.3)',
                 }}
               >
-                Spark Joy
+                Spark Love
               </span>
             </motion.h1>
             
@@ -115,7 +115,7 @@ export function HeroSection() {
                 lineHeight: '1.6'
               }} 
             >
-              Make this Christmas magical with handcrafted scented candles - perfect gifts that brighten homes and warm hearts. 🎅✨
+              Express your love with handcrafted scented candles - perfect romantic gifts that create intimate moments and warm hearts.
             </motion.p>
             
             <motion.div
@@ -137,10 +137,10 @@ export function HeroSection() {
                 <Button 
                   asChild 
                   size="lg" 
-                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium bg-gradient-to-r from-red-600 via-red-500 to-pink-500 hover:from-red-700 hover:via-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-red-500/50 transition-all duration-300"
+                  className="w-full sm:w-auto px-10 py-6 text-lg font-medium bg-gradient-to-r from-pink-600 via-rose-500 to-red-500 hover:from-pink-700 hover:via-rose-600 hover:to-red-600 text-white shadow-lg hover:shadow-pink-500/50 transition-all duration-300"
                 >
                   <Link href="/products">
-                     Shop Christmas Candles
+                     Shop Valentine's Candles
                   </Link>
                 </Button>
               </motion.div>

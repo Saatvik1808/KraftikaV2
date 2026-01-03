@@ -159,3 +159,5 @@ This document verifies that the website meets all Google AdSense requirements re
 
 The website is now ready for AdSense review after Google indexes the new content (1-2 weeks).
 
+
+

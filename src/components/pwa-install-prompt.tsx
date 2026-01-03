@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -23,9 +24,13 @@ function isMobile(): boolean {
 }
 
 export function PWAInstallPrompt() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOSDevice, setIsIOSDevice] = useState(false);
+  
+  // Only show on home page
+  const isHomePage = pathname === '/';
 
   useEffect(() => {
     // Check if already installed
@@ -89,13 +94,13 @@ export function PWAInstallPrompt() {
     }
   }, []);
 
-  // Don't show for iOS (navbar handles it)
-  if (isIOSDevice || !showPrompt || !deferredPrompt) {
+  // Don't show for iOS (navbar handles it) or if not on home page
+  if (isIOSDevice || !showPrompt || !deferredPrompt || !isHomePage) {
     return null;
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 animate-in slide-in-from-bottom-5">
+    <div className="fixed bottom-4 right-4 left-4 md:left-auto md:w-96 z-50 animate-in slide-in-from-bottom-5">
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg p-4 flex items-start gap-3">
         <div className="flex-1">
           <h3 className="font-semibold text-sm mb-1">Install Kraftika App</h3>

@@ -112,35 +112,23 @@ export function ProductShowcase() {
   const featuredProducts = filteredProducts.slice(0, displayCount);
 
   return (
-    <section className="w-full py-20 md:py-32 relative overflow-hidden"> 
-      {/* Beautiful background gradient with subtle patterns */}
-      <div className="absolute inset-0 bg-gradient-to-b from-secondary/20 via-primary/10 to-muted/15" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(145,210,144,0.1),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(255,183,77,0.1),transparent_50%)]" />
+    <section className="w-full py-20 md:py-32 relative overflow-hidden bg-gradient-to-b from-gray-50/50 via-white to-gray-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950"> 
+      {/* Subtle background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5" />
       
-      {/* Decorative elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-20 right-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl animate-pulse delay-1000" />
-      <Sparkles className="absolute top-32 right-1/4 h-20 w-20 text-primary/10 opacity-60 animate-pulse -z-0" />
+      {/* Decorative elements - more subtle */}
+      <div className="absolute top-20 left-10 w-32 h-32 bg-primary/3 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-40 h-40 bg-primary/3 rounded-full blur-3xl" />
 
       <div className="container mx-auto max-w-7xl px-4 md:px-6 relative z-10">
         {/* Enhanced header section */}
         <div className="mb-12 text-center md:mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6 }}
-            className="inline-block mb-4"
-          >
-            <Sparkles className="h-8 w-8 text-primary mx-auto" />
-          </motion.div>
-          
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-4 bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-white mb-4"
           >
             Discover Your Favourite Scents
           </motion.h2>
@@ -150,7 +138,7 @@ export function ProductShowcase() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-4 text-lg md:text-xl text-muted-foreground/90 max-w-2xl mx-auto leading-relaxed"
+            className="mt-4 text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed"
           >
             Hand-poured with love, designed to delight. Explore our curated collection of artisanal candles crafted to transform your space.
           </motion.p>
@@ -174,10 +162,11 @@ export function ProductShowcase() {
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
                   className={cn(
-                    "capitalize transition-all duration-300",
+                    "capitalize transition-all duration-200 rounded-full px-4 py-2",
+                    "font-medium text-sm",
                     selectedCategory === category
-                      ? "bg-primary text-primary-foreground shadow-md scale-105"
-                      : "border-primary/30 hover:bg-primary/10 hover:border-primary/50 hover:scale-105"
+                      ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                      : "border-primary/30 hover:bg-primary/10 hover:border-primary/50 bg-white dark:bg-gray-900"
                   )}
                 >
                   {category === "all" ? "All Scents" : category}
@@ -195,31 +184,31 @@ export function ProductShowcase() {
           transition={{ duration: 0.5, delay: 0.35 }}
           className="mb-10 flex flex-col sm:flex-row justify-between items-center gap-4"
         >
-          <div className="text-sm text-muted-foreground/80">
-            Showing <span className="font-semibold text-foreground">{featuredProducts.length}</span> of{" "}
-            <span className="font-semibold text-foreground">{filteredProducts.length}</span> candles
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Showing <span className="font-semibold text-gray-900 dark:text-white">{featuredProducts.length}</span> of{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">{filteredProducts.length}</span> candles
           </div>
           
           <div className="w-full sm:w-auto">
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full sm:w-[200px] text-sm h-10 border-primary/30 focus:ring-primary/50 bg-background/80 backdrop-blur-sm">
+              <SelectTrigger className="w-full sm:w-[200px] text-sm h-10 border-gray-200 dark:border-gray-700 focus:ring-primary/50 bg-white dark:bg-gray-900 hover:border-primary/50 dark:hover:border-primary/50">
                 <SelectValue placeholder="Sort by..." />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="popularity">Popularity</SelectItem>
-                <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                <SelectItem value="newest">Newest First</SelectItem>
+              <SelectContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+                <SelectItem value="popularity" className="hover:bg-gray-50 dark:hover:bg-gray-800">Popularity</SelectItem>
+                <SelectItem value="price-asc" className="hover:bg-gray-50 dark:hover:bg-gray-800">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc" className="hover:bg-gray-50 dark:hover:bg-gray-800">Price: High to Low</SelectItem>
+                <SelectItem value="newest" className="hover:bg-gray-50 dark:hover:bg-gray-800">Newest First</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </motion.div>
 
-        {/* Enhanced product grid with staggered animations */}
+        {/* Enhanced product grid with staggered animations - 3 columns max */}
         <AnimatePresence mode="wait">
           <motion.div
             key={`${selectedCategory}-${sortBy}-${featuredProducts.length}`}
-            className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
+            className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
             variants={containerVariants}
             initial="hidden"
             animate={!isLoading ? "visible" : "hidden"}
@@ -270,7 +259,7 @@ export function ProductShowcase() {
                 <div className="inline-block p-6 bg-muted/50 rounded-full mb-4">
                   <Filter className="h-12 w-12 text-muted-foreground/50" />
                 </div>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-lg text-gray-600 dark:text-gray-400">
                   {allProducts.length === 0 
                     ? "No products available at the moment. Please check back later!"
                     : `No candles found in this category. Try selecting a different scent!`}
