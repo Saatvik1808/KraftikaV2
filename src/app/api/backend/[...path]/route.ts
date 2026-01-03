@@ -3,8 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 // Backend URL for server-side proxy
 // This can be overridden with BACKEND_API_URL environment variable
 // Default based on environment: localhost for dev, production URL for production
-const BACKEND_URL = 
- 'http://65.2.121.137/api' ;
+const BACKEND_URL = process.env.BACKEND_API_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? 'http://65.2.121.137/api' 
+    : 'http://localhost:5000/api');
 
 export async function GET(
   request: NextRequest,
