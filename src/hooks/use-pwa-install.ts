@@ -33,25 +33,40 @@ function isMobile(): boolean {
 }
 
 export function usePWAInstall() {
+  // Initialize installable state synchronously for iOS to avoid delayed rendering
+  const isIOSDevice = typeof window !== 'undefined' ? isIOS() : false;
+  const isInstalledCheck = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
+  
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  // Initialize isInstallable immediately for iOS (can be determined synchronously)
+  // For other devices, wait for beforeinstallprompt event
+  const [isInstallable, setIsInstallable] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    if (isInstalledCheck) return false;
+    // iOS always supports manual install, so show button immediately
+    return isIOSDevice;
+  });
+  const [isInstalled, setIsInstalled] = useState(isInstalledCheck);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
-  const [deviceType, setDeviceType] = useState<'ios' | 'android' | 'desktop'>('desktop');
+  const [deviceType, setDeviceType] = useState<'ios' | 'android' | 'desktop'>(() => {
+    if (typeof window === 'undefined') return 'desktop';
+    if (isIOSDevice) return 'ios';
+    if (isAndroid()) return 'android';
+    return 'desktop';
+  });
 
   useEffect(() => {
-    // Check if app is already installed
+    // Check if app is already installed (double-check on mount)
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true);
       setIsInstallable(false);
       return;
     }
 
-    // Detect device type
+    // Detect device type (update if needed)
     if (isIOS()) {
       setDeviceType('ios');
-      // For iOS, show install option (manual instructions)
-      setIsInstallable(true);
+      // For iOS, install option is already set in initial state
     } else if (isAndroid()) {
       setDeviceType('android');
     } else {
@@ -65,6 +80,7 @@ export function usePWAInstall() {
       setIsInstallable(true);
     };
 
+    // Set up listener immediately to catch the event as early as possible
     window.addEventListener('beforeinstallprompt', handler);
 
     // For iOS, check if we should show instructions

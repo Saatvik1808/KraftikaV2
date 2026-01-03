@@ -128,15 +128,15 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-gray-200 dark:border-gray-800">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Products</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your product catalog and inventory.
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Products</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1.5 text-sm">
+            Manage your product catalog and inventory
           </p>
         </div>
-        <Button asChild className="shrink-0">
+        <Button asChild size="default" className="shrink-0 font-semibold">
           <Link href="/admin/products/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Add Product
           </Link>
@@ -144,21 +144,21 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Filters and Search */}
-      <Card className="hover:shadow-md transition-shadow">
+      <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search products..."
+                placeholder="Search products by name, description, or category..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Category" />
+              <SelectTrigger className="w-full sm:w-[200px] border-gray-200 dark:border-gray-700">
+                <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category) => (
@@ -173,87 +173,90 @@ export default function AdminProductsPage() {
       </Card>
 
       {/* Products List */}
-      <Card className="hover:shadow-md transition-shadow">
-        <CardHeader>
+      <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <CardHeader className="border-b border-gray-200 dark:border-gray-800">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Product List</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Product List</CardTitle>
+              <CardDescription className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 {filteredProducts.length} of {products.length} products
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader size="lg" text="Loading products..." />
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="space-y-4">
+            <div className="divide-y divide-gray-200 dark:divide-gray-800">
               {filteredProducts.map((product) => (
-                <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
+                <div 
+                  key={product.id} 
+                  className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                >
+                  <div className="flex items-center space-x-4 flex-1 min-w-0">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                       <img 
                         src={product.imageUrl} 
                         alt={product.name}
-                        className="w-full h-full object-cover rounded-lg"
+                        className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
                           target.nextElementSibling?.classList.remove('hidden');
                         }}
                       />
-                      <div className="hidden w-full h-full bg-muted rounded-lg flex items-center justify-center">
-                        <PlusCircle className="h-6 w-6 text-muted-foreground" />
+                      <div className="hidden w-full h-full bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                        <Package className="h-6 w-6 text-gray-400" />
                       </div>
                     </div>
-                    <div>
-                      <h4 className="font-medium text-foreground">{product.name}</h4>
-                      <p className="text-sm text-muted-foreground line-clamp-2 max-w-md">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 dark:text-white truncate">{product.name}</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1 mt-0.5">
                         {product.description}
                       </p>
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Badge variant="secondary" className="text-xs">
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="secondary" className="text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                           {product.scentCategory}
                         </Badge>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs font-medium border-gray-300 dark:border-gray-700">
                           {product.burnTime}
                         </Badge>
-                        <span className="text-sm font-medium text-primary">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
                           {formatPrice(product.price)}
                         </span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm" asChild>
+                  <div className="flex items-center gap-2 ml-4">
+                    <Button variant="ghost" size="sm" asChild className="h-9 w-9 p-0">
                       <Link href={`/products/${product.id}`} target="_blank">
                         <Eye className="h-4 w-4" />
                       </Link>
                     </Button>
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="ghost" size="sm" asChild className="h-9 w-9 p-0">
                       <Link href={`/admin/products/edit/${product.id}`}>
                         <Edit3 className="h-4 w-4" />
                       </Link>
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
+                        <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem asChild>
-                          <Link href={`/admin/products/edit/${product.id}`}>
+                          <Link href={`/admin/products/edit/${product.id}`} className="cursor-pointer">
                             <Edit3 className="mr-2 h-4 w-4" />
                             Edit Product
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          className="text-destructive focus:text-destructive"
+                          className="text-destructive focus:text-destructive cursor-pointer"
                           onClick={() => handleDeleteClick(product)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />

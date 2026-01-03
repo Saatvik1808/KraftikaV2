@@ -39,33 +39,57 @@ function AdminNavbar() {
 
     const NavLink = ({ href, children, isMobile = false }: { href: string, children: React.ReactNode, isMobile?: boolean }) => {
         const isActive = pathname.startsWith(href);
-        const linkClass = cn(
-            "transition-colors hover:text-primary",
-            isActive ? "text-primary font-semibold" : "text-muted-foreground",
-            isMobile ? "text-lg w-full justify-start" : "text-sm"
-        );
+        
+        if (isMobile) {
+            return (
+                <Link 
+                    href={href} 
+                    className={cn(
+                        "flex items-center gap-3 px-4 py-2.5 rounded-lg text-base font-medium transition-colors",
+                        isActive 
+                            ? "bg-primary text-primary-foreground" 
+                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    )}
+                    onClick={() => setIsSheetOpen(false)}
+                >
+                    {children}
+                </Link>
+            );
+        }
 
         return (
-            <Link href={href} className={linkClass} onClick={() => isMobile && setIsSheetOpen(false)}>
+            <Link href={href}>
                 {children}
             </Link>
         );
     };
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-14 max-w-screen-2xl items-center">
+        <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-sm">
+            <div className="container flex h-16 max-w-screen-2xl items-center px-4 md:px-6">
                 {/* Logo and Desktop Nav */}
-                <div className="mr-4 hidden md:flex">
-                     <Link href="/" className="mr-6 flex items-center space-x-2">
+                <div className="mr-8 hidden md:flex items-center gap-8">
+                     <Link href="/" className="flex items-center space-x-2">
                         <Logo width={60} height={15} className="object-contain" />
                     </Link>
-                    <nav className="flex items-center gap-6 text-sm">
-                        {navItems.map(item => (
-                            <NavLink key={item.href} href={item.href}>
-                                {item.label}
-                            </NavLink>
-                        ))}
+                    <nav className="flex items-center gap-1">
+                        {navItems.map(item => {
+                            const Icon = item.icon;
+                            const isActive = pathname.startsWith(item.href);
+                            return (
+                                <NavLink key={item.href} href={item.href}>
+                                    <div className={cn(
+                                        "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                                        isActive 
+                                            ? "bg-primary text-primary-foreground shadow-sm" 
+                                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    )}>
+                                        <Icon className="h-4 w-4" />
+                                        {item.label}
+                                    </div>
+                                </NavLink>
+                            );
+                        })}
                     </nav>
                 </div>
 
@@ -80,23 +104,30 @@ function AdminNavbar() {
                             <PanelLeft className="h-6 w-6" />
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="pr-0">
-                         <Link href="/" className="flex items-center" onClick={() => setIsSheetOpen(false)}>
+                    <SheetContent side="left" className="pr-0 bg-white dark:bg-gray-950">
+                         <Link href="/" className="flex items-center mb-6" onClick={() => setIsSheetOpen(false)}>
                             <Logo width={60} height={15} className="object-contain" />
                         </Link>
-                        <div className="my-4 h-px w-full bg-border" />
+                        <div className="my-4 h-px w-full bg-gray-200 dark:bg-gray-800" />
                         <div className="flex flex-col h-full">
-                           <nav className="flex flex-col gap-4">
-                               {navItems.map(item => (
-                                   <NavLink key={item.href} href={item.href} isMobile={true}>
-                                       <item.icon className="mr-2 h-5 w-5" />
-                                       {item.label}
-                                   </NavLink>
-                               ))}
+                           <nav className="flex flex-col gap-2">
+                               {navItems.map(item => {
+                                   const Icon = item.icon;
+                                   return (
+                                       <NavLink key={item.href} href={item.href} isMobile={true}>
+                                           <Icon className="h-5 w-5" />
+                                           {item.label}
+                                       </NavLink>
+                                   );
+                               })}
                            </nav>
-                           <div className="mt-auto flex flex-col gap-2">
-                               <div className="my-2 h-px w-full bg-border" />
-                               <Button onClick={handleLogout} variant="ghost" className="text-muted-foreground w-full justify-start text-lg">
+                           <div className="mt-auto flex flex-col gap-2 pt-4">
+                               <div className="my-2 h-px w-full bg-gray-200 dark:bg-gray-800" />
+                               <Button 
+                                   onClick={handleLogout} 
+                                   variant="ghost" 
+                                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 w-full justify-start text-base font-medium"
+                               >
                                    <LogOut className="mr-2 h-5 w-5" />
                                    Logout
                                </Button>
@@ -113,8 +144,13 @@ function AdminNavbar() {
                 </div>
                 
                 {/* Right side actions */}
-                <div className="flex flex-1 items-center justify-end space-x-2">
-                    <Button onClick={handleLogout} variant="ghost" className="hidden md:inline-flex">
+                <div className="flex flex-1 items-center justify-end">
+                    <Button 
+                        onClick={handleLogout} 
+                        variant="ghost" 
+                        size="sm"
+                        className="hidden md:inline-flex text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                    >
                         <LogOut className="mr-2 h-4 w-4"/>
                         Logout
                     </Button>
@@ -157,7 +193,7 @@ function AdminRootLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-      <div className="flex min-h-screen flex-col bg-background">
+      <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
         <AdminNavbar />
         <main className="flex-1 p-6 md:p-8">
             <div className="container max-w-screen-2xl mx-auto">

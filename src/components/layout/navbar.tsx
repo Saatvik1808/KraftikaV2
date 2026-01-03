@@ -44,6 +44,19 @@ const aboutItems = [
 // Contact (always visible)
 const contactItem = { name: "Contact", href: "/contact" };
 
+// Synchronous check for iOS (runs immediately, no hook delay)
+const checkIOSSync = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
+// Synchronous check if already installed
+const checkInstalledSync = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(display-mode: standalone)').matches;
+};
+
 export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -52,6 +65,15 @@ export function Navbar() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
   const { isInstallable, install, deviceType, isIOS, isMobile, showIOSInstructions, dismissIOSInstructions } = usePWAInstall();
+  
+  // Calculate install button visibility synchronously (no state delay)
+  const showInstallButton = React.useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    if (checkInstalledSync()) return false;
+    // Show immediately for iOS (synchronous check)
+    // For Android/Chrome, use hook state (will update via effect)
+    return checkIOSSync() || isInstallable;
+  }, [isInstallable]);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -274,8 +296,8 @@ export function Navbar() {
             </Link>
           </Button>
 
-          {/* Install App Button */}
-          {isInstallable && (
+          {/* Install App Button - Rendered immediately for iOS, updated for Android/Chrome */}
+          {showInstallButton && (
             <Button 
               variant="ghost" 
               size="sm"
@@ -457,7 +479,7 @@ export function Navbar() {
                 </Link>
                 
                 {/* Install App Button in Mobile Menu */}
-                {isInstallable && (
+                {showInstallButton && (
                   <button
                     onClick={async () => {
                       await install();

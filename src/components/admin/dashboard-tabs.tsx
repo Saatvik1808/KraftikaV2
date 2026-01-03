@@ -100,30 +100,30 @@ export function OrdersTab() {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <CardHeader className="border-b border-gray-200 dark:border-gray-800">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
               <Receipt className="h-5 w-5" />
               Order Details
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               View and manage all customer orders
             </CardDescription>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:flex-initial sm:w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search orders..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pl-9 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[140px]">
+              <SelectTrigger className="w-full sm:w-[160px] border-gray-200 dark:border-gray-700">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -139,42 +139,45 @@ export function OrdersTab() {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader size="lg" text="Loading orders..." />
           </div>
         ) : filteredOrders.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
             <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No orders found</p>
+            <p className="font-medium">No orders found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Payment</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="border-gray-200 dark:border-gray-800 hover:bg-transparent">
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">Order ID</TableHead>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">Date</TableHead>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">Items</TableHead>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">Amount</TableHead>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">Payment</TableHead>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">Status</TableHead>
+                  <TableHead className="font-semibold text-gray-700 dark:text-gray-300">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredOrders.map((order) => {
                   const statusConfig = getStatusBadge(order.status);
                   return (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}...</TableCell>
-                      <TableCell>{format(new Date(order.createdAt), "MMM dd, yyyy")}</TableCell>
-                      <TableCell>{order.orderItems.length} item(s)</TableCell>
-                      <TableCell className="font-semibold">₹{order.totalAmount.toFixed(2)}</TableCell>
-                      <TableCell>{order.paymentMethod || "N/A"}</TableCell>
+                    <TableRow 
+                      key={order.id}
+                      className="border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                    >
+                      <TableCell className="font-mono text-xs text-gray-900 dark:text-gray-100">{order.id.slice(0, 8)}...</TableCell>
+                      <TableCell className="text-gray-700 dark:text-gray-300">{format(new Date(order.createdAt), "MMM dd, yyyy")}</TableCell>
+                      <TableCell className="text-gray-700 dark:text-gray-300">{order.orderItems.length} item(s)</TableCell>
+                      <TableCell className="font-semibold text-gray-900 dark:text-white">₹{order.totalAmount.toFixed(2)}</TableCell>
+                      <TableCell className="text-gray-700 dark:text-gray-300">{order.paymentMethod || "N/A"}</TableCell>
                       <TableCell>
-                        <Badge variant={statusConfig.variant} className={statusConfig.className}>
+                        <Badge variant={statusConfig.variant} className={`${statusConfig.className} font-medium`}>
                           {order.status}
                         </Badge>
                       </TableCell>
@@ -185,6 +188,7 @@ export function OrdersTab() {
                               variant="ghost"
                               size="sm"
                               onClick={() => setSelectedOrder(order)}
+                              className="h-8 w-8 p-0"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -197,33 +201,33 @@ export function OrdersTab() {
                             <div className="space-y-4">
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                  <p className="text-sm font-medium text-muted-foreground">Order Date</p>
-                                  <p>{format(new Date(order.createdAt), "PPP")}</p>
+                                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Order Date</p>
+                                  <p className="text-gray-900 dark:text-white">{format(new Date(order.createdAt), "PPP")}</p>
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium text-muted-foreground">Status</p>
+                                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</p>
                                   <Badge variant={statusConfig.variant} className={statusConfig.className}>
                                     {order.status}
                                   </Badge>
                                 </div>
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-muted-foreground mb-2">Items</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Items</p>
                                 <div className="space-y-2">
                                   {order.orderItems.map((item) => (
-                                    <div key={item.id} className="flex justify-between p-2 border rounded">
+                                    <div key={item.id} className="flex justify-between p-3 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-gray-800/50">
                                       <div>
-                                        <p className="font-medium">{item.productName}</p>
-                                        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                                        <p className="font-medium text-gray-900 dark:text-white">{item.productName}</p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">Qty: {item.quantity}</p>
                                       </div>
-                                      <p className="font-medium">₹{item.subtotal.toFixed(2)}</p>
+                                      <p className="font-semibold text-gray-900 dark:text-white">₹{item.subtotal.toFixed(2)}</p>
                                     </div>
                                   ))}
                                 </div>
                               </div>
-                              <div className="flex justify-between font-bold text-lg pt-4 border-t">
-                                <span>Total</span>
-                                <span>₹{order.totalAmount.toFixed(2)}</span>
+                              <div className="flex justify-between font-bold text-lg pt-4 border-t border-gray-200 dark:border-gray-800">
+                                <span className="text-gray-900 dark:text-white">Total</span>
+                                <span className="text-gray-900 dark:text-white">₹{order.totalAmount.toFixed(2)}</span>
                               </div>
                             </div>
                           </DialogContent>

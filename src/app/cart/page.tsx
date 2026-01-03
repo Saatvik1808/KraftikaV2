@@ -14,6 +14,7 @@ import { getProducts } from "@/services/products-unified";
 import { useAuth } from "@/contexts/AuthContext";
 import { cartApi } from "@/services/cart-api";
 import { PageLoader } from "@/components/ui/loader";
+import { trackBeginCheckout, trackRemoveFromCart } from "@/lib/analytics";
 
 // Define Candle and CartItem types consistent with other parts of the app
 interface CartItem extends Candle {
@@ -268,6 +269,14 @@ export default function CartPage() {
         // Update state immediately with new array
         setCartItems(updatedCartItems);
         
+        // Track remove from cart
+        trackRemoveFromCart({
+          id: item.id,
+          name: itemName,
+          price: item.price,
+          quantity: item.quantity,
+        });
+        
         toast({
           title: "Item Removed",
           description: `${itemName} has been removed from your cart.`,
@@ -288,6 +297,14 @@ export default function CartPage() {
         
         // Trigger cart update event
         window.dispatchEvent(new CustomEvent('cartUpdated'));
+        
+        // Track remove from cart
+        trackRemoveFromCart({
+          id: item.id,
+          name: itemName,
+          price: item.price,
+          quantity: item.quantity,
+        });
         
         toast({
           title: "Item Removed",
@@ -475,7 +492,24 @@ export default function CartPage() {
                 </div>
               </CardContent>
               <CardFooter className="p-0 mt-6">
-                <Button asChild size="lg" className="w-full btn-primary">
+                <Button 
+                  asChild 
+                  size="lg" 
+                  className="w-full btn-primary"
+                  onClick={() => {
+                    // Track begin checkout
+                    trackBeginCheckout(
+                      cartItems.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        category: item.scentCategory,
+                      })),
+                      total
+                    );
+                  }}
+                >
                   <Link href="/payment">
                     Proceed to Checkout
                   </Link>

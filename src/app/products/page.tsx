@@ -14,6 +14,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { getProducts } from "@/services/products-unified";
 import { Loader } from "@/components/ui/loader";
 import { cn } from "@/lib/utils";
+import { trackCategoryFilter, trackPriceRangeFilter, trackSortSelection } from "@/lib/analytics";
 
 const scentCategories = ["All", "Citrus", "Floral", "Sweet", "Fresh", "Fruity"];
 const sortOptions = [
@@ -148,7 +149,12 @@ export default function ProductsPage() {
           {scentCategories.map((category) => (
             <button
               key={category}
-              onClick={() => setSelectedScent(category)}
+              onClick={() => {
+                setSelectedScent(category);
+                if (category !== "All") {
+                  trackCategoryFilter(category);
+                }
+              }}
               className={cn(
                 "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
                 "border hover:scale-105 active:scale-95",
@@ -173,7 +179,12 @@ export default function ProductsPage() {
           {priceRanges.map((range) => (
             <button
               key={range.label}
-              onClick={() => setSelectedPriceRange(range.label)}
+              onClick={() => {
+                setSelectedPriceRange(range.label);
+                if (range.label !== "All Prices") {
+                  trackPriceRangeFilter(range.label);
+                }
+              }}
               className={cn(
                 "px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-left",
                 "border hover:scale-[1.01] active:scale-95",
@@ -291,7 +302,10 @@ export default function ProductsPage() {
               </SheetContent>
             </Sheet>
             
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onValueChange={(value) => {
+              setSortBy(value);
+              trackSortSelection(value);
+            }}>
               <SelectTrigger className="w-full sm:w-[200px] border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-primary/50 dark:hover:border-primary/50 focus:border-primary">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>

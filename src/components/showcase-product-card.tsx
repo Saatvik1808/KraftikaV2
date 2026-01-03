@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { addItemToCart } from "@/services/cart-sync";
+import { trackProductClick, trackAddToCart } from "@/lib/analytics";
 
 interface ShowcaseProductCardProps {
   product: Candle;
@@ -61,6 +62,16 @@ export function ShowcaseProductCard({
     router.prefetch(`/products/${product.id}`);
   };
 
+  const handleProductClick = () => {
+    trackProductClick({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: product.scentCategory,
+      listName: 'Product Showcase',
+    });
+  };
+
   const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
@@ -71,6 +82,15 @@ export function ShowcaseProductCard({
         1,
         isAuthenticated,
         () => {
+          // Track add to cart event
+          trackAddToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            category: product.scentCategory,
+          });
+          
           toast({
             title: "Added to Cart!",
             description: `${product.name} has been added to your cart.`,
@@ -167,7 +187,11 @@ export function ShowcaseProductCard({
       <div className="relative p-6 bg-white dark:bg-gray-900 z-50 border-t border-gray-100 dark:border-gray-800">
         <div className="space-y-3 relative z-50">
           {/* Product name */}
-          <Link href={`/products/${product.id}`} className="block relative z-50">
+          <Link 
+            href={`/products/${product.id}`} 
+            className="block relative z-50"
+            onClick={handleProductClick}
+          >
             <h3 className="text-lg font-bold leading-tight text-gray-900 dark:text-white line-clamp-2 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-300">
               {product.name}
             </h3>
@@ -223,6 +247,7 @@ export function ShowcaseProductCard({
         className="absolute top-0 left-0 right-0 h-[calc(100%-220px)] z-[5]" 
         aria-label={`View details for ${product.name}`}
         prefetch={true}
+        onClick={handleProductClick}
       />
     </motion.div>
   );

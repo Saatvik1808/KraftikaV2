@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { addItemToCart } from "@/services/cart-sync";
+import { trackProductClick, trackAddToCart } from "@/lib/analytics";
 
 interface ProductCardProps {
   product: Candle;
@@ -64,6 +65,16 @@ export function ProductCard({
     router.prefetch(`/products/${product.id}`);
   };
 
+  const handleProductClick = () => {
+    trackProductClick({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: product.scentCategory,
+      listName: 'Product Grid',
+    });
+  };
+
   const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
@@ -74,6 +85,15 @@ export function ProductCard({
         1,
         isAuthenticated,
         () => {
+          // Track add to cart event
+          trackAddToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            category: product.scentCategory,
+          });
+          
           toast({
             title: "Added to Cart!",
             description: `${product.name} has been added to your cart.`,
@@ -114,6 +134,7 @@ export function ProductCard({
         className="absolute top-0 left-0 right-0 h-[calc(100%-200px)] z-[5]" 
         aria-label={`View details for ${product.name}`}
         prefetch={true}
+        onClick={handleProductClick}
       />
 
       {/* Image container with rounded corners */}

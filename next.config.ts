@@ -12,10 +12,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // Move serverExternalPackages to root level (not experimental)
   serverExternalPackages: ['multer'],
-  // Enable image optimization
+  // Enable image optimization with better defaults
   images: {
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 31536000, // 1 year cache
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
@@ -51,10 +51,19 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  // Optimize JavaScript output
+  swcMinify: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+  // Optimize CSS
   experimental: {
     serverActions: {
       bodySizeLimit: '800mb',
     },
+    optimizeCss: true,
   },
 };
 

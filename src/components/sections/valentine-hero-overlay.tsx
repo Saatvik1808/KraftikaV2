@@ -17,6 +17,7 @@ export function ValentineHeroOverlay() {
           duration: 3,
           repeat: Infinity,
         }}
+        style={{ willChange: 'transform' }}
       >
         {/* Large Heart */}
         <Heart className="h-16 w-16 text-pink-300/80 fill-pink-300/60" />
@@ -30,6 +31,7 @@ export function ValentineHeroOverlay() {
             duration: 2,
             repeat: Infinity,
           }}
+          style={{ willChange: 'transform, opacity' }}
         >
           <Sparkles className="h-10 w-10 text-pink-200" />
         </motion.div>
@@ -46,6 +48,7 @@ export function ValentineHeroOverlay() {
           repeat: Infinity,
           delay: 0.5,
         }}
+        style={{ willChange: 'transform' }}
       >
         {/* Rose/Heart Cluster */}
         <div className="relative">
@@ -60,6 +63,7 @@ export function ValentineHeroOverlay() {
               duration: 1.8,
               repeat: Infinity,
             }}
+            style={{ willChange: 'transform, opacity' }}
           >
             <Heart className="h-8 w-8 text-pink-300/80 fill-pink-300/60" />
           </motion.div>
@@ -73,6 +77,7 @@ export function ValentineHeroOverlay() {
               duration: 2,
               repeat: Infinity,
             }}
+            style={{ willChange: 'transform, opacity' }}
           >
             <Sparkles className="h-8 w-8 text-pink-200" />
           </motion.div>
@@ -90,6 +95,7 @@ export function ValentineHeroOverlay() {
           repeat: Infinity,
           delay: 1,
         }}
+        style={{ willChange: 'transform' }}
       >
         {/* Floating Heart */}
         <Heart className="h-12 w-12 text-white/60 fill-white/40" />
@@ -102,6 +108,7 @@ export function ValentineHeroOverlay() {
             duration: 4,
             repeat: Infinity,
           }}
+          style={{ willChange: 'transform' }}
         >
           <Sparkles className="h-6 w-6 text-pink-200/70" />
         </motion.div>
@@ -119,6 +126,7 @@ export function ValentineHeroOverlay() {
           repeat: Infinity,
           delay: 1.5,
         }}
+        style={{ willChange: 'transform' }}
       >
         <svg
           width="50"
@@ -156,6 +164,7 @@ export function ValentineHeroOverlay() {
           repeat: Infinity,
           delay: 0.8,
         }}
+        style={{ willChange: 'transform, opacity' }}
       >
         <Heart className="h-8 w-8 text-pink-300/50 fill-pink-300/30" />
       </motion.div>
@@ -171,6 +180,7 @@ export function ValentineHeroOverlay() {
           repeat: Infinity,
           delay: 1.2,
         }}
+        style={{ willChange: 'transform, opacity' }}
       >
         <Heart className="h-6 w-6 text-rose-300/50 fill-rose-300/30" />
       </motion.div>

@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { API_BASE_URL } from "@/services/config";
+import { trackFormSubmission } from "@/lib/analytics";
 
 const leadFormSchema = z.object({
   name: z.string().min(2, {
@@ -140,6 +141,9 @@ export function LeadCaptureDialog({ open, onOpenChange }: LeadCaptureDialogProps
 
       if (responseData.success) {
         console.log("Lead submission successful");
+        // Track form submission
+        trackFormSubmission('lead_capture', 'dialog');
+        
         toast({
           title: "Thank You!",
           description: responseData.message || "We've received your information. We'll contact you soon!",

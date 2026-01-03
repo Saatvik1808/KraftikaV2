@@ -51,6 +51,8 @@ export function BackgroundParticles() {
     const generateParticles = () => {
       if (!containerRef.current) return []; // Guard against null ref
 
+      // Use window dimensions first to avoid forced reflow, then read container if needed
+      // This batches layout reads and reduces reflow
       const containerWidth = containerRef.current.offsetWidth || window.innerWidth;
       const containerHeight = containerRef.current.offsetHeight || window.innerHeight;
 

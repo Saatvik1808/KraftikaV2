@@ -97,7 +97,7 @@ export function ValentineBanner() {
               <Heart className="h-5 w-5 text-pink-200 inline-block mr-2 fill-pink-200" />
             </motion.div>
             <span className="text-white font-semibold text-sm md:text-base">
-              💕 <span className="font-bold">Valentine's Special!</span> Perfect Gift Candles for Your Loved Ones -{" "}
+              <span className="font-bold">Valentine's Special!</span> Perfect Gift Candles for Your Loved Ones -{" "}
               <span className="text-pink-200 font-bold">Free Shipping</span> on orders above ₹3000
             </span>
           </div>

@@ -18,6 +18,7 @@ import { PageLoader } from "@/components/ui/loader";
 import type { ShippingAddress } from "@/types/order";
 import { createOrder } from "@/services/orders-api";
 import { createRazorpayOrder, verifyPayment } from "@/services/payment-api";
+import { trackPurchase } from "@/lib/analytics";
 
 interface CartItem {
   id: string;
@@ -167,6 +168,21 @@ export default function PaymentPage() {
           return;
         }
         
+        // Track purchase completion
+        trackPurchase(
+          createdOrder.id,
+          cartItems.map(item => ({
+            id: item.productId,
+            name: item.productName,
+            price: item.price,
+            quantity: item.quantity,
+            category: item.scentCategory || 'Candles',
+          })),
+          total,
+          0, // tax
+          shippingCost
+        );
+        
         toast({
           title: "Order Placed Successfully!",
           description: "Your order has been placed. You will receive a confirmation email shortly.",
@@ -218,6 +234,21 @@ export default function PaymentPage() {
 
             if (isValid) {
               // Payment successful - order status will be updated via webhook
+              // Track purchase completion
+              trackPurchase(
+                createdOrder.id,
+                cartItems.map(item => ({
+                  id: item.productId,
+                  name: item.productName,
+                  price: item.price,
+                  quantity: item.quantity,
+                  category: item.scentCategory || 'Candles',
+                })),
+                total,
+                0, // tax
+                shippingCost
+              );
+              
               toast({
                 title: "Payment Successful!",
                 description: "Your order has been confirmed.",

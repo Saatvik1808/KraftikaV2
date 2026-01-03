@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { sendContactEmail } from "./actions";
+import { trackFormSubmission } from "@/lib/analytics";
 import { CandleIcon } from "@/components/icons/candle-icon";
 
 const formSchema = z.object({
@@ -150,6 +151,9 @@ export default function ContactPage() {
     try {
       const result = await sendContactEmail(values);
       if (result.success) {
+        // Track form submission
+        trackFormSubmission('contact_form', '/contact');
+        
         toast({
           title: "Message Sent!",
           description: "Thank you for reaching out. We'll get back to you soon.",

@@ -11,6 +11,7 @@ import type { Candle } from "@/types/candle";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getProducts, getProductCategories } from "@/services/products-unified";
 import { cn } from "@/lib/utils";
+import { trackCategoryFilter, trackSortSelection } from "@/lib/analytics";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -160,7 +161,12 @@ export function ProductShowcase() {
                   key={category}
                   variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    if (category !== "all") {
+                      trackCategoryFilter(category);
+                    }
+                  }}
                   className={cn(
                     "capitalize transition-all duration-200 rounded-full px-4 py-2",
                     "font-medium text-sm",
@@ -190,7 +196,10 @@ export function ProductShowcase() {
           </div>
           
           <div className="w-full sm:w-auto">
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onValueChange={(value) => {
+              setSortBy(value);
+              trackSortSelection(value);
+            }}>
               <SelectTrigger className="w-full sm:w-[200px] text-sm h-10 border-gray-200 dark:border-gray-700 focus:ring-primary/50 bg-white dark:bg-gray-900 hover:border-primary/50 dark:hover:border-primary/50">
                 <SelectValue placeholder="Sort by..." />
               </SelectTrigger>

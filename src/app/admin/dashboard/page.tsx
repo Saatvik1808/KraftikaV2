@@ -74,18 +74,18 @@ export default function AdminDashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b">
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-gray-200 dark:border-gray-800">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Admin Dashboard
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            Dashboard
           </h1>
-          <p className="text-muted-foreground mt-2 text-base">
-            Welcome back! Manage your store, track orders, and monitor business performance.
+          <p className="text-gray-600 dark:text-gray-400 mt-1.5 text-sm">
+            Overview of your store performance and key metrics
           </p>
         </div>
-        <Button asChild className="shrink-0 shadow-md hover:shadow-lg transition-shadow">
+        <Button asChild size="default" className="shrink-0 font-semibold">
           <Link href="/admin/products/new">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Product
@@ -93,79 +93,79 @@ export default function AdminDashboardPage() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary bg-gradient-to-br from-background to-primary/5">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
               Total Products
             </CardTitle>
             <div className="p-2 bg-primary/10 rounded-lg">
-              <ShoppingBag className="h-5 w-5 text-primary" />
+              <ShoppingBag className="h-4 w-4 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground mb-1 flex items-center gap-2">
+            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
               {isLoading ? <Spinner size="sm" /> : stats.totalProducts}
             </div>
-            <p className="text-xs text-muted-foreground font-medium">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {isLoading ? 'Loading...' : 'Products in store'}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500 bg-gradient-to-br from-background to-blue-500/5">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
               Categories
             </CardTitle>
             <div className="p-2 bg-blue-500/10 rounded-lg">
-              <Package className="h-5 w-5 text-blue-500" />
+              <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground mb-1 flex items-center gap-2">
+            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
               {isLoading ? <Spinner size="sm" /> : stats.totalCategories}
             </div>
-            <p className="text-xs text-muted-foreground font-medium">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Active scent categories
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-green-500 bg-gradient-to-br from-background to-green-500/5">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
               Avg Price
             </CardTitle>
             <div className="p-2 bg-green-500/10 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-green-500" />
+              <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground mb-1 flex items-center gap-2">
+            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
               {isLoading ? <Spinner size="sm" /> : `₹${stats.avgPrice}`}
             </div>
-            <p className="text-xs text-muted-foreground font-medium">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Average product price
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-purple-500 bg-gradient-to-br from-background to-purple-500/5">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
               Top Category
             </CardTitle>
             <div className="p-2 bg-purple-500/10 rounded-lg">
-              <Users className="h-5 w-5 text-purple-500" />
+              <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground mb-1 truncate flex items-center gap-2">
+            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1 truncate">
               {isLoading ? <Spinner size="sm" /> : stats.topCategory}
             </div>
-            <p className="text-xs text-muted-foreground font-medium">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Most popular category
             </p>
           </CardContent>
@@ -174,32 +174,53 @@ export default function AdminDashboardPage() {
 
       {/* Main Tabs Interface */}
       <Tabs defaultValue="orders" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 h-auto p-1 bg-muted/50">
-          <TabsTrigger value="orders" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto p-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
+          <TabsTrigger 
+            value="orders" 
+            className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md"
+          >
             <Receipt className="h-4 w-4" />
-            <span className="hidden sm:inline">Order Details</span>
+            <span className="hidden sm:inline">Orders</span>
             <span className="sm:hidden">Orders</span>
           </TabsTrigger>
-          <TabsTrigger value="merchants" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+          <TabsTrigger 
+            value="merchants" 
+            className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md"
+          >
             <Store className="h-4 w-4" />
-            <span className="hidden sm:inline">Vendor Orders</span>
+            <span className="hidden sm:inline">Vendors</span>
             <span className="sm:hidden">Vendors</span>
           </TabsTrigger>
-          <TabsTrigger value="profit" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+          <TabsTrigger 
+            value="profit" 
+            className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md"
+          >
             <TrendingUp className="h-4 w-4" />
             <span className="hidden sm:inline">Profit</span>
+            <span className="sm:hidden">Profit</span>
           </TabsTrigger>
-          <TabsTrigger value="loss" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+          <TabsTrigger 
+            value="loss" 
+            className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md"
+          >
             <TrendingDown className="h-4 w-4" />
             <span className="hidden sm:inline">Loss</span>
+            <span className="sm:hidden">Loss</span>
           </TabsTrigger>
-          <TabsTrigger value="payouts" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+          <TabsTrigger 
+            value="payouts" 
+            className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md"
+          >
             <Wallet className="h-4 w-4" />
             <span className="hidden sm:inline">Payouts</span>
+            <span className="sm:hidden">Payouts</span>
           </TabsTrigger>
-          <TabsTrigger value="invoices" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+          <TabsTrigger 
+            value="invoices" 
+            className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md"
+          >
             <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">GST Invoices</span>
+            <span className="hidden sm:inline">Invoices</span>
             <span className="sm:hidden">Invoices</span>
           </TabsTrigger>
         </TabsList>

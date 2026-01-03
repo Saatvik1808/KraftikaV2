@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { addItemToCart } from "@/services/cart-sync";
+import { trackProductView, trackAddToCart, trackWishlistAdd, trackWishlistRemove, trackShare } from "@/lib/analytics";
 
 interface ProductDetailClientProps {
   product: Candle;
@@ -81,6 +82,16 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
     }
   }, [wishlistedItems]);
 
+  // Track product view on mount
+  React.useEffect(() => {
+    trackProductView({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: product.scentCategory,
+    });
+  }, [product.id, product.name, product.price, product.scentCategory]);
+
   const { isAuthenticated } = useAuth();
   const mediaItems = createMediaItems(product);
   const averageRating = reviews.length > 0 
@@ -90,9 +101,10 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
   const handleAddToCartClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!product || isAddingToCart) return;
     
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    // Calculate ripple position using event coordinates directly to avoid forced reflow
+    const button = event.currentTarget;
+    const x = event.clientX - button.offsetLeft;
+    const y = event.clientY - button.offsetTop;
     setRipple({ x, y, show: true });
     setIsAddingToCart(true);
     setTimeout(() => setRipple(prev => ({ ...prev, show: false })), 600);
@@ -103,6 +115,15 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
         1,
         isAuthenticated,
         () => {
+          // Track add to cart event
+          trackAddToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            category: product.scentCategory,
+          });
+          
           toast({
             title: "Added to Cart!",
             description: `${product.name} has been added to your cart.`,
@@ -136,6 +157,21 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
         return [...prevItems, product.id];
       }
     });
+    
+    // Track wishlist action
+    if (wasWishlisted) {
+      trackWishlistRemove({
+        id: product.id,
+        name: product.name,
+      });
+    } else {
+      trackWishlistAdd({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+      });
+    }
+    
     toast({
       title: wasWishlisted ? "Removed from Wishlist" : "Added to Wishlist!",
       description: `${product.name} has been ${wasWishlisted ? 'removed from' : 'added to'} your wishlist.`,
@@ -155,6 +191,8 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
           text: shareText,
           url: shareUrl,
         });
+        // Track share event
+        trackShare('native_share', 'product', product.id, product.name);
         toast({
           title: "Shared!",
           description: "Product link has been shared.",
@@ -172,6 +210,8 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(shareUrl);
+        // Track share event (clipboard)
+        trackShare('clipboard', 'product', product.id, product.name);
         toast({
           title: "Link Copied!",
           description: "Product link has been copied to clipboard.",

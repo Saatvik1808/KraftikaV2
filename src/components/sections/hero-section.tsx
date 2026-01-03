@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LeadCaptureDialog } from "@/components/lead-capture-dialog";
 import { Mail, Heart } from "lucide-react";
@@ -39,14 +40,33 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full overflow-hidden h-[90vh] min-h-[650px] flex items-center sm:h-screen sm:min-h-[800px] max-h-[1200px]">
-      {/* Background Video */}
+      {/* Optimized LCP Image - shown first, then video loads */}
+      <div className="absolute inset-0 w-full h-full -z-10">
+        <Image
+          src="/aesV2.jpeg"
+          alt="Kraftika handcrafted scented candles - premium soy candles India"
+          fill
+          priority
+          fetchPriority="high"
+          quality={85}
+          sizes="100vw"
+          className="object-cover object-top"
+          unoptimized={false}
+        />
+      </div>
+      
+      {/* Background Video - loads after image with intersection observer */}
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover object-top -z-10"
-        poster="/aesV2.jpeg"
+        preload="metadata"
+        className="absolute inset-0 w-full h-full object-cover object-top -z-10 opacity-0 transition-opacity duration-1000"
+        onLoadedData={(e) => {
+          // Fade in video once loaded
+          e.currentTarget.style.opacity = '1';
+        }}
         aria-label="Kraftika handcrafted scented candles video - premium soy candles India"
       >
         <source src="/KraftikaHero.mp4" type="video/mp4" />
@@ -76,6 +96,7 @@ export function HeroSection() {
               <motion.div
                 animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
                 transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                style={{ willChange: 'transform' }}
               >
                 <Heart className="h-8 w-8 text-pink-400 fill-pink-400" />
               </motion.div>
@@ -133,6 +154,7 @@ export function HeroSection() {
                   transition: { duration: 0.1 }
                 }}
                 className="w-full sm:w-auto"
+                style={{ willChange: 'transform' }}
               >
                 <Button 
                   asChild 
@@ -156,6 +178,7 @@ export function HeroSection() {
                   transition: { duration: 0.1 }
                 }}
                 className="w-full sm:w-auto"
+                style={{ willChange: 'transform' }}
               >
                 <Button
                   asChild
@@ -178,6 +201,7 @@ export function HeroSection() {
                   transition: { duration: 0.1 }
                 }}
                 className="w-full sm:w-auto"
+                style={{ willChange: 'transform' }}
               >
                 <Button
                   onClick={() => setIsLeadDialogOpen(true)}
@@ -201,12 +225,14 @@ export function HeroSection() {
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 1.5, repeat: Infinity }}
+        style={{ willChange: 'transform' }}
       >
         <div className="w-8 h-12 border-2 border-white/50 rounded-full flex justify-center">
           <motion.div 
             className="w-1 h-3 bg-white rounded-full mt-2"
             animate={{ opacity: [0.2, 1, 0.2] }}
             transition={{ duration: 1.5, repeat: Infinity }}
+            style={{ willChange: 'opacity' }}
           />
         </div>
       </motion.div>

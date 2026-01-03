@@ -181,6 +181,22 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Preconnect to external domains for faster loading */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+        <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+        
+        {/* Preload critical LCP image */}
+        <link 
+          rel="preload" 
+          href="/aesV2.jpeg" 
+          as="image" 
+          fetchPriority="high"
+        />
+        
         {/* Google Analytics */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-2PE2MFNQ1L"></script>
         <script
@@ -237,9 +253,9 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Google AdSense */}
+        {/* Google AdSense - Deferred for better performance */}
         <script
-          async
+          defer
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3381696955327461"
           crossOrigin="anonymous"
         />
