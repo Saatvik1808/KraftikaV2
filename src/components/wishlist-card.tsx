@@ -107,20 +107,27 @@ export function WishlistCard({ product, onRemove, priority = false }: WishlistCa
 
       {/* Image container */}
       <div className="relative overflow-hidden aspect-square bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
-        {product.imageUrl ? (
-          <Image
-            src={product.imageUrl}
-            alt={`${product.name} - ${product.scentCategory} scented candle`}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            priority={priority}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <ImageIcon className="h-12 w-12 text-gray-400" />
-          </div>
-        )}
+        {(() => {
+          // Use first image from imageUrls array, or fallback to imageUrl for backward compatibility
+          const imageUrl = (product.imageUrls && product.imageUrls.length > 0) 
+            ? product.imageUrls[0] 
+            : (product.imageUrl || '');
+          
+          return imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={`${product.name} - ${product.scentCategory} scented candle`}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              priority={priority}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <ImageIcon className="h-12 w-12 text-gray-400" />
+            </div>
+          );
+        })()}
 
         {/* Category badge */}
         <div className="absolute top-3 left-3 z-30">

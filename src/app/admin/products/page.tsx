@@ -303,7 +303,7 @@ export default function AdminProductsPage() {
                     />
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                       <img 
-                        src={product.imageUrl} 
+                        src={(product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || '/placeholder-image.jpg')} 
                         alt={product.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {

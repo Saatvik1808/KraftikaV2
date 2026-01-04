@@ -143,20 +143,27 @@ export function ProductCard({
           variants={imageVariants} 
           className="h-full w-full"
         >
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={`${product.name} - ${product.scentCategory} scented candle from Kraftika | Handcrafted soy candle India`}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover rounded-t-3xl"
-              priority={priority}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
-              <ImageIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
-            </div>
-          )}
+          {(() => {
+            // Use first image from imageUrls array, or fallback to imageUrl for backward compatibility
+            const imageUrl = (product.imageUrls && product.imageUrls.length > 0) 
+              ? product.imageUrls[0] 
+              : (product.imageUrl || '');
+            
+            return imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={`${product.name} - ${product.scentCategory} scented candle from Kraftika | Handcrafted soy candle India`}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover rounded-t-3xl"
+                priority={priority}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
+                <ImageIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+              </div>
+            );
+          })()}
         </motion.div>
 
         {/* Category badge - top left with better contrast */}

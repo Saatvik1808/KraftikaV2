@@ -44,7 +44,15 @@ interface ProductDetailClientProps {
 const createMediaItems = (product: Candle): Array<{ type: 'image' | 'video'; url: string }> => {
   const items: Array<{ type: 'image' | 'video'; url: string }> = [];
   
-  if (product.imageUrl) {
+  // Add all images from imageUrls array (preferred)
+  if (product.imageUrls && product.imageUrls.length > 0) {
+    product.imageUrls.forEach(imageUrl => {
+      if (imageUrl) {
+        items.push({ type: 'image', url: imageUrl });
+      }
+    });
+  } else if (product.imageUrl) {
+    // Fallback to single imageUrl for backward compatibility
     items.push({ type: 'image', url: product.imageUrl });
   }
   
@@ -370,7 +378,7 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
                       className="w-full h-full relative"
                     >
                       <Image
-                        src={mediaItems[selectedImageIndex]?.url || product.imageUrl}
+                        src={mediaItems[selectedImageIndex]?.url || (product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : product.imageUrl) || '/placeholder-image.jpg'}
                         alt={`${product.name} - View ${selectedImageIndex + 1}`}
                         fill
                         sizes="(max-width: 640px) 400px, (max-width: 1024px) 450px, 450px"
@@ -383,7 +391,7 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
               ) : (
                 <div className="w-full h-full relative">
                   <Image
-                    src={product.imageUrl}
+                    src={(product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : (product.imageUrl || '/placeholder-image.jpg')}
                     alt={product.name}
                     fill
                     sizes="(max-width: 640px) 400px, (max-width: 1024px) 450px, 450px"

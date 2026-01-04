@@ -137,20 +137,27 @@ export function ShowcaseProductCard({
           variants={imageVariants} 
           className="h-full w-full relative"
         >
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={`${product.name} - ${product.scentCategory} scented candle`}
-              fill
-              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
-              className="object-cover"
-              priority={priority}
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-              <Sparkles className="h-12 w-12 text-muted-foreground/40" />
-            </div>
-          )}
+          {(() => {
+            // Use first image from imageUrls array, or fallback to imageUrl for backward compatibility
+            const imageUrl = (product.imageUrls && product.imageUrls.length > 0) 
+              ? product.imageUrls[0] 
+              : (product.imageUrl || '');
+            
+            return imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={`${product.name} - ${product.scentCategory} scented candle`}
+                fill
+                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
+                className="object-cover"
+                priority={priority}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                <Sparkles className="h-12 w-12 text-muted-foreground/40" />
+              </div>
+            );
+          })()}
         </motion.div>
 
         {/* Elegant overlay gradient */}
