@@ -141,7 +141,7 @@ export function ProductShowcase() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-4 text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed"
           >
-            Hand-poured with love, designed to delight. Explore our curated collection of artisanal candles crafted to transform your space.
+            Hand-poured with love, designed to delight. Explore our curated collection of artisanal candles crafted to transform your space. <span className="font-semibold text-gray-900 dark:text-white">Order online - delivered across India!</span>
           </motion.p>
         </div>
 

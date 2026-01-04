@@ -98,7 +98,7 @@ export function ValentineBanner() {
             </motion.div>
             <span className="text-white font-semibold text-sm md:text-base">
               <span className="font-bold">Valentine's Special!</span> Perfect Gift Candles for Your Loved Ones -{" "}
-              <span className="text-pink-200 font-bold">Free Shipping</span> on orders above ₹3000
+              <span className="text-pink-200 font-bold">Order Online Now</span>
             </span>
           </div>
 
@@ -108,7 +108,7 @@ export function ValentineBanner() {
               size="sm"
               className="bg-white text-rose-600 hover:bg-pink-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
             >
-              Shop Now <ArrowRight className="h-4 w-4" />
+              Order Online <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
         </div>

@@ -47,7 +47,7 @@
                 <span className="font-heading font-semibold text-lg text-primary-foreground group-hover:text-primary-foreground/80 transition-colors">Kraftika</span>
               </Link>
              <p className="text-sm text-muted-foreground/90">
-               Handcrafted scents to spark joy in your everyday moments.
+               Handcrafted scents to spark joy in your everyday moments. <span className="font-semibold text-foreground">Order online - delivered across India!</span>
              </p>
               <div className="flex space-x-4 pt-2">
                   {/* Social Icons with Animation */}

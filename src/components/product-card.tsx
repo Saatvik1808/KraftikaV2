@@ -254,7 +254,7 @@ export function ProductCard({
             onClick={handleAddToCart}
           >
             <ShoppingCart className="mr-2 h-4 w-4" />
-            Add to Cart
+            Order Online
           </Button>
           
           <Button

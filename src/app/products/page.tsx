@@ -219,7 +219,7 @@ export default function ProductsPage() {
             </h1>
             
             <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 font-light">
-              Premium handcrafted scented candles - natural soy wax, hand-poured in India
+              Premium handcrafted scented candles - natural soy wax, hand-poured in India. <span className="font-semibold text-gray-900 dark:text-white">Order online now - delivered across India!</span>
             </p>
           </motion.div>
         </div>

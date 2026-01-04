@@ -137,7 +137,7 @@ export function HeroSection() {
                 lineHeight: '1.6'
               }} 
             >
-              Discover Kraftika's premium home made scented candles - handcrafted with love in India. Natural soy wax, hand-poured, perfect for creating cozy moments and warm hearts.
+              Discover Kraftika's premium home made scented candles - handcrafted with love in India. Natural soy wax, hand-poured, perfect for creating cozy moments and warm hearts. <span className="font-semibold text-white">Order online now - delivered across India!</span>
             </motion.p>
             
             <motion.div
@@ -163,7 +163,7 @@ export function HeroSection() {
                   className="w-full sm:w-auto px-10 py-6 text-lg font-medium bg-gradient-to-r from-pink-600 via-rose-500 to-red-500 hover:from-pink-700 hover:via-rose-600 hover:to-red-600 text-white shadow-lg hover:shadow-pink-500/50 transition-all duration-300"
                 >
                   <Link href="/products">
-                     Shop Valentine's Candles
+                     Order Online Now
                   </Link>
                 </Button>
               </motion.div>
