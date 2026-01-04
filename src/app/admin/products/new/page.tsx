@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ImageUpload } from "@/components/admin/image-upload";
+import { MultipleImageUpload } from "@/components/admin/multiple-image-upload";
 import { VideoUpload } from "@/components/admin/video-upload";
 import { Label } from "@/components/ui/label";
 import { getProductCategories } from "@/services/products-unified";
@@ -41,7 +41,7 @@ const productSchema = z.object({
   scentNotes: z.string().min(3, "Scent notes are required."),
   burnTime: z.string().min(3, "Burn time is required."),
   ingredients: z.string().min(10, "Ingredients are required."),
-  image: z.instanceof(File).refine(file => file.size > 0, "Product image is required."),
+  images: z.array(z.instanceof(File)).min(1, "At least one product image is required."),
   video: z.instanceof(File).optional(),
 });
 
@@ -50,12 +50,12 @@ type ProductFormData = z.infer<typeof productSchema>;
 export default function AddProductPage() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [uploadResult, setUploadResult] = React.useState<{
-    imageUrl?: string;
-    fileName?: string;
+    imageUrls?: string[];
     videoUrl?: string;
   } | null>(null);
   const [scentCategories, setScentCategories] = React.useState<string[]>([]);
   const [selectedVideo, setSelectedVideo] = React.useState<File | null>(null);
+  const [selectedImages, setSelectedImages] = React.useState<File[]>([]);
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<ProductFormData>({
@@ -68,6 +68,7 @@ export default function AddProductPage() {
       scentNotes: "",
       burnTime: "",
       ingredients: "",
+      images: [],
     },
   });
 
@@ -92,9 +93,14 @@ export default function AddProductPage() {
 
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
-      if (value) {
+      if (value && key !== 'images') {
         formData.append(key, value);
       }
+    });
+    
+    // Add images
+    selectedImages.forEach((image, index) => {
+      formData.append(`images`, image);
     });
     
     // Add video if selected
@@ -107,8 +113,7 @@ export default function AddProductPage() {
 
       if (result.success) {
         setUploadResult({
-          imageUrl: result.imageUrl,
-          fileName: result.fileName,
+          imageUrls: result.imageUrls,
           videoUrl: result.videoUrl
         });
         
@@ -275,22 +280,25 @@ export default function AddProductPage() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field: { onChange, value, ...rest } }) => (
-                  <FormItem>
-                    <FormControl>
-                      <ImageUpload
-                        value={value}
-                        onChange={onChange}
-                        required
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              <div className="space-y-2">
+                <Label>
+                  Product Images <span className="text-red-500">*</span>
+                </Label>
+                <MultipleImageUpload
+                  value={selectedImages}
+                  onChange={(files) => {
+                    setSelectedImages(files);
+                    form.setValue("images", files, { shouldValidate: true });
+                  }}
+                  required
+                  maxImages={10}
+                />
+                {form.formState.errors.images && (
+                  <p className="text-sm font-medium text-destructive">
+                    {form.formState.errors.images.message as string}
+                  </p>
                 )}
-              />
+              </div>
 
               <FormField
                 control={form.control}
@@ -338,30 +346,25 @@ export default function AddProductPage() {
               </p>
             </div>
             
-            <div className="grid gap-4 md:grid-cols-2">
+            {uploadResult.imageUrls && uploadResult.imageUrls.length > 0 && (
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-green-800 dark:text-green-200">Image Path:</Label>
-                <div className="p-2 bg-green-100 dark:bg-green-900 rounded border border-green-200 dark:border-green-700">
-                  <code className="text-sm text-green-800 dark:text-green-200 break-all">
-                    {uploadResult.imageUrl}
-                  </code>
+                <Label className="text-sm font-medium text-green-800 dark:text-green-200">Uploaded Images:</Label>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {uploadResult.imageUrls.map((url, index) => (
+                    <div key={index} className="p-2 bg-green-100 dark:bg-green-900 rounded border border-green-200 dark:border-green-700">
+                      <code className="text-sm text-green-800 dark:text-green-200 break-all">
+                        {url}
+                      </code>
+                    </div>
+                  ))}
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-green-800 dark:text-green-200">File Name:</Label>
-                <div className="p-2 bg-green-100 dark:bg-green-900 rounded border border-green-200 dark:border-green-700">
-                  <code className="text-sm text-green-800 dark:text-green-200 break-all">
-                    {uploadResult.fileName}
-                  </code>
-                </div>
-              </div>
-            </div>
+            )}
             
             <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
               <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               <AlertDescription className="text-blue-800 dark:text-blue-200">
-                <strong>Success:</strong> Your image is now accessible at {uploadResult.imageUrl} and will be displayed on your website immediately. You will be redirected shortly.
+                <strong>Success:</strong> Your {uploadResult.imageUrls?.length || 0} image(s) have been uploaded and will be displayed on your website immediately. You will be redirected shortly.
               </AlertDescription>
             </Alert>
           </CardContent>

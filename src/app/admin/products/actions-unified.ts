@@ -27,7 +27,7 @@ const addProductSchema = z.object({
   scentNotes: z.string().min(3, "Scent notes are required"),
   burnTime: z.string().min(3, "Burn time is required"),
   ingredients: z.string().min(10, "Ingredients are required"),
-  image: z.instanceof(File).refine(file => file.size > 0, "Product image is required."),
+  images: z.array(z.instanceof(File)).min(1, "At least one product image is required."),
   video: z.instanceof(File).optional(),
 });
 
@@ -35,18 +35,31 @@ type AddFormState = {
   success: boolean;
   message?: string;
   error?: string;
-  imageUrl?: string;
-  fileName?: string;
+  imageUrls?: string[];
   videoUrl?: string;
 };
 
 export async function addProductAction(formData: FormData): Promise<AddFormState> {
   const rawData = Object.fromEntries(formData.entries());
   
-  // Extract video file separately since it might not be in the schema
+  // Extract images and video files separately
+  const imageFiles: File[] = [];
+  const images = formData.getAll('images');
+  images.forEach((item) => {
+    if (item instanceof File) {
+      imageFiles.push(item);
+    }
+  });
+  
   const videoFile = formData.get('video') as File | null;
   
-  const validatedFields = addProductSchema.safeParse(rawData);
+  // Create a modified rawData with images array for validation
+  const dataForValidation = {
+    ...rawData,
+    images: imageFiles
+  };
+  
+  const validatedFields = addProductSchema.safeParse(dataForValidation);
 
   if (!validatedFields.success) {
     return {
@@ -55,12 +68,15 @@ export async function addProductAction(formData: FormData): Promise<AddFormState
     };
   }
   
-  const { image, video, ...productData } = validatedFields.data;
-  const imageFile = image as File;
+  const { images: validatedImages, video, ...productData } = validatedFields.data;
 
   try {
-    // Upload image to Cloudinary
-    const { url: imageUrl } = await uploadImageToCloudinary(imageFile, 'kraftika-products');
+    // Upload all images to Cloudinary
+    const imageUploadPromises = validatedImages.map((imageFile: File) => 
+      uploadImageToCloudinary(imageFile, 'kraftika-products')
+    );
+    const imageUploadResults = await Promise.all(imageUploadPromises);
+    const imageUrls = imageUploadResults.map(result => result.url);
 
     // Upload video to Cloudinary if provided
     let videoUrl: string | undefined;
@@ -77,7 +93,7 @@ export async function addProductAction(formData: FormData): Promise<AddFormState
 
     const newProductData = {
       ...productData,
-      imageUrl: imageUrl,
+      imageUrls: imageUrls,
       videoUrl: videoUrl,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -99,7 +115,7 @@ export async function addProductAction(formData: FormData): Promise<AddFormState
         name: newProductData.name,
         description: newProductData.description,
         price: newProductData.price,
-        imageUrl: newProductData.imageUrl,
+        imageUrls: newProductData.imageUrls,
         burnTime: newProductData.burnTime,
         popularity: newProductData.popularity,
         scentNotes: newProductData.scentNotes.split(',').map(note => note.trim()),
@@ -113,7 +129,7 @@ export async function addProductAction(formData: FormData): Promise<AddFormState
         return { 
           success: true, 
           message: "Product added successfully!",
-          imageUrl: imageUrl,
+          imageUrls: imageUrls,
           videoUrl: videoUrl
         };
       } else {
@@ -144,10 +160,11 @@ const updateProductSchema = z.object({
     scentNotes: z.string().min(3, "Scent notes are required"),
     burnTime: z.string().min(3, "Burn time is required"),
     ingredients: z.string().min(10, "Ingredients are required"),
-    imageUrl: z.string(), // Keep track of current/new URL
+    imageUrl: z.string().optional(), // Keep for backward compatibility
+    imageUrls: z.string().optional(), // Current image URLs as comma-separated string
     videoUrl: z.string().optional(), // Keep track of current/new video URL
     popularity: z.coerce.number().min(0),
-    image: z.any().optional(), // New image is optional - using z.any() to handle File or undefined
+    images: z.array(z.instanceof(File)).optional(), // New images are optional
     video: z.any().optional(), // New video is optional
 });
 
@@ -155,7 +172,7 @@ type UpdateFormState = {
   success: boolean;
   message?: string;
   error?: string;
-  imageUrl?: string;
+  imageUrls?: string[];
   videoUrl?: string;
 };
 
@@ -174,12 +191,33 @@ export async function updateProductAction(id: string, formData: FormData): Promi
             burnTime: rawData['1_burnTime'] || rawData.burnTime || '',
             ingredients: rawData['1_ingredients'] || rawData.ingredients || '',
             imageUrl: rawData['1_imageUrl'] || rawData.imageUrl || '',
+            imageUrls: rawData['1_imageUrls'] || rawData.imageUrls || '',
             videoUrl: rawData['1_videoUrl'] || rawData.videoUrl || '',
             popularity: rawData['1_popularity'] || rawData.popularity || '0',
         };
 
-        // Get the image file (it might be named '1_image' or 'image')
-        const imageFile = formData.get('1_image') as File || formData.get('image') as File;
+        // Get current image URLs from form data or parse from JSON
+        let currentImageUrls: string[] = [];
+        const currentImageUrlsStr = formData.get('currentImageUrls') as string | null;
+        if (currentImageUrlsStr) {
+            try {
+                currentImageUrls = JSON.parse(currentImageUrlsStr);
+            } catch {
+                // If not JSON, try comma-separated string
+                currentImageUrls = productData.imageUrls ? productData.imageUrls.split(',').filter(Boolean) : [];
+            }
+        } else if (productData.imageUrls) {
+            currentImageUrls = productData.imageUrls.split(',').filter(Boolean);
+        }
+
+        // Get new image files
+        const imageFiles: File[] = [];
+        const images = formData.getAll('images');
+        images.forEach((item) => {
+            if (item instanceof File && item.size > 0) {
+                imageFiles.push(item);
+            }
+        });
         
         // Get the video file (it might be named '1_video' or 'video')
         const videoFile = formData.get('1_video') as File || formData.get('video') as File;
@@ -187,8 +225,7 @@ export async function updateProductAction(id: string, formData: FormData): Promi
         // Validate the extracted data
         const validatedFields = updateProductSchema.safeParse({
             ...productData,
-            image: imageFile,
-            video: videoFile
+            images: imageFiles.length > 0 ? imageFiles : undefined
         });
 
         if (!validatedFields.success) {
@@ -199,28 +236,32 @@ export async function updateProductAction(id: string, formData: FormData): Promi
             };
         }
 
-        const { image, video, ...validatedProductData } = validatedFields.data;
-        let finalImageUrl = validatedProductData.imageUrl;
+        const { images: validatedImages, video, ...validatedProductData } = validatedFields.data;
+        let finalImageUrls = currentImageUrls;
         let finalVideoUrl = validatedProductData.videoUrl;
 
-        // If a new image is provided, upload it
-        if (image && image.size > 0) {
+        // Upload new images if provided
+        if (validatedImages && validatedImages.length > 0) {
             try {
-                const { url } = await uploadImageToCloudinary(image, 'kraftika-products');
-                finalImageUrl = url;
+                const imageUploadPromises = validatedImages.map((imageFile: File) => 
+                    uploadImageToCloudinary(imageFile, 'kraftika-products')
+                );
+                const imageUploadResults = await Promise.all(imageUploadPromises);
+                const newImageUrls = imageUploadResults.map(result => result.url);
+                finalImageUrls = [...currentImageUrls, ...newImageUrls];
             } catch (uploadError) {
                 console.error('Image upload error:', uploadError);
                 return {
                     success: false,
-                    error: "Failed to upload image. Please try again.",
+                    error: "Failed to upload images. Please try again.",
                 };
             }
         }
 
         // If a new video is provided, upload it
-        if (video && video.size > 0) {
+        if (videoFile && videoFile.size > 0) {
             try {
-                const { url } = await uploadVideoToCloudinary(video, 'kraftika-products/videos');
+                const { url } = await uploadVideoToCloudinary(videoFile, 'kraftika-products/videos');
                 finalVideoUrl = url;
             } catch (uploadError) {
                 console.error('Video upload error:', uploadError);
@@ -243,7 +284,7 @@ export async function updateProductAction(id: string, formData: FormData): Promi
                 name: validatedProductData.name,
                 description: validatedProductData.description,
                 price: validatedProductData.price,
-                imageUrl: finalImageUrl,
+                imageUrls: finalImageUrls,
                 burnTime: validatedProductData.burnTime,
                 popularity: validatedProductData.popularity,
                 scentNotes: validatedProductData.scentNotes.split(',').map(note => note.trim()),
@@ -262,7 +303,7 @@ export async function updateProductAction(id: string, formData: FormData): Promi
                 return {
                     success: true,
                     message: "Product updated successfully!",
-                    imageUrl: finalImageUrl,
+                    imageUrls: finalImageUrls,
                     videoUrl: finalVideoUrl
                 };
             } else {

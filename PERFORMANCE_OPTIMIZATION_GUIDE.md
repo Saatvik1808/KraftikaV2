@@ -112,3 +112,4 @@ After full optimization:
 - **CLS**: 0 (already perfect)
 - **SI**: 1.8s → 1.2-1.4s
 
+

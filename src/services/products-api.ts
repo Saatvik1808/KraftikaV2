@@ -35,12 +35,21 @@ function transformProductResponse(product: any): Candle {
   // Ensure ID is a string
   const id = String(product.id || '');
   
+  // Handle imageUrls array (preferred) or fall back to imageUrl for backward compatibility
+  const imageUrls = product.imageUrls && Array.isArray(product.imageUrls) && product.imageUrls.length > 0
+    ? product.imageUrls.map((url: string) => formatImageUrl(url))
+    : (product.imageUrl ? [formatImageUrl(product.imageUrl)] : []);
+  
+  // Set imageUrl to first image for backward compatibility
+  const imageUrl = imageUrls.length > 0 ? imageUrls[0] : '/placeholder-image.jpg';
+
   return {
     id: id,
     name: product.name || 'Unnamed Product',
     description: product.description || '',
     price: price,
-    imageUrl: formatImageUrl(product.imageUrl || ''),
+    imageUrl: imageUrl, // First image for backward compatibility
+    imageUrls: imageUrls, // All images
     videoUrl: product.videoUrl || undefined,
     videoUrls: product.videoUrls || undefined,
     scentCategory: product.scentCategoryName || product.scentCategory || '',

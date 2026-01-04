@@ -15,7 +15,7 @@ import { getProduct, getProductCategories } from "@/services/products-unified";
 import { updateProductAction } from "../../actions-unified"; // Import the unified server action
 import type { Candle } from "@/types/candle";
 import { useToast } from "@/hooks/use-toast";
-import { ImageUpload } from "@/components/admin/image-upload";
+import { MultipleImageUpload } from "@/components/admin/multiple-image-upload";
 import { VideoUpload } from "@/components/admin/video-upload";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { PageLoader } from "@/components/ui/loader";
@@ -27,9 +27,9 @@ export default function EditProductPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
   const [product, setProduct] = React.useState<Candle | null>(null);
-  const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
+  const [selectedImages, setSelectedImages] = React.useState<File[]>([]);
   const [selectedVideo, setSelectedVideo] = React.useState<File | null>(null);
-  const [imagePreview, setImagePreview] = React.useState<string>("");
+  const [currentImageUrls, setCurrentImageUrls] = React.useState<string[]>([]);
 
   const productId = params?.id as string;
 
@@ -42,6 +42,7 @@ export default function EditProductPage() {
     burnTime: "",
     ingredients: "",
     imageUrl: "",
+    imageUrls: "",
     videoUrl: "",
     popularity: ""
   });
@@ -65,6 +66,10 @@ export default function EditProductPage() {
         const fetchedProduct = await getProduct(productId);
         if (fetchedProduct) {
           setProduct(fetchedProduct);
+          // Handle both old imageUrl and new imageUrls for backward compatibility
+          const imageUrls = fetchedProduct.imageUrls || 
+            (fetchedProduct.imageUrl ? [fetchedProduct.imageUrl] : []);
+          setCurrentImageUrls(imageUrls);
           setFormData({
             name: fetchedProduct.name,
             description: fetchedProduct.description,
@@ -73,11 +78,11 @@ export default function EditProductPage() {
             scentNotes: fetchedProduct.scentNotes,
             burnTime: fetchedProduct.burnTime,
             ingredients: fetchedProduct.ingredients,
-            imageUrl: fetchedProduct.imageUrl,
+            imageUrl: fetchedProduct.imageUrl || "",
+            imageUrls: imageUrls.join(","),
             videoUrl: fetchedProduct.videoUrl || "",
             popularity: fetchedProduct.popularity.toString()
           });
-          setImagePreview(fetchedProduct.imageUrl);
         } else {
           toast({
             title: "Product not found",
@@ -120,22 +125,14 @@ export default function EditProductPage() {
     }));
   };
 
-  const handleImageChange = (file: File | null) => {
-    setSelectedImage(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(product?.imageUrl || "");
-    }
+  const handleImageChange = (files: File[]) => {
+    setSelectedImages(files);
   };
 
-  const handleRemoveCurrentImage = () => {
-    setFormData(prev => ({ ...prev, imageUrl: "" }));
-    setImagePreview("");
+  const handleRemoveCurrentImage = (index: number) => {
+    const newUrls = currentImageUrls.filter((_, i) => i !== index);
+    setCurrentImageUrls(newUrls);
+    setFormData(prev => ({ ...prev, imageUrls: newUrls.join(",") }));
   };
 
   const handleVideoChange = (file: File | null) => {
@@ -161,11 +158,18 @@ export default function EditProductPage() {
 
     const formDataToSubmit = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-        formDataToSubmit.append(key, value);
+        if (key !== 'imageUrls') {
+            formDataToSubmit.append(key, value);
+        }
     });
-    if (selectedImage) {
-        formDataToSubmit.append('image', selectedImage);
+    // Add current image URLs
+    if (currentImageUrls.length > 0) {
+        formDataToSubmit.append('currentImageUrls', JSON.stringify(currentImageUrls));
     }
+    // Add new images
+    selectedImages.forEach((image) => {
+        formDataToSubmit.append('images', image);
+    });
     if (selectedVideo) {
         formDataToSubmit.append('video', selectedVideo);
     }
@@ -335,74 +339,17 @@ export default function EditProductPage() {
 
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <CardTitle>Product Image</CardTitle>
+            <CardTitle>Product Images</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-3">
-              <Label>Current Image</Label>
-              <div className="flex items-center gap-4">
-                <div className="w-32 h-32 border rounded-lg overflow-hidden bg-muted">
-                  {imagePreview ? (
-                    <img
-                      src={imagePreview}
-                      alt="Current product image"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    <strong>Current path:</strong> {formData.imageUrl || 'No image set'}
-                  </p>
-                  {formData.imageUrl && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRemoveCurrentImage}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      Remove Current Image
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Upload New Image (Optional)</Label>
-              <ImageUpload
-                value={selectedImage}
-                onChange={handleImageChange}
-                required={false}
-              />
-              <p className="text-xs text-muted-foreground">
-                Leave empty to keep the current image. If you upload a new image, it will replace the current one.
-              </p>
-            </div>
-            
-            <div className="space-y-3">
-              <Label htmlFor="imageUrl">Image URL Override</Label>
-              <Input
-                id="imageUrl"
-                value={formData.imageUrl}
-                onChange={(e) => {
-                  handleInputChange("imageUrl", e.target.value);
-                  setImagePreview(e.target.value);
-                }}
-                placeholder="/path/to/image.jpeg"
-              />
-              <p className="text-sm text-muted-foreground">
-                You can manually set a custom image path. This overrides the current image and any new upload.
-              </p>
-            </div>
+            <MultipleImageUpload
+              value={selectedImages}
+              onChange={handleImageChange}
+              currentImageUrls={currentImageUrls}
+              onRemoveCurrentImage={handleRemoveCurrentImage}
+              required={false}
+              maxImages={10}
+            />
           </CardContent>
         </Card>
 
