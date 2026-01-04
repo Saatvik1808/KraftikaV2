@@ -113,7 +113,7 @@ export function HeroSection() {
                 lineHeight: '1.1'
               }} 
             >
-              Where Scents{' '}
+              Premium Home Made{' '}
               <span 
                 className="bg-clip-text text-transparent bg-gradient-to-r from-pink-300 via-rose-300 to-red-300"
                 style={{
@@ -124,8 +124,9 @@ export function HeroSection() {
                   textShadow: '0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(244, 63, 94, 0.3)',
                 }}
               >
-                Spark Love
+                Scented Candles
               </span>
+              {' '}by Kraftika
             </motion.h1>
             
             <motion.p
@@ -136,7 +137,7 @@ export function HeroSection() {
                 lineHeight: '1.6'
               }} 
             >
-              Express your love with handcrafted scented candles - perfect romantic gifts that create intimate moments and warm hearts.
+              Discover Kraftika's premium home made scented candles - handcrafted with love in India. Natural soy wax, hand-poured, perfect for creating cozy moments and warm hearts.
             </motion.p>
             
             <motion.div

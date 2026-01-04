@@ -6,6 +6,22 @@ import { Button } from '@/components/ui/button';
 export const metadata: Metadata = {
   title: 'Candle Care Guide - How to Care for Your Kraftika Candles',
   description: 'Complete guide on how to properly care for your scented candles. Learn expert tips for maximizing burn time, preventing tunneling, and maintaining your candles for optimal performance.',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    title: 'Candle Care Guide - How to Care for Your Kraftika Candles',
+    description: 'Complete guide on how to properly care for your scented candles. Learn expert tips for maximizing burn time, preventing tunneling, and maintaining your candles for optimal performance.',
+    type: 'article',
+  },
 };
 
 export default function CandleCarePage() {

@@ -27,7 +27,7 @@ export function ContentSection() {
 
           <div className="space-y-8 text-base leading-relaxed text-muted-foreground">
             <p>
-              Welcome to Kraftika, India's premier destination for handcrafted scented candles. In a world filled with mass-produced items, we believe in the power of artisanal craftsmanship and sustainable living. Each candle we create is a testament to our commitment to quality, sustainability, and the simple joy that a beautiful scent can bring to your home.
+              Welcome to Kraftika, India's premier destination for home made scented candles and handcrafted candles. In a world filled with mass-produced items, we believe in the power of artisanal craftsmanship and sustainable living. Each Kraftika candle we create is a testament to our commitment to quality, sustainability, and the simple joy that a beautiful scent can bring to your home.
             </p>
 
             <p>
@@ -35,7 +35,7 @@ export function ContentSection() {
             </p>
 
             <p>
-              What sets Kraftika apart is our dedication to the craft of candle making. Unlike mass-produced alternatives, each of our candles is hand-poured in small batches, ensuring quality and consistency. This artisanal approach allows us to create unique scent combinations and maintain the highest standards throughout the production process. Every candle receives individual attention, from the selection of ingredients to the final quality check.
+              What sets Kraftika apart is our dedication to creating authentic home made candles. Unlike mass-produced alternatives, each of our scented candles is hand-poured in small batches, ensuring quality and consistency. This artisanal approach allows us to create unique scent combinations and maintain the highest standards throughout the production process. Every Kraftika candle receives individual attention, from the selection of ingredients to the final quality check.
             </p>
 
             <p>
