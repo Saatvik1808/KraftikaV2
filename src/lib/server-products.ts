@@ -10,17 +10,15 @@ import type { Candle } from '@/types/candle';
 // every product page render notFound() in production.)
 
 export async function getProductDirect(id: string): Promise<Candle | null> {
-  try {
-    const row = await prisma.product.findFirst({
-      where: { id, isActive: true },
-      include: { scentCategory: true },
-    });
-    if (!row) return null;
-    return transformProductResponse(await serializeProduct(row));
-  } catch (e) {
-    console.error('[server-products] getProductDirect failed:', e);
-    return null;
-  }
+  // null ONLY when the product genuinely doesn't exist. Infra/DB errors are
+  // rethrown — returning null here once baked a permanent 404 into the ISR
+  // cache when the build-time DB connection flaked.
+  const row = await prisma.product.findFirst({
+    where: { id, isActive: true },
+    include: { scentCategory: true },
+  });
+  if (!row) return null;
+  return transformProductResponse(await serializeProduct(row));
 }
 
 /** Related = same category, active, excluding the product; popularity desc. */

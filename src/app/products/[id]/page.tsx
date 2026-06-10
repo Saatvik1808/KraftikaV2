@@ -12,26 +12,12 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// ISR: pages are pre-rendered and served from the CDN, re-generated in the
-// background every 5 minutes. Live data (reviews list/form, cart) is fetched
-// client-side, so it stays fresh. Without this, every visit paid a full
-// server render + several DB round-trips.
+// ISR: each product page renders on first visit (in the same region as the
+// DB), is served from the CDN afterwards, and re-generates in the background
+// every 5 minutes. Live data (reviews form, cart) is fetched client-side.
+// NOTE: deliberately no generateStaticParams — build-time prerendering ran in
+// a build container whose parallel DB connections flaked and baked 404s.
 export const revalidate = 300;
-
-// Pre-build every active product at deploy time; new products are rendered
-// on first visit and then cached.
-export async function generateStaticParams() {
-  try {
-    const { prisma } = await import('@/lib/prisma');
-    const products = await prisma.product.findMany({
-      where: { isActive: true },
-      select: { id: true },
-    });
-    return products.map((p) => ({ id: p.id }));
-  } catch {
-    return [];
-  }
-}
 
 // Cache the product fetch to avoid duplicate calls (for metadata + page)
 // This ensures we only fetch once even if both generateMetadata and page component need it
@@ -156,30 +142,25 @@ export default async function ProductDetailPage({ params }: PageProps) {
   let relatedProducts: Candle[] = [];
   let reviews: Review[] = [];
 
-  try {
-    product = await getProductData(id);
-
-    if (!product) {
-      notFound();
-      return; // TypeScript guard - notFound() throws but TS doesn't know that
-    }
-
-    // Fetch data on the server with error handling
-    try {
-      [relatedProducts, reviews] = await Promise.all([
-        getRelatedProductsData(product.scentCategory, product.id),
-        getReviewsForProduct(product.id)
-      ]);
-    } catch (error) {
-      // If related products or reviews fail, continue with empty arrays
-      console.error("Error fetching related products or reviews:", error);
-      relatedProducts = [];
-      reviews = [];
-    }
-  } catch (error) {
-    console.error("Error fetching product:", error);
+  // 404 only when the product truly doesn't exist. A DB/infra error must
+  // throw (→ error page / failed ISR regen keeps the old cached page) — NOT
+  // notFound(), which would cache a 404 for a real product.
+  product = await getProductData(id);
+  if (!product) {
     notFound();
-    return; // TypeScript guard
+    return; // TypeScript guard - notFound() throws but TS doesn't know that
+  }
+
+  // Secondary data is best-effort.
+  try {
+    [relatedProducts, reviews] = await Promise.all([
+      getRelatedProductsData(product.scentCategory, product.id),
+      getReviewsForProduct(product.id)
+    ]);
+  } catch (error) {
+    console.error("Error fetching related products or reviews:", error);
+    relatedProducts = [];
+    reviews = [];
   }
 
   // Ensure product is not null at this point (TypeScript check)
