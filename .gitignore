@@ -57,3 +57,6 @@ src/lib/kraftika-scents-firebase-adminsdk-fbsvc-d9615f23ce.json
 /public/worker-*.js.map
 /public/fallback-*.js
 /public/fallback-*.js.map
+
+# Prisma generated client
+/src/generated/prisma

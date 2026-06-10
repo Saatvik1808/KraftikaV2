@@ -3,10 +3,15 @@ export const API_CONFIG = {
   // Set to 'firebase' to use Firebase, 'springboot' to use Spring Boot APIs
   provider:  'springboot',
   
-  // Spring Boot API configuration
-  // Use proxy route in production to avoid HTTPS/CORS issues
+  // Backend now runs in this same Next.js app under /api/backend.
   springBoot: {
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api/backend' : 'http://65.2.121.137/api'),
+    baseUrl:
+      process.env.NEXT_PUBLIC_API_URL ||
+      (typeof window !== 'undefined'
+        ? '/api/backend'
+        : process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}/api/backend`
+          : `http://localhost:${process.env.PORT || 9002}/api/backend`),
   },
   
   // Firebase configuration (keeping existing)

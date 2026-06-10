@@ -1,6 +1,15 @@
-// API configuration for Spring Boot backend
-// Use proxy route in browser to avoid HTTPS/CORS issues, direct URL for server-side
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api/backend' : 'http://65.2.121.137/api');
+// API base. The backend now lives in this same Next.js app under /api/backend.
+// - Browser: same-origin relative path.
+// - Server (RSC/SSR): needs an absolute URL to hit our own route handlers.
+//   On Vercel, VERCEL_URL is the deployment host; locally, the dev port.
+function resolveServerBase(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}/api/backend`;
+  return `http://localhost:${process.env.PORT || 9002}/api/backend`;
+}
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== 'undefined' ? '/api/backend' : resolveServerBase());
 
 // Generic API client
 class ApiClient {

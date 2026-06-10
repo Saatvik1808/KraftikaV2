@@ -30,7 +30,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api/backend' : 'http://65.2.121.137/api')
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api/backend' : (process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL + '/api/backend' : 'http://localhost:9002/api/backend'))
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

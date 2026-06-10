@@ -1,0 +1,263 @@
+// Kraftika — Prisma schema modeled from the original Spring Boot JPA entities.
+// DB already migrated to Supabase. Enums were stored via Hibernate EnumType.STRING
+// (plain varchar), so they are modeled here as String to match the existing columns.
+//
+// The three Hibernate @ElementCollection tables — product_images,
+// product_scent_notes, product_ingredients — have no primary key and are therefore
+// NOT modeled here. They are read/written via raw SQL in src/lib/product-arrays.ts.
+//
+// After editing: `npx prisma generate`. To reconcile against the live DB at any
+// time: `npx prisma db pull` (uses DIRECT_URL), then re-generate.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")   // Supabase pooler (port 6543, ?pgbouncer=true) — used at runtime
+  directUrl = env("DIRECT_URL")     // Supabase direct (port 5432) — used by migrate/db pull
+}
+
+model User {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String?   @unique
+  passwordHash    String?   @map("password_hash")
+  firstName       String?   @map("first_name")
+  lastName        String?   @map("last_name")
+  phone           String?   @unique
+  phoneVerified   Boolean?  @default(false) @map("phone_verified")
+  googleId        String?   @unique @map("google_id")
+  profileImageUrl String?   @map("profile_image_url")
+  authProvider    String?   @default("EMAIL") @map("auth_provider")
+  role            String    @default("CUSTOMER")
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  lastLogin       DateTime? @map("last_login")
+
+  orders Order[]
+
+  @@map("users")
+}
+
+model Category {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String   @unique
+  description  String?
+  color        String?
+  icon         String?
+  isActive     Boolean  @default(true) @map("is_active")
+  productCount Int      @default(0) @map("product_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  description     String?
+  price           Decimal  @db.Decimal(10, 2)
+  scentCategoryId String?  @map("scent_category_id") @db.Uuid
+  burnTime        String?  @map("burn_time")
+  popularity      Int      @default(0)
+  stockQuantity   Int      @default(0) @map("stock_quantity")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  scentCategory    Category?         @relation(fields: [scentCategoryId], references: [id])
+  orderItems       OrderItem[]
+  vendorOrderItems VendorOrderItem[]
+
+  @@map("products")
+}
+
+model Cart {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cartId    String   @map("cart_id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  quantity  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@map("cart_items")
+}
+
+model Order {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  totalAmount     Decimal  @map("total_amount") @db.Decimal(10, 2)
+  status          String   @default("PENDING")
+  shippingAddress Json?    @map("shipping_address")
+  paymentMethod   String?  @map("payment_method")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user       User        @relation(fields: [userId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId   String   @map("order_id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  quantity  Int
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Vendor {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String
+  email            String?  @unique
+  phone            String?  @unique
+  address          String?
+  gstNumber        String?  @unique @map("gst_number")
+  panNumber        String?  @map("pan_number")
+  contactPerson    String?  @map("contact_person")
+  marginPercentage Float    @default(0) @map("margin_percentage")
+  isActive         Boolean  @default(true) @map("is_active")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  invoices     GstInvoice[]
+  payouts      Payout[]
+  vendorOrders VendorOrder[]
+
+  @@map("vendors")
+}
+
+model GstInvoice {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vendorId      String   @map("vendor_id") @db.Uuid
+  invoiceNumber String   @unique @map("invoice_number")
+  invoiceDate   DateTime @map("invoice_date") @db.Date
+  dueDate       DateTime @map("due_date") @db.Date
+  subtotal      Decimal  @db.Decimal(10, 2)
+  cgst          Decimal  @db.Decimal(10, 2)
+  sgst          Decimal  @db.Decimal(10, 2)
+  igst          Decimal  @db.Decimal(10, 2)
+  totalAmount   Decimal  @map("total_amount") @db.Decimal(10, 2)
+  status        String   @default("DRAFT")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  vendor  Vendor           @relation(fields: [vendorId], references: [id])
+  items   GstInvoiceItem[]
+  payouts Payout[]
+
+  @@map("gst_invoices")
+}
+
+model GstInvoiceItem {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoiceId     String   @map("invoice_id") @db.Uuid
+  productName   String   @map("product_name")
+  hsnCode       String   @map("hsn_code")
+  quantity      Int
+  unitPrice     Decimal  @map("unit_price") @db.Decimal(10, 2)
+  gstRate       Decimal  @map("gst_rate") @db.Decimal(5, 2)
+  taxableAmount Decimal  @map("taxable_amount") @db.Decimal(10, 2)
+  cgst          Decimal  @db.Decimal(10, 2)
+  sgst          Decimal  @db.Decimal(10, 2)
+  igst          Decimal  @db.Decimal(10, 2)
+  total         Decimal  @db.Decimal(10, 2)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  invoice GstInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("gst_invoice_items")
+}
+
+model Payout {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vendorId      String    @map("vendor_id") @db.Uuid
+  invoiceId     String    @map("invoice_id") @db.Uuid
+  amount        Decimal   @db.Decimal(10, 2)
+  status        String    @default("PENDING")
+  paymentDate   DateTime? @map("payment_date")
+  paymentMethod String    @map("payment_method")
+  transactionId String?   @map("transaction_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  vendor  Vendor     @relation(fields: [vendorId], references: [id])
+  invoice GstInvoice @relation(fields: [invoiceId], references: [id])
+
+  @@map("payouts")
+}
+
+model VendorOrder {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vendorId    String    @map("vendor_id") @db.Uuid
+  orderId     String    @unique @map("order_id")
+  totalAmount Decimal   @map("total_amount") @db.Decimal(10, 2)
+  salePrice   Decimal   @map("sale_price") @db.Decimal(10, 2)
+  margin      Decimal   @db.Decimal(10, 2)
+  status      String    @default("SENT")
+  sentDate    DateTime  @map("sent_date")
+  soldDate    DateTime? @map("sold_date")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  vendor     Vendor            @relation(fields: [vendorId], references: [id])
+  orderItems VendorOrderItem[]
+
+  @@map("vendor_orders")
+}
+
+model VendorOrderItem {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vendorOrderId  String   @map("vendor_order_id") @db.Uuid
+  productId      String   @map("product_id") @db.Uuid
+  productName    String   @map("product_name")
+  quantity       Int
+  wholesalePrice Decimal  @map("wholesale_price") @db.Decimal(10, 2)
+  retailPrice    Decimal  @map("retail_price") @db.Decimal(10, 2)
+  margin         Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  vendorOrder VendorOrder @relation(fields: [vendorOrderId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id])
+
+  @@map("vendor_order_items")
+}
+
+// OTP store — replaces Spring's in-memory Caffeine cache, which cannot work on
+// serverless (no shared memory between invocations). Create with the SQL in
+// prisma/otp_table.sql (or `prisma db push`).
+model OtpCode {
+  phone     String   @id
+  code      String
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("otp_codes")
+}

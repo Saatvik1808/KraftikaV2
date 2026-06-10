@@ -102,7 +102,7 @@ export function LeadCaptureDialog({ open, onOpenChange }: LeadCaptureDialogProps
       }];
 
       // Build the API URL using the base URL from config
-      const leadUrl = `${API_BASE_URL || (typeof window !== 'undefined' ? '/api/backend' : 'http://65.2.121.137/api')}/leads`;
+      const leadUrl = `${API_BASE_URL || (typeof window !== 'undefined' ? '/api/backend' : (process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL + '/api/backend' : 'http://localhost:9002/api/backend'))}/leads`;
       
       console.log("Submitting lead to:", leadUrl);
       console.log("Lead data:", requestBody);
