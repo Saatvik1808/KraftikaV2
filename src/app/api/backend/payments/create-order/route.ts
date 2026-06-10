@@ -23,7 +23,8 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     receipt = cleaned.length > 40 ? cleaned.slice(-40) : cleaned;
   }
 
-  const order = await createRazorpayOrder(amount, currency, receipt);
+  const notes = body.internalOrderId ? { internalOrderId: String(body.internalOrderId) } : undefined;
+  const order = await createRazorpayOrder(amount, currency, receipt, notes);
   return json({
     id: order.id,
     amount: order.amount,

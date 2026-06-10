@@ -8,11 +8,13 @@ export function razorpayKeyId(): string {
   return KEY_ID;
 }
 
-/** Create a Razorpay order. `amountRupees` is converted to paise (×100), like the old service. */
+/** Create a Razorpay order. `amountRupees` is converted to paise (×100), like the old service.
+    `notes` (e.g. { internalOrderId }) come back in webhook payloads for order matching. */
 export async function createRazorpayOrder(
   amountRupees: number,
   currency: string,
   receipt: string,
+  notes?: Record<string, string>,
 ): Promise<{ id: string; amount: number; currency: string; receipt?: string }> {
   if (!KEY_ID || !KEY_SECRET) throw new Error('Razorpay keys not configured');
   const client = new Razorpay({ key_id: KEY_ID, key_secret: KEY_SECRET });
@@ -20,6 +22,7 @@ export async function createRazorpayOrder(
     amount: Math.round(amountRupees * 100),
     currency: currency || 'INR',
     receipt,
+    notes,
   });
   return {
     id: order.id,

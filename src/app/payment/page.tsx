@@ -252,7 +252,8 @@ export default function PaymentPage() {
       const razorpayOrder = await createRazorpayOrder(
         total,
         "INR",
-        `ord${receiptId}`
+        `ord${receiptId}`,
+        createdOrder.id // webhook matches the order via notes.internalOrderId
       );
 
       // Initialize Razorpay checkout

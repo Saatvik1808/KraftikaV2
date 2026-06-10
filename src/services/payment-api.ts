@@ -19,7 +19,7 @@ export interface PaymentVerificationRequest {
 /**
  * Create Razorpay order
  */
-export async function createRazorpayOrder(amount: number, currency: string = "INR", receipt?: string): Promise<RazorpayOrderResponse> {
+export async function createRazorpayOrder(amount: number, currency: string = "INR", receipt?: string, internalOrderId?: string): Promise<RazorpayOrderResponse> {
   try {
     // Razorpay receipt must be <= 40 characters
     let receiptId = receipt;
@@ -38,6 +38,7 @@ export async function createRazorpayOrder(amount: number, currency: string = "IN
       amount,
       currency,
       receipt: receiptId,
+      internalOrderId,
     });
     return response;
   } catch (error: any) {

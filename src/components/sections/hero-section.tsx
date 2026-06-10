@@ -42,7 +42,7 @@ export function HeroSection() {
       {/* Optimized LCP image — shown first, video fades in over it */}
       <div className="absolute inset-0 w-full h-full -z-10">
         <Image
-          src="/aesV2.jpeg"
+          src="/aesV2.webp"
           alt="Kraftika handcrafted scented candles - premium soy candles India"
           fill
           priority
