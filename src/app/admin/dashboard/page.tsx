@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingBag, Users, TrendingUp, Package, PlusCircle, 
-         Receipt, Wallet, TrendingDown, Store, FileText } from "lucide-react";
+         Receipt, Wallet, TrendingDown, Store, FileText , TicketPercent, Undo2 } from "lucide-react";
 import Link from "next/link";
 import { getProducts } from "@/services/products-unified";
 import { getCategories } from "@/services/categories-unified";
@@ -20,6 +20,8 @@ import {
   PayoutsTab,
   GSTInvoicesTab,
 } from "@/components/admin/dashboard-tabs";
+import { CouponsTab } from "@/components/admin/coupons-tab";
+import { ReturnsTab } from "@/components/admin/returns-tab";
 
 export default function AdminDashboardPage() {
   const [products, setProducts] = React.useState<Candle[]>([]);
@@ -174,7 +176,7 @@ export default function AdminDashboardPage() {
 
       {/* Main Tabs Interface */}
       <Tabs defaultValue="orders" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto p-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
+        <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 h-auto p-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg">
           <TabsTrigger 
             value="orders" 
             className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md"
@@ -223,6 +225,22 @@ export default function AdminDashboardPage() {
             <span className="hidden sm:inline">Invoices</span>
             <span className="sm:hidden">Invoices</span>
           </TabsTrigger>
+          <TabsTrigger 
+            value="coupons" 
+            className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md"
+          >
+            <TicketPercent className="h-4 w-4" />
+            <span className="hidden sm:inline">Coupons</span>
+            <span className="sm:hidden">Coupons</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="returns" 
+            className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md"
+          >
+            <Undo2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Returns</span>
+            <span className="sm:hidden">Returns</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* Order Details Tab */}
@@ -253,6 +271,16 @@ export default function AdminDashboardPage() {
         {/* GST Invoices Tab */}
         <TabsContent value="invoices" className="space-y-4">
           <GSTInvoicesTab />
+        </TabsContent>
+
+        {/* Coupons Tab */}
+        <TabsContent value="coupons" className="space-y-4">
+          <CouponsTab />
+        </TabsContent>
+
+        {/* Returns Tab */}
+        <TabsContent value="returns" className="space-y-4">
+          <ReturnsTab />
         </TabsContent>
       </Tabs>
     </div>

@@ -167,6 +167,7 @@ export async function getAllOrders(userId?: string): Promise<Order[]> {
 export async function createOrder(orderData: {
   shippingAddress: any;
   paymentMethod: string;
+  couponCode?: string;
   orderItems: Array<{
     productId: string;
     quantity: number;

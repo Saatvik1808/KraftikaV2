@@ -217,10 +217,8 @@ export default function RootLayout({
         {/* Preconnect to external domains for faster loading */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
-        <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-        <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
         
         {/* Preload critical LCP image */}
         <link 
@@ -285,12 +283,6 @@ export default function RootLayout({
               });
             `,
           }}
-        />
-        {/* Google AdSense - Deferred for better performance */}
-        <script
-          defer
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3381696955327461"
-          crossOrigin="anonymous"
         />
         {/* PWA Meta Tags */}
         <meta name="application-name" content="Kraftika" />

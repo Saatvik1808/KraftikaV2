@@ -72,6 +72,8 @@ export function orderResponse(o: AnyRow & { user?: AnyRow; orderItems?: AnyRow[]
           ? o.shippingAddress
           : JSON.stringify(o.shippingAddress),
     paymentMethod: o.paymentMethod ?? null,
+    couponCode: o.couponCode ?? null,
+    discountAmount: o.discountAmount != null ? dec(o.discountAmount as never) : null,
     paymentId: o.paymentId ?? null,
     paidAt: isoDateTime(o.paidAt as Date),
     trackingNumber: o.trackingNumber ?? null,

@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { getAllOrders } from "@/services/orders-api";
+import { AddressBook } from "@/components/account/address-book";
 import { PageLoader } from "@/components/ui/loader";
 import type { Order, OrderStatus } from "@/types/order";
 
@@ -288,6 +289,11 @@ export default function AccountPage() {
             )}
           </CardContent>
         </Card>
+      </div>
+
+      {/* Address book */}
+      <div className="mt-6">
+        <AddressBook />
       </div>
     </motion.div>
   );

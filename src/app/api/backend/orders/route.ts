@@ -4,6 +4,7 @@ import { ApiError, json, withErrorHandling } from '@/lib/api-helpers';
 import { listOrders, createOrder, toEmailData } from '@/lib/order-service';
 import { orderResponse } from '@/lib/serializers';
 import { sendOrderConfirmation } from '@/lib/order-emails';
+import { notifyOrderPlaced } from '@/lib/whatsapp';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -38,6 +39,11 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     await sendOrderConfirmation(toEmailData(order));
   } catch (e) {
     console.error('[orders] confirmation email failed:', e);
+  }
+  try {
+    await notifyOrderPlaced(order.user?.phone ?? null, order.id, Number(order.totalAmount));
+  } catch (e) {
+    console.error('[orders] whatsapp notify failed:', e);
   }
 
   return json(orderResponse(order));

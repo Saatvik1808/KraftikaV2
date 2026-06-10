@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getOrderById } from "@/services/orders-api";
 import { OrderTimeline } from "@/components/orders/order-timeline";
+import { OrderActions } from "@/components/orders/order-actions";
 import { PageLoader } from "@/components/ui/loader";
 import type { Order, OrderStatus } from "@/types/order";
 import Image from "next/image";
@@ -136,6 +137,7 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
         </CardHeader>
         <CardContent>
           <OrderTimeline order={order} />
+          <OrderActions order={order} />
         </CardContent>
       </Card>
 

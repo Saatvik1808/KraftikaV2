@@ -1,5 +1,6 @@
 import { prisma } from './prisma';
 import { ApiError } from './api-helpers';
+import { validateCoupon } from './coupons';
 import { Prisma } from '@/generated/prisma';
 
 interface CreateOrderItem {
@@ -9,6 +10,7 @@ interface CreateOrderItem {
 interface CreateOrderRequest {
   shippingAddress?: unknown; // JSON string or object
   paymentMethod?: string;
+  couponCode?: string;
   orderItems: CreateOrderItem[];
 }
 
@@ -37,13 +39,28 @@ export async function getOrder(id: string): Promise<OrderWithRelations | null> {
 }
 
 export async function updateOrderStatus(id: string, status: string): Promise<OrderWithRelations | null> {
-  const existing = await prisma.order.findUnique({ where: { id } });
+  const existing = await prisma.order.findUnique({
+    where: { id },
+    include: { orderItems: true },
+  });
   if (!existing) return null;
   const stamps: Record<string, Date> = {};
   if (status === 'SHIPPED' && !existing.shippedAt) stamps.shippedAt = new Date();
   if (status === 'DELIVERED' && !existing.deliveredAt) stamps.deliveredAt = new Date();
   if (status === 'CANCELLED' && !existing.cancelledAt) stamps.cancelledAt = new Date();
-  await prisma.order.update({ where: { id }, data: { status, ...stamps } });
+
+  await prisma.$transaction(async (tx) => {
+    // Cancelling an order returns its stock (creation decremented it).
+    if (status === 'CANCELLED' && existing.status !== 'CANCELLED') {
+      for (const item of existing.orderItems) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stockQuantity: { increment: item.quantity } },
+        });
+      }
+    }
+    await tx.order.update({ where: { id }, data: { status, ...stamps } });
+  });
   return getOrder(id);
 }
 
@@ -102,14 +119,27 @@ export async function createOrder(userId: string, request: CreateOrderRequest): 
     total = total.add(product.price.mul(item.quantity));
   }
 
+  // Coupon: validated server-side against the computed subtotal — the client
+  // never dictates the discount.
+  let couponCode: string | null = null;
+  let discountAmount = 0;
+  if (request.couponCode) {
+    const { coupon, discount } = await validateCoupon(request.couponCode, Number(total));
+    couponCode = coupon.code;
+    discountAmount = discount;
+  }
+  const finalTotal = total.sub(new Prisma.Decimal(discountAmount));
+
   const orderId = await prisma.$transaction(async (tx) => {
     const order = await tx.order.create({
       data: {
         userId,
-        totalAmount: total,
+        totalAmount: finalTotal.lessThan(0) ? new Prisma.Decimal(0) : finalTotal,
         status: 'PENDING',
         paymentMethod: request.paymentMethod ?? 'COD',
         shippingAddress,
+        couponCode,
+        discountAmount: couponCode ? new Prisma.Decimal(discountAmount) : null,
         orderItems: {
           create: request.orderItems.map((item) => {
             const product = productMap.get(item.productId)!;
@@ -123,6 +153,9 @@ export async function createOrder(userId: string, request: CreateOrderRequest): 
         where: { id: item.productId },
         data: { stockQuantity: { decrement: item.quantity } },
       });
+    }
+    if (couponCode) {
+      await tx.coupon.update({ where: { code: couponCode }, data: { usedCount: { increment: 1 } } });
     }
     // Clear the cart (best-effort).
     const cart = await tx.cart.findUnique({ where: { userId } });

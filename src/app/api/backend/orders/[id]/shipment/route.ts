@@ -5,6 +5,7 @@ import { ApiError, json, errorJson, withErrorHandling } from '@/lib/api-helpers'
 import { getOrder, toEmailData } from '@/lib/order-service';
 import { orderResponse } from '@/lib/serializers';
 import { sendOrderShipped } from '@/lib/order-emails';
+import { notifyOrderShipped } from '@/lib/whatsapp';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -42,6 +43,11 @@ export const PUT = withErrorHandling(async (req: NextRequest, { params }: Ctx) =
       await sendOrderShipped(toEmailData(order));
     } catch (e) {
       console.error('[shipment] email failed:', e);
+    }
+    try {
+      await notifyOrderShipped(order.user?.phone ?? null, order.id, order.trackingNumber, order.courierName);
+    } catch (e) {
+      console.error('[shipment] whatsapp failed:', e);
     }
   }
 

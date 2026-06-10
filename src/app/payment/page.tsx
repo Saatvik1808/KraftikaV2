@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBag, CreditCard, MapPin, ArrowLeft, Image as ImageIcon, Loader2 } from "lucide-react";
+import { ShoppingBag, CreditCard, MapPin, ArrowLeft, Image as ImageIcon, Loader2, TicketPercent, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import { PageLoader } from "@/components/ui/loader";
 import type { ShippingAddress } from "@/types/order";
 import { createOrder } from "@/services/orders-api";
 import { createRazorpayOrder, verifyPayment } from "@/services/payment-api";
+import { validateCouponCode, getAddresses, type SavedAddress, type CouponValidation } from "@/services/commerce-api";
 import { trackPurchase } from "@/lib/analytics";
 
 interface CartItem {
@@ -47,6 +48,10 @@ export default function PaymentPage() {
     country: "India",
   });
   const [paymentMethod, setPaymentMethod] = React.useState("COD"); // COD, UPI, Card
+  const [savedAddresses, setSavedAddresses] = React.useState<SavedAddress[]>([]);
+  const [couponInput, setCouponInput] = React.useState("");
+  const [appliedCoupon, setAppliedCoupon] = React.useState<CouponValidation | null>(null);
+  const [couponBusy, setCouponBusy] = React.useState(false);
   
   // Load cart items
   React.useEffect(() => {
@@ -89,6 +94,39 @@ export default function PaymentPage() {
     
     loadCart();
   }, [isAuthenticated, router, toast]);
+
+  // Load saved addresses; prefill with the default one.
+  React.useEffect(() => {
+    if (!isAuthenticated) return;
+    getAddresses()
+      .then((list) => {
+        setSavedAddresses(list);
+        const def = list.find((a) => a.isDefault) ?? list[0];
+        if (def) {
+          setShippingAddress({
+            street: def.street, city: def.city, state: def.state,
+            zipCode: def.zipCode, country: def.country,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [isAuthenticated]);
+
+  const applyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponBusy(true);
+    try {
+      const subtotalNow = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
+      const result = await validateCouponCode(couponInput.trim(), subtotalNow);
+      setAppliedCoupon(result);
+      toast({ title: "Coupon applied!", description: `You saved ₹${result.discount.toFixed(2)}` });
+    } catch (e: any) {
+      setAppliedCoupon(null);
+      toast({ title: "Invalid coupon", description: e.message, variant: "destructive" });
+    } finally {
+      setCouponBusy(false);
+    }
+  };
 
   // Load Razorpay script
   React.useEffect(() => {
@@ -138,15 +176,17 @@ export default function PaymentPage() {
     setIsSubmitting(true);
     
     try {
-      // Calculate totals
+      // Calculate totals (discount recomputed server-side too)
       const subtotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
       const shippingCost = subtotal > 500 ? 0 : 50; // Free shipping above ₹500
-      const total = subtotal + shippingCost;
+      const discount = appliedCoupon?.discount ?? 0;
+      const total = Math.max(0, subtotal + shippingCost - discount);
 
       // Create order in backend first (status: PENDING)
       const orderData = {
         shippingAddress,
         paymentMethod,
+        couponCode: appliedCoupon?.code,
         orderItems: cartItems.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -332,7 +372,8 @@ export default function PaymentPage() {
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
   const shippingCost = subtotal > 500 ? 0 : 50; // Free shipping above ₹500
-  const total = subtotal + shippingCost;
+  const discount = appliedCoupon?.discount ?? 0;
+  const total = Math.max(0, subtotal + shippingCost - discount);
   
   return (
     <motion.div
@@ -367,6 +408,33 @@ export default function PaymentPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {savedAddresses.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {savedAddresses.map((a) => (
+                      <button
+                        key={a.id}
+                        type="button"
+                        onClick={() =>
+                          setShippingAddress({
+                            street: a.street, city: a.city, state: a.state,
+                            zipCode: a.zipCode, country: a.country,
+                          })
+                        }
+                        className={`text-left text-xs rounded-lg border px-3 py-2 transition-colors ${
+                          shippingAddress.street === a.street && shippingAddress.zipCode === a.zipCode
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <span className="font-medium">{a.label || "Saved address"}</span>
+                        <br />
+                        <span className="text-muted-foreground">
+                          {a.street.slice(0, 28)}{a.street.length > 28 ? "…" : ""}, {a.city}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="street">Street Address</Label>
                   <Input
@@ -523,6 +591,36 @@ export default function PaymentPage() {
 
                 <Separator />
 
+                {/* Coupon */}
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-sm">
+                    <span className="flex items-center gap-1.5 text-green-700 font-medium">
+                      <TicketPercent className="h-4 w-4" /> {appliedCoupon.code} (−₹{appliedCoupon.discount.toFixed(2)})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => { setAppliedCoupon(null); setCouponInput(""); }}
+                      aria-label="Remove coupon"
+                    >
+                      <X className="h-4 w-4 text-green-700" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Coupon code"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      className="h-9"
+                    />
+                    <Button type="button" variant="outline" size="sm" className="h-9" onClick={applyCoupon} disabled={couponBusy || !couponInput.trim()}>
+                      {couponBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+                    </Button>
+                  </div>
+                )}
+
+                <Separator />
+
                 {/* Totals */}
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm text-muted-foreground">
@@ -533,6 +631,12 @@ export default function PaymentPage() {
                     <span>Shipping</span>
                     <span>{shippingCost === 0 ? "Free" : `₹${shippingCost}`}</span>
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-sm text-green-700 font-medium">
+                      <span>Discount</span>
+                      <span>−₹{discount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <Separator />
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total</span>

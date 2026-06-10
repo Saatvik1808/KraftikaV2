@@ -124,7 +124,7 @@ export function ProductCard({
         "group relative flex flex-col overflow-hidden rounded-3xl",
         "bg-white dark:bg-gray-900",
         "border border-gray-200/60 dark:border-gray-800/60",
-        "shadow-lg hover:shadow-2xl hover:shadow-primary/10",
+        "shadow-lg hover:shadow-candle-card",
         "transition-all duration-500",
         className
       )}

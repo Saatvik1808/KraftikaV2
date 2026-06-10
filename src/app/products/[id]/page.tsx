@@ -23,9 +23,40 @@ async function getRelatedProductsData(currentCategory: string, currentId: string
 }
 
 async function getReviewsForProduct(productId: string): Promise<Review[]> {
-  // For now, return empty array since we're not implementing reviews from Firestore yet
-  // You can implement this later when you have reviews in your database
-  return [];
+  // Server component: read straight from the database (feeds the JSON-LD
+  // aggregateRating for rich snippets).
+  try {
+    const { prisma } = await import('@/lib/prisma');
+    const rows = await prisma.productReview.findMany({
+      where: { productId, isApproved: true },
+      orderBy: { createdAt: 'desc' },
+      include: { user: { select: { firstName: true, lastName: true } } },
+      take: 50,
+    });
+    return rows.map((r) => {
+      const name =
+        [r.user?.firstName, r.user?.lastName ? `${r.user.lastName[0]}.` : null]
+          .filter(Boolean)
+          .join(' ') || 'Kraftika Customer';
+      return {
+        id: r.id,
+        productId: r.productId,
+        authorName: name,
+        authorAvatarUrl: '',
+        authorAvatarFallback: name[0]?.toUpperCase() ?? 'K',
+        rating: r.rating,
+        reviewText: [r.title, r.comment].filter(Boolean).join(' — '),
+        reviewDate: r.createdAt.toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }),
+      };
+    });
+  } catch (e) {
+    console.error('Failed to load reviews:', e);
+    return [];
+  }
 }
 
 // Dynamic metadata generation for SEO

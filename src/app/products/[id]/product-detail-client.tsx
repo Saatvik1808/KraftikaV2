@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProductCard } from "@/components/product-card";
 import type { Candle } from "@/types/candle";
 import type { Review } from "@/types/review";
+import { ProductReviews } from "@/components/products/product-reviews";
 import { 
   ShoppingCart, 
   Heart, 
@@ -619,116 +620,8 @@ export function ProductDetailClient({ product, relatedProducts, reviews }: Produ
           </motion.div>
         </motion.div>
 
-        {/* Customer Reviews Section */}
-        <div className="mt-16 md:mt-24 pt-10 border-t border-gray-200">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
-                Customer Reviews
-              </h2>
-              {reviews.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={cn(
-                          "h-5 w-5",
-                          i < Math.round(averageRating)
-                            ? "text-yellow-500 fill-yellow-500"
-                            : "text-gray-300"
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-lg font-semibold text-gray-900 ml-2">
-                    {averageRating.toFixed(1)}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
-                  </span>
-                </div>
-              )}
-            </div>
-          </motion.div>
-
-          {reviews.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-center py-12 text-gray-500 bg-gray-50 rounded-2xl border border-gray-200"
-            >
-              <MessageSquareText className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-              <p className="font-medium text-gray-700">No reviews yet for {product.name}.</p>
-              <p className="text-sm mt-1">Be the first to share your thoughts!</p>
-            </motion.div>
-          ) : (
-            <div className="space-y-4">
-              {reviews.map((review, index) => (
-                <motion.div
-                  key={review.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.1 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                >
-                  <Card className="border border-gray-200 hover:border-gray-300 transition-colors">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-12 w-12 border-2 border-gray-200">
-                            <AvatarImage src={review.authorAvatarUrl} alt={review.authorName} />
-                            <AvatarFallback className="bg-gray-100 text-gray-600">
-                              {review.authorAvatarFallback}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-semibold text-gray-900">{review.authorName}</p>
-                            <p className="text-sm text-gray-500">{review.reviewDate}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-0.5">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={cn(
-                                "h-4 w-4",
-                                i < review.rating
-                                  ? "text-yellow-500 fill-yellow-500"
-                                  : "text-gray-300"
-                              )}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-700 leading-relaxed mb-3">
-                        {review.reviewText}
-                      </p>
-                      {review.reviewImageUrl && (
-                        <div className="mt-3 relative aspect-video sm:aspect-[16/6] max-w-sm rounded-lg overflow-hidden border border-gray-200">
-                          <Image
-                            src={review.reviewImageUrl}
-                            alt={`Review image by ${review.authorName}`}
-                            fill
-                            sizes="(max-width: 640px) 100vw, 384px"
-                            className="object-cover"
-                          />
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Customer Reviews — interactive list + submit form */}
+        <ProductReviews productId={product.id} />
 
         {/* Related Products Section */}
         {relatedProducts.length > 0 && (
