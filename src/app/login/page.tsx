@@ -13,10 +13,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, Phone, Chrome } from "lucide-react";
 import { motion } from "framer-motion";
 import SignInButton from "@/components/SignInButton";
+import { auth } from "@/lib/firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, register, loginWithPhoneEmail, isAuthenticated } = useAuth();
+  const { login, register, loginWithPhoneEmail, loginWithGoogle, isAuthenticated } = useAuth();
   const { toast } = useToast();
   
   const [email, setEmail] = useState("");
@@ -69,11 +71,26 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    // TODO: Implement Google OAuth
-    toast({
-      title: "Coming soon",
-      description: "Google login will be available soon",
-    });
+    setIsLoading(true);
+    try {
+      // Firebase Google popup -> Firebase ID token -> backend verifies it (/auth/google).
+      const result = await signInWithPopup(auth, new GoogleAuthProvider());
+      const idToken = await result.user.getIdToken();
+      await loginWithGoogle(idToken);
+      router.push("/");
+    } catch (error: any) {
+      // User-closed popup is not an error worth surfacing.
+      if (error?.code === "auth/popup-closed-by-user" || error?.code === "auth/cancelled-popup-request") {
+        return;
+      }
+      toast({
+        title: "Google login failed",
+        description: error?.message || "Could not sign in with Google",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -218,8 +235,13 @@ export default function LoginPage() {
               variant="outline"
               className="w-full"
               onClick={handleGoogleLogin}
+              disabled={isLoading}
             >
-              <Chrome className="mr-2 h-4 w-4" />
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Chrome className="mr-2 h-4 w-4" />
+              )}
               Google
             </Button>
           </CardContent>

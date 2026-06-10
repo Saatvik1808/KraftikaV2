@@ -24,6 +24,7 @@ interface AuthContextType {
   loginWithPhone: (phone: string, otp: string, firstName?: string) => Promise<void>;
   sendOtp: (phone: string) => Promise<string>;
   loginWithGoogle: (idToken: string) => Promise<void>;
+  loginWithPhoneEmail: (userJsonUrl: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -304,6 +305,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithPhoneEmail = async (userJsonUrl: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/phone-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userJsonUrl }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Phone login failed");
+      }
+
+      const data = await response.json();
+      const userData: User = {
+        userId: data.userId,
+        email: data.email,
+        phone: data.phone,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        profileImageUrl: data.profileImageUrl,
+        role: data.role,
+        authProvider: data.authProvider,
+      };
+
+      saveAuth(data.token, userData);
+
+      if (typeof window !== "undefined") {
+        import("@/services/cart-sync").then(({ syncLocalStorageCartToBackend }) => {
+          syncLocalStorageCartToBackend().catch(console.error);
+        });
+      }
+
+      toast({ title: "Welcome!", description: "Logged in successfully" });
+    } catch (error: any) {
+      toast({
+        title: "Phone login failed",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("kraftikaToken");
     localStorage.removeItem("kraftikaUser");
@@ -328,6 +373,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loginWithPhone,
         sendOtp,
         loginWithGoogle,
+        loginWithPhoneEmail,
         logout,
         isAuthenticated: !!token && !!user,
       }}
