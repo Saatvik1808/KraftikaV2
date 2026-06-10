@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/server-auth';
-import { ApiError, json, errorJson, withErrorHandling } from '@/lib/api-helpers';
+import { ApiError, json, errorJson, withErrorHandling, CATALOG_CACHE } from '@/lib/api-helpers';
 import { categoryResponse } from '@/lib/serializers';
 
 export const runtime = 'nodejs';
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 // GET /categories — all categories.
 export const GET = withErrorHandling(async () => {
   const categories = await prisma.category.findMany();
-  return json(categories.map(categoryResponse));
+  return json(categories.map(categoryResponse), 200, CATALOG_CACHE);
 });
 
 // POST /categories — admin only.

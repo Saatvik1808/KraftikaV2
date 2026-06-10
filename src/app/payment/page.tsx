@@ -225,15 +225,16 @@ export default function PaymentPage() {
         order_id: razorpayOrder.id,
         handler: async function (response: any) {
           try {
-            // Verify payment signature
+            // Verify payment signature; on success the backend links the
+            // payment to our order and marks it CONFIRMED.
             const isValid = await verifyPayment({
               orderId: response.razorpay_order_id,
               paymentId: response.razorpay_payment_id,
               signature: response.razorpay_signature,
+              internalOrderId: createdOrder.id,
             });
 
             if (isValid) {
-              // Payment successful - order status will be updated via webhook
               // Track purchase completion
               trackPurchase(
                 createdOrder.id,

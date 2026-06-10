@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { json, withErrorHandling } from '@/lib/api-helpers';
+import { json, withErrorHandling, CATALOG_CACHE } from '@/lib/api-helpers';
 import { categoryResponse } from '@/lib/serializers';
 
 export const runtime = 'nodejs';
@@ -11,5 +11,5 @@ export const GET = withErrorHandling(async () => {
     where: { isActive: true },
     orderBy: { name: 'asc' },
   });
-  return json(categories.map(categoryResponse));
+  return json(categories.map(categoryResponse), 200, CATALOG_CACHE);
 });

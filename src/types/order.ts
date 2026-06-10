@@ -6,6 +6,16 @@ export interface Order {
   shippingAddress: ShippingAddress;
   paymentMethod: string;
   orderItems: OrderItem[];
+  // Payment linkage
+  paymentId?: string | null;
+  paidAt?: string | null;
+  // Shipment tracking
+  trackingNumber?: string | null;
+  courierName?: string | null;
+  trackingUrl?: string | null;
+  shippedAt?: string | null;
+  deliveredAt?: string | null;
+  cancelledAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

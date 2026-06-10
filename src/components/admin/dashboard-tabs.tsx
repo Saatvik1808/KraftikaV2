@@ -49,8 +49,9 @@ import {
   XCircle,
   Clock,
   BarChart3,
+  Truck,
 } from "lucide-react";
-import { getAllOrders, getVendorOrders, getAllPayouts, getAllInvoices, getProfitLoss, getAllVendors, createVendorOrder, createVendor, updateVendorOrderStatus, deleteVendorOrder, createInvoice, createPayout, updateInvoiceStatus, deleteInvoice } from "@/services/orders-api";
+import { getAllOrders, getVendorOrders, getAllPayouts, getAllInvoices, getProfitLoss, getAllVendors, createVendorOrder, createVendor, updateVendorOrderStatus, deleteVendorOrder, createInvoice, createPayout, updateInvoiceStatus, deleteInvoice, updateOrderStatus, shipOrder } from "@/services/orders-api";
 import type { Order, VendorOrder, Payout, GSTInvoice, ProfitLoss, Vendor, OrderStatus } from "@/types/order";
 import { InvoiceStatus, VendorOrderStatus, PayoutStatus } from "@/types/order";
 import { format } from "date-fns";
@@ -65,6 +66,49 @@ export function OrdersTab() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null);
+  const [shipDialogOrder, setShipDialogOrder] = React.useState<Order | null>(null);
+  const [trackingNumber, setTrackingNumber] = React.useState("");
+  const [courierName, setCourierName] = React.useState("");
+  const [trackingUrl, setTrackingUrl] = React.useState("");
+  const [shipping, setShipping] = React.useState(false);
+  const [updatingId, setUpdatingId] = React.useState<string | null>(null);
+
+  const replaceOrder = (updated: Order) =>
+    setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+
+  const handleStatusChange = async (order: Order, status: string) => {
+    if (status === order.status) return;
+    setUpdatingId(order.id);
+    try {
+      const updated = await updateOrderStatus(order.id, status);
+      replaceOrder(updated);
+    } catch (e) {
+      console.error("Failed to update status:", e);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleShip = async () => {
+    if (!shipDialogOrder || !trackingNumber.trim()) return;
+    setShipping(true);
+    try {
+      const updated = await shipOrder(shipDialogOrder.id, {
+        trackingNumber: trackingNumber.trim(),
+        courierName: courierName.trim() || undefined,
+        trackingUrl: trackingUrl.trim() || undefined,
+      });
+      replaceOrder(updated);
+      setShipDialogOrder(null);
+      setTrackingNumber("");
+      setCourierName("");
+      setTrackingUrl("");
+    } catch (e) {
+      console.error("Failed to ship order:", e);
+    } finally {
+      setShipping(false);
+    }
+  };
 
   React.useEffect(() => {
     const fetchOrders = async () => {
@@ -177,11 +221,39 @@ export function OrdersTab() {
                       <TableCell className="font-semibold text-gray-900 dark:text-white">₹{order.totalAmount.toFixed(2)}</TableCell>
                       <TableCell className="text-gray-700 dark:text-gray-300">{order.paymentMethod || "N/A"}</TableCell>
                       <TableCell>
-                        <Badge variant={statusConfig.variant} className={`${statusConfig.className} font-medium`}>
-                          {order.status}
-                        </Badge>
+                        <Select
+                          value={order.status}
+                          onValueChange={(v) => handleStatusChange(order, v)}
+                          disabled={updatingId === order.id}
+                        >
+                          <SelectTrigger className={`w-[136px] h-8 text-xs font-medium ${statusConfig.className}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="PENDING">Pending</SelectItem>
+                            <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+                            <SelectItem value="SHIPPED">Shipped</SelectItem>
+                            <SelectItem value="DELIVERED">Delivered</SelectItem>
+                            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell>
+                        <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2 text-xs"
+                          title={order.trackingNumber ? `Tracking: ${order.trackingNumber}` : "Add tracking & ship"}
+                          onClick={() => {
+                            setShipDialogOrder(order);
+                            setTrackingNumber(order.trackingNumber ?? "");
+                            setCourierName(order.courierName ?? "");
+                            setTrackingUrl(order.trackingUrl ?? "");
+                          }}
+                        >
+                          <Truck className={`h-4 w-4 ${order.trackingNumber ? "text-purple-600" : ""}`} />
+                        </Button>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
@@ -232,6 +304,7 @@ export function OrdersTab() {
                             </div>
                           </DialogContent>
                         </Dialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
@@ -241,6 +314,58 @@ export function OrdersTab() {
           </div>
         )}
       </CardContent>
+
+      {/* Ship order dialog */}
+      <Dialog open={!!shipDialogOrder} onOpenChange={(open) => !open && setShipDialogOrder(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5" /> Ship Order
+            </DialogTitle>
+            <DialogDescription>
+              {shipDialogOrder ? `Order ${shipDialogOrder.id.slice(0, 8)}… — saving marks it SHIPPED and emails the customer.` : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="ship-tracking">Tracking number *</Label>
+              <Input
+                id="ship-tracking"
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                placeholder="e.g. AWB123456789"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ship-courier">Courier</Label>
+              <Input
+                id="ship-courier"
+                value={courierName}
+                onChange={(e) => setCourierName(e.target.value)}
+                placeholder="e.g. Delhivery, Blue Dart, DTDC"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ship-url">Tracking URL</Label>
+              <Input
+                id="ship-url"
+                value={trackingUrl}
+                onChange={(e) => setTrackingUrl(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShipDialogOrder(null)} disabled={shipping}>
+              Cancel
+            </Button>
+            <Button onClick={handleShip} disabled={shipping || !trackingNumber.trim()}>
+              {shipping ? <Spinner className="mr-2 h-4 w-4" /> : <Truck className="mr-2 h-4 w-4" />}
+              Mark Shipped & Notify
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

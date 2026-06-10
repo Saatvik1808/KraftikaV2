@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/server-auth';
-import { ApiError, json, withErrorHandling } from '@/lib/api-helpers';
+import { ApiError, json, withErrorHandling, CATALOG_CACHE } from '@/lib/api-helpers';
 import { serializeProduct, serializeProducts } from '@/lib/products-service';
 import { setProductArrays } from '@/lib/product-arrays';
 
@@ -15,7 +15,7 @@ export const GET = withErrorHandling(async () => {
     orderBy: { popularity: 'desc' },
     include: { scentCategory: true },
   });
-  return json(await serializeProducts(products));
+  return json(await serializeProducts(products), 200, CATALOG_CACHE);
 });
 
 // POST /products — admin only.

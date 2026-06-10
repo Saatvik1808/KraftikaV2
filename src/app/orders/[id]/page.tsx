@@ -10,6 +10,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getOrderById } from "@/services/orders-api";
+import { OrderTimeline } from "@/components/orders/order-timeline";
 import { PageLoader } from "@/components/ui/loader";
 import type { Order, OrderStatus } from "@/types/order";
 import Image from "next/image";
@@ -122,6 +123,19 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
               </p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Fulfillment timeline + tracking */}
+      <Card className="mb-6 glassmorphism border border-[hsl(var(--border)/0.2)]">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Truck className="h-5 w-5" />
+            Delivery Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OrderTimeline order={order} />
         </CardContent>
       </Card>
 

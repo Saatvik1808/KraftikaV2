@@ -12,6 +12,8 @@ export interface PaymentVerificationRequest {
   orderId: string;
   paymentId: string;
   signature: string;
+  /** Our own order id — when provided, a valid payment confirms this order. */
+  internalOrderId?: string;
 }
 
 /**

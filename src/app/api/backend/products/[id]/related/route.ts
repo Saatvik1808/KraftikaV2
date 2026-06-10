@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { json, withErrorHandling } from '@/lib/api-helpers';
+import { json, withErrorHandling, CATALOG_CACHE } from '@/lib/api-helpers';
 import { serializeProducts } from '@/lib/products-service';
 
 export const runtime = 'nodejs';
@@ -19,5 +19,5 @@ export const GET = withErrorHandling(async (_req: NextRequest, { params }: Ctx) 
     orderBy: { popularity: 'desc' },
     include: { scentCategory: true },
   });
-  return json(await serializeProducts(related));
+  return json(await serializeProducts(related), 200, CATALOG_CACHE);
 });

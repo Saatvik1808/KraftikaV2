@@ -10,9 +10,16 @@ export class ApiError extends Error {
   }
 }
 
-export function json(data: unknown, status = 200): NextResponse {
-  return NextResponse.json(data as object, { status });
+export function json(data: unknown, status = 200, headers?: Record<string, string>): NextResponse {
+  return NextResponse.json(data as object, { status, headers });
 }
+
+/** CDN cache headers for public catalog data (products/categories).
+    Vercel's edge caches for 60s and serves stale for 5 min while revalidating —
+    cuts DB hits dramatically without admin changes feeling slow. */
+export const CATALOG_CACHE = {
+  'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+} as const;
 
 /** Error body shaped like the old Spring `{ "error": "..." }` responses. */
 export function errorJson(message: string, status = 400): NextResponse {

@@ -147,6 +147,14 @@ export async function getAllOrders(userId?: string): Promise<Order[]> {
         price: item.price,
         subtotal: item.subtotal,
       })),
+      paymentId: order.paymentId ?? null,
+      paidAt: order.paidAt ?? null,
+      trackingNumber: order.trackingNumber ?? null,
+      courierName: order.courierName ?? null,
+      trackingUrl: order.trackingUrl ?? null,
+      shippedAt: order.shippedAt ?? null,
+      deliveredAt: order.deliveredAt ?? null,
+      cancelledAt: order.cancelledAt ?? null,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     }));
@@ -199,6 +207,14 @@ export async function createOrder(orderData: {
         price: item.price,
         subtotal: item.subtotal,
       })),
+      paymentId: response.paymentId ?? null,
+      paidAt: response.paidAt ?? null,
+      trackingNumber: response.trackingNumber ?? null,
+      courierName: response.courierName ?? null,
+      trackingUrl: response.trackingUrl ?? null,
+      shippedAt: response.shippedAt ?? null,
+      deliveredAt: response.deliveredAt ?? null,
+      cancelledAt: response.cancelledAt ?? null,
       createdAt: response.createdAt,
       updatedAt: response.updatedAt,
     };
@@ -235,6 +251,14 @@ export async function getOrderById(id: string): Promise<Order | null> {
         price: item.price,
         subtotal: item.subtotal,
       })),
+      paymentId: response.paymentId ?? null,
+      paidAt: response.paidAt ?? null,
+      trackingNumber: response.trackingNumber ?? null,
+      courierName: response.courierName ?? null,
+      trackingUrl: response.trackingUrl ?? null,
+      shippedAt: response.shippedAt ?? null,
+      deliveredAt: response.deliveredAt ?? null,
+      cancelledAt: response.cancelledAt ?? null,
       createdAt: response.createdAt,
       updatedAt: response.updatedAt,
     };
@@ -242,6 +266,42 @@ export async function getOrderById(id: string): Promise<Order | null> {
     console.error("Error fetching order:", error);
     return null;
   }
+}
+
+/** Admin: set tracking info; backend marks the order SHIPPED and emails the customer. */
+export async function shipOrder(
+  orderId: string,
+  shipment: { trackingNumber: string; courierName?: string; trackingUrl?: string; notify?: boolean },
+): Promise<Order> {
+  const response = await apiClient.put<any>(`/orders/${orderId}/shipment`, shipment);
+  return {
+    id: response.id,
+    userId: response.userId,
+    totalAmount: response.totalAmount,
+    status: response.status as OrderStatus,
+    shippingAddress: typeof response.shippingAddress === 'string'
+      ? JSON.parse(response.shippingAddress)
+      : response.shippingAddress || {},
+    paymentMethod: response.paymentMethod || "",
+    orderItems: response.orderItems.map((item: any) => ({
+      id: item.id,
+      productId: item.productId,
+      productName: item.productName,
+      quantity: item.quantity,
+      price: item.price,
+      subtotal: item.subtotal,
+    })),
+    paymentId: response.paymentId ?? null,
+    paidAt: response.paidAt ?? null,
+    trackingNumber: response.trackingNumber ?? null,
+    courierName: response.courierName ?? null,
+    trackingUrl: response.trackingUrl ?? null,
+    shippedAt: response.shippedAt ?? null,
+    deliveredAt: response.deliveredAt ?? null,
+    cancelledAt: response.cancelledAt ?? null,
+    createdAt: response.createdAt,
+    updatedAt: response.updatedAt,
+  };
 }
 
 export async function updateOrderStatus(orderId: string, status: string): Promise<Order> {
@@ -266,6 +326,14 @@ export async function updateOrderStatus(orderId: string, status: string): Promis
         price: item.price,
         subtotal: item.subtotal,
       })),
+      paymentId: response.paymentId ?? null,
+      paidAt: response.paidAt ?? null,
+      trackingNumber: response.trackingNumber ?? null,
+      courierName: response.courierName ?? null,
+      trackingUrl: response.trackingUrl ?? null,
+      shippedAt: response.shippedAt ?? null,
+      deliveredAt: response.deliveredAt ?? null,
+      cancelledAt: response.cancelledAt ?? null,
       createdAt: response.createdAt,
       updatedAt: response.updatedAt,
     };

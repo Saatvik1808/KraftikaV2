@@ -19,11 +19,16 @@ const orderInclude = {
 
 export type OrderWithRelations = Prisma.OrderGetPayload<{ include: typeof orderInclude }>;
 
-export async function listOrders(userId: string | null): Promise<OrderWithRelations[]> {
+export async function listOrders(
+  userId: string | null,
+  { skip = 0, take = 50 }: { skip?: number; take?: number } = {},
+): Promise<OrderWithRelations[]> {
   return prisma.order.findMany({
     where: userId ? { userId } : undefined,
     orderBy: { createdAt: 'desc' },
     include: orderInclude,
+    skip,
+    take,
   });
 }
 
@@ -34,8 +39,30 @@ export async function getOrder(id: string): Promise<OrderWithRelations | null> {
 export async function updateOrderStatus(id: string, status: string): Promise<OrderWithRelations | null> {
   const existing = await prisma.order.findUnique({ where: { id } });
   if (!existing) return null;
-  await prisma.order.update({ where: { id }, data: { status } });
+  const stamps: Record<string, Date> = {};
+  if (status === 'SHIPPED' && !existing.shippedAt) stamps.shippedAt = new Date();
+  if (status === 'DELIVERED' && !existing.deliveredAt) stamps.deliveredAt = new Date();
+  if (status === 'CANCELLED' && !existing.cancelledAt) stamps.cancelledAt = new Date();
+  await prisma.order.update({ where: { id }, data: { status, ...stamps } });
   return getOrder(id);
+}
+
+/** Shape an order for the transactional email senders. */
+export function toEmailData(order: OrderWithRelations) {
+  return {
+    orderId: order.id,
+    email: order.user?.email ?? null,
+    firstName: order.user?.firstName ?? null,
+    totalAmount: Number(order.totalAmount),
+    items: order.orderItems.map((i) => ({
+      productName: i.product?.name ?? null,
+      quantity: i.quantity,
+      price: Number(i.price),
+    })),
+    trackingNumber: order.trackingNumber,
+    courierName: order.courierName,
+    trackingUrl: order.trackingUrl,
+  };
 }
 
 export async function createOrder(userId: string, request: CreateOrderRequest): Promise<OrderWithRelations> {
