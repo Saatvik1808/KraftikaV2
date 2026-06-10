@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/server-auth';
-import { ApiError, json, errorJson, withErrorHandling } from '@/lib/api-helpers';
+import { ApiError, json, errorJson, withErrorHandling, CATALOG_CACHE } from '@/lib/api-helpers';
 import { serializeProduct } from '@/lib/products-service';
 import { setProductArrays, deleteProductArrays } from '@/lib/product-arrays';
 
@@ -18,7 +18,7 @@ export const GET = withErrorHandling(async (_req: NextRequest, { params }: Ctx) 
     include: { scentCategory: true },
   });
   if (!product) return errorJson('Not found', 404);
-  return json(await serializeProduct(product));
+  return json(await serializeProduct(product), 200, CATALOG_CACHE);
 });
 
 // PUT /products/{id} — admin only, partial update.

@@ -12,6 +12,27 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+// ISR: pages are pre-rendered and served from the CDN, re-generated in the
+// background every 5 minutes. Live data (reviews list/form, cart) is fetched
+// client-side, so it stays fresh. Without this, every visit paid a full
+// server render + several DB round-trips.
+export const revalidate = 300;
+
+// Pre-build every active product at deploy time; new products are rendered
+// on first visit and then cached.
+export async function generateStaticParams() {
+  try {
+    const { prisma } = await import('@/lib/prisma');
+    const products = await prisma.product.findMany({
+      where: { isActive: true },
+      select: { id: true },
+    });
+    return products.map((p) => ({ id: p.id }));
+  } catch {
+    return [];
+  }
+}
+
 // Cache the product fetch to avoid duplicate calls (for metadata + page)
 // This ensures we only fetch once even if both generateMetadata and page component need it
 const getProductData = cache(async (id: string): Promise<Candle | null> => {
