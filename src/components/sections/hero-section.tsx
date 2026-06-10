@@ -7,7 +7,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LeadCaptureDialog } from "@/components/lead-capture-dialog";
 import { Mail, Flame, Sparkles } from "lucide-react";
-import { BurningCandle } from "@/components/candle/burning-candle";
 import { EmberField } from "@/components/candle/ember-field";
 
 export function HeroSection() {
@@ -199,13 +198,8 @@ export function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Burning candle — melts down as you scroll */}
-          <motion.div
-            className="hidden md:flex items-center justify-center"
-            variants={itemVariants}
-          >
-            <BurningCandle meltOnScroll size={300} />
-          </motion.div>
+          {/* Right column intentionally empty — lets the hero video breathe */}
+          <div className="hidden md:block" />
         </motion.div>
       </div>
 
