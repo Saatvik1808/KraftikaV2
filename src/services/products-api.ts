@@ -19,7 +19,7 @@ function formatImageUrl(imageUrl: string): string {
 }
 
 // Transform Spring Boot product response to Candle interface
-function transformProductResponse(product: any): Candle {
+export function transformProductResponse(product: any): Candle {
   // Handle price - might be string, number, or BigDecimal object
   let price = product.price;
   if (typeof price === 'string') {

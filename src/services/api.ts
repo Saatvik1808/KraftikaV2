@@ -4,6 +4,10 @@
 //   On Vercel, VERCEL_URL is the deployment host; locally, the dev port.
 function resolveServerBase(): string {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  // Public site domain first: $VERCEL_URL is the internal *.vercel.app host,
+  // which Deployment Protection intercepts with an auth page.
+  if (process.env.NEXT_PUBLIC_SITE_URL) return `${process.env.NEXT_PUBLIC_SITE_URL}/api/backend`;
+  if (process.env.VERCEL_ENV === 'production') return 'https://www.kraftikastudio.com/api/backend';
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}/api/backend`;
   return `http://localhost:${process.env.PORT || 9002}/api/backend`;
 }

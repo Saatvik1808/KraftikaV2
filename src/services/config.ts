@@ -9,9 +9,13 @@ export const API_CONFIG = {
       process.env.NEXT_PUBLIC_API_URL ||
       (typeof window !== 'undefined'
         ? '/api/backend'
-        : process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}/api/backend`
-          : `http://localhost:${process.env.PORT || 9002}/api/backend`),
+        : process.env.NEXT_PUBLIC_SITE_URL
+          ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/backend`
+          : process.env.VERCEL_ENV === 'production'
+            ? 'https://www.kraftikastudio.com/api/backend'
+            : process.env.VERCEL_URL
+              ? `https://${process.env.VERCEL_URL}/api/backend`
+              : `http://localhost:${process.env.PORT || 9002}/api/backend`),
   },
   
   // Firebase configuration (keeping existing)

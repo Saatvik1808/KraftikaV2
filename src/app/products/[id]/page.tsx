@@ -5,7 +5,7 @@ import { cache } from 'react';
 
 import type { Candle } from '@/types/candle';
 import type { Review } from '@/types/review';
-import { getProduct, getRelatedProducts } from '@/services/products-unified';
+import { getProductDirect, getRelatedDirect } from '@/lib/server-products';
 import { ProductDetailClient } from './product-detail-client';
 
 interface PageProps {
@@ -15,11 +15,11 @@ interface PageProps {
 // Cache the product fetch to avoid duplicate calls (for metadata + page)
 // This ensures we only fetch once even if both generateMetadata and page component need it
 const getProductData = cache(async (id: string): Promise<Candle | null> => {
-  return await getProduct(id);
+  return await getProductDirect(id);
 });
 
 async function getRelatedProductsData(currentCategory: string, currentId: string): Promise<Candle[]> {
-   return await getRelatedProducts(currentCategory, currentId);
+  return await getRelatedDirect(currentCategory, currentId);
 }
 
 async function getReviewsForProduct(productId: string): Promise<Review[]> {
