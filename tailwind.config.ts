@@ -107,6 +107,15 @@ export default {
          'glow': 'glow 3s ease-in-out infinite', // Subtle glow animation
          'float': 'float 6s ease-in-out infinite', // Floating animation
          'ripple': 'ripple 600ms linear', // Ripple animation
+         // Candle animations — keyframes live in globals.css
+         'flame-flicker': 'flame-flicker 2.4s ease-in-out infinite',
+         'flame-core': 'flame-core 1.1s ease-in-out infinite',
+         'flame-glow': 'flame-glow 2.8s ease-in-out infinite',
+         'ember-rise': 'ember-rise 3.2s ease-out infinite',
+         'smoke-rise': 'smoke-rise 4.5s ease-out infinite',
+         'warm-shimmer': 'warm-shimmer 5s linear infinite',
+         'wax-drip': 'wax-drip 6s ease-in-out infinite',
+         'glow-breathe': 'glow-breathe 4s ease-in-out infinite',
   		},
        boxShadow: {
            'lg': '0 10px 15px -3px hsla(var(--foreground), 0.08), 0 4px 6px -2px hsla(var(--foreground), 0.04)', // Softer shadow using foreground HSL
@@ -115,6 +124,8 @@ export default {
            'accent': '0 6px 20px -5px hsla(var(--accent-hsl), 0.3), 0 4px 8px -6px hsla(var(--accent-hsl), 0.25)',
            'secondary': '0 6px 20px -5px hsla(var(--secondary-hsl), 0.3), 0 4px 8px -6px hsla(var(--secondary-hsl), 0.25)',
            'glass': 'var(--glass-shadow)',
+           'candle-glow': '0 0 30px -4px hsla(var(--glow-hsl), 0.45), 0 0 60px -10px hsla(var(--flame-hsl), 0.25)',
+           'candle-card': '0 18px 40px -12px hsla(var(--glow-hsl), 0.35), 0 8px 18px -8px hsla(var(--flame-hsl), 0.25)',
        },
   	}
   },

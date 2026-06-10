@@ -1,14 +1,16 @@
 'use client';
 
 import { HeroSection } from '@/components/sections/hero-section';
+import { ScrollReveal } from '@/components/candle/scroll-reveal';
+import { WaxDivider } from '@/components/candle/wax-divider';
 import dynamic from 'next/dynamic';
 
 // Lazy load below-the-fold components for better initial page load
 const ProductShowcase = dynamic(
   () => import('@/components/sections/product-showcase').then(mod => ({ default: mod.ProductShowcase })),
-  { 
+  {
     ssr: true,
-    loading: () => <div className="h-96 flex items-center justify-center"><div className="animate-pulse text-gray-400">Loading products...</div></div>
+    loading: () => <div className="h-96 flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading products...</div></div>
   }
 );
 
@@ -27,17 +29,11 @@ const ScentQuizSection = dynamic(
   { ssr: true }
 );
 
-const ValentineBanner = dynamic(
-  () => import('@/components/sections/valentine-banner').then(mod => ({ default: mod.ValentineBanner })),
-  { ssr: true }
-);
-
 const ContentSection = dynamic(
   () => import('@/components/sections/content-section').then(mod => ({ default: mod.ContentSection })),
   { ssr: true }
 );
 
-// Dynamically import the FloatingWhatsAppButton with SSR disabled for performance
 const FloatingWhatsAppButton = dynamic(
   () => import('@/components/floating-whatsapp-button').then(mod => mod.FloatingWhatsAppButton),
   { ssr: false }
@@ -45,21 +41,33 @@ const FloatingWhatsAppButton = dynamic(
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center space-y-0"> {/* Remove default spacing if dividers handle it */}
-      <ValentineBanner />
+    <div className="flex flex-col items-stretch space-y-0 w-full">
       <HeroSection />
-      {/* Add Section Dividers if desired between sections */}
-      {/* <SectionDivider /> */}
-      <ProductShowcase />
-      {/* <SectionDivider /> */}
-      <ContentSection />
-      {/* <SectionDivider /> */}
-      <AboutSection /> {/* Add About Section */}
-      {/* <SectionDivider /> */}
-       <ScentQuizSection /> {/* Maybe move quiz after about? */}
-      {/* <SectionDivider /> */}
-      <Testimonials />
-      <FloatingWhatsAppButton /> {/* Add the floating button here */}
+
+      {/* Melting wax edge out of the dark hero into the warm page */}
+      <WaxDivider />
+
+      <ScrollReveal>
+        <ProductShowcase />
+      </ScrollReveal>
+
+      <ScrollReveal delay={0.05}>
+        <ContentSection />
+      </ScrollReveal>
+
+      <ScrollReveal direction="left">
+        <AboutSection />
+      </ScrollReveal>
+
+      <ScrollReveal direction="right">
+        <ScentQuizSection />
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <Testimonials />
+      </ScrollReveal>
+
+      <FloatingWhatsAppButton />
     </div>
   );
 }
