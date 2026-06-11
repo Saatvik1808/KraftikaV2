@@ -4,7 +4,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, ShoppingBag, Heart, User, LogOut, Download, ChevronDown } from "lucide-react";
+import { Menu, X, ShoppingBag, Heart, User, LogOut, Download, ChevronDown, LayoutDashboard } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -328,6 +328,14 @@ export function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {user.role === 'ADMIN' && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/dashboard">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Admin Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link href="/account">
                     <User className="mr-2 h-4 w-4" />
@@ -386,6 +394,14 @@ export function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {user.role === 'ADMIN' && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/dashboard">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Admin Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link href="/account">
                     <User className="mr-2 h-4 w-4" />
