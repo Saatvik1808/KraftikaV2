@@ -13,6 +13,7 @@ import { Logo } from "@/components/logo";
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from "@/contexts/AuthContext";
 import { usePWAInstall } from "@/hooks/use-pwa-install";
+import { useCartCount } from "@/hooks/use-cart-count";
 import { IOSInstallInstructions } from "@/components/ios-install-instructions";
 import {
   DropdownMenu,
@@ -65,6 +66,7 @@ export function Navbar() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
   const { isInstallable, install, deviceType, isIOS, isMobile, showIOSInstructions, dismissIOSInstructions } = usePWAInstall();
+  const cartCount = useCartCount();
   
   // Calculate install button visibility synchronously (no state delay)
   const showInstallButton = React.useMemo(() => {
@@ -83,15 +85,20 @@ export function Navbar() {
     <motion.nav
     key={pathname}
     className={cn(
-      "sticky top-0 z-50 w-full transition-all duration-300",
-      "glassmorphism border-b border-transparent",
+      "sticky top-0 z-50 w-full transition-all duration-300 rounded-none border-b backdrop-blur-xl",
       isScrolled
-        ? "bg-[hsla(0,0%,100%,0.7)] dark:bg-[hsla(220,15%,15%,0.7)] border-[hsl(var(--border)/0.2)] shadow-sm rounded-none"
-        : "bg-white/90 dark:bg-gray-950/90"
+        ? "bg-[hsl(40_60%_98%/0.82)] dark:bg-[hsl(24_22%_10%/0.82)] border-[hsl(var(--border)/0.6)] shadow-[0_8px_28px_-12px_hsla(30,60%,40%,0.18)]"
+        : "bg-[hsl(40_60%_98%/0.92)] dark:bg-[hsl(24_22%_10%/0.92)] border-transparent"
     )}
     
     style={{ '--navbar-height': '4rem' } as React.CSSProperties}
   >
+      {/* Candle-flame accent line */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-[2.5px]"
+        style={{ background: "linear-gradient(90deg, transparent, hsl(44 95% 60%) 18%, hsl(32 95% 55%) 50%, hsl(14 85% 58%) 82%, transparent)" }}
+      />
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center space-x-2 group" aria-label="Kraftika Homepage">
           <motion.div
@@ -129,20 +136,19 @@ export function Navbar() {
                 className={cn(
                   "font-sans text-sm font-medium transition-colors relative z-10 px-3 py-2",
                   pathname === item.href 
-                    ? "text-gray-900 dark:text-gray-100 font-semibold" 
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                    ? "text-foreground font-semibold" 
+                    : "text-foreground/65 hover:text-foreground"
                 )}
               >
                 {item.name}
                 <motion.span
-                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-primary origin-center"
+                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] origin-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
                   initial={{ scaleX: 0 }}
                   variants={{
                     hover: { scaleX: 1 },
                     rest: { scaleX: pathname === item.href ? 1 : 0 }
                   }}
                   transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
-                  style={{ transformOrigin: 'center' }}
                 />
               </Link>
             </motion.div>
@@ -163,21 +169,20 @@ export function Navbar() {
                   "relative group font-sans text-sm font-medium transition-colors relative z-10 px-3 py-2 flex items-center gap-1",
                   "[&[data-state=open]_svg]:rotate-180",
                   shopItems.some(item => pathname === item.href)
-                    ? "text-gray-900 dark:text-gray-100 font-semibold" 
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                    ? "text-foreground font-semibold" 
+                    : "text-foreground/65 hover:text-foreground"
                 )}
               >
                 Shop
                 <ChevronDown className="h-3 w-3 transition-transform duration-200" />
                 <motion.span
-                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-primary origin-center"
+                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] origin-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
                   initial={{ scaleX: 0 }}
                   variants={{
                     hover: { scaleX: 1 },
                     rest: { scaleX: shopItems.some(item => pathname === item.href) ? 1 : 0 }
                   }}
                   transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
-                  style={{ transformOrigin: 'center' }}
                 />
               </motion.button>
             </DropdownMenuTrigger>
@@ -213,21 +218,20 @@ export function Navbar() {
                   "relative group font-sans text-sm font-medium transition-colors relative z-10 px-3 py-2 flex items-center gap-1",
                   "[&[data-state=open]_svg]:rotate-180",
                   aboutItems.some(item => pathname === item.href)
-                    ? "text-gray-900 dark:text-gray-100 font-semibold" 
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                    ? "text-foreground font-semibold" 
+                    : "text-foreground/65 hover:text-foreground"
                 )}
               >
                 About
                 <ChevronDown className="h-3 w-3 transition-transform duration-200" />
                 <motion.span
-                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-primary origin-center"
+                  className="absolute left-3 right-3 -bottom-0.5 block h-[2px] origin-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
                   initial={{ scaleX: 0 }}
                   variants={{
                     hover: { scaleX: 1 },
                     rest: { scaleX: aboutItems.some(item => pathname === item.href) ? 1 : 0 }
                   }}
                   transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
-                  style={{ transformOrigin: 'center' }}
                 />
               </motion.button>
             </DropdownMenuTrigger>
@@ -264,35 +268,39 @@ export function Navbar() {
               className={cn(
                 "font-sans text-sm font-medium transition-colors relative z-10 px-3 py-2",
                 pathname === contactItem.href 
-                  ? "text-gray-900 dark:text-gray-100 font-semibold" 
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                  ? "text-foreground font-semibold" 
+                  : "text-foreground/65 hover:text-foreground"
               )}
             >
               {contactItem.name}
               <motion.span
-                className="absolute left-3 right-3 -bottom-0.5 block h-[2px] bg-primary origin-center"
+                className="absolute left-3 right-3 -bottom-0.5 block h-[2px] origin-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
                 initial={{ scaleX: 0 }}
                 variants={{
                   hover: { scaleX: 1 },
                   rest: { scaleX: pathname === contactItem.href ? 1 : 0 }
                 }}
                 transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
-                style={{ transformOrigin: 'center' }}
               />
             </Link>
           </motion.div>
           
           {/* Wishlist Icon Link */}
-          <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="View Wishlist">
+          <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-secondary/50 transition-colors group/icon" aria-label="View Wishlist">
             <Link href="/wishlist">
-              <Heart className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+              <Heart className="h-5 w-5 text-foreground/60 transition-colors group-hover/icon:text-rose-500" />
             </Link>
           </Button>
           
           {/* Cart Icon Link */}
-          <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Shopping Cart">
-            <Link href="/cart">
-              <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+          <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-secondary/50 transition-colors group/icon relative" aria-label="Shopping Cart">
+            <Link href="/cart" className="relative">
+              <ShoppingBag className="h-5 w-5 text-foreground/60 transition-colors group-hover/icon:text-amber-600" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-600 px-1 text-[10px] font-bold leading-none text-white shadow-[0_0_8px_rgba(251,146,60,0.6)]">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
             </Link>
           </Button>
 
@@ -316,8 +324,8 @@ export function Navbar() {
           {isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800">
-                  <User className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+                <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary/50 transition-colors group/icon">
+                  <User className="h-5 w-5 text-foreground/60 transition-colors group-hover/icon:text-amber-600" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -356,7 +364,11 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button asChild variant="ghost" size="sm">
+            <Button
+              asChild
+              size="sm"
+              className="rounded-full px-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md hover:from-amber-600 hover:to-orange-600 hover:shadow-[0_0_18px_-2px_rgba(251,146,60,0.6)] transition-all"
+            >
               <Link href="/login">
                 <User className="mr-2 h-4 w-4" />
                 Login
@@ -367,23 +379,28 @@ export function Navbar() {
 
         {/* Mobile Navigation Trigger */}
         <div className="flex items-center md:hidden">
-          <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="View Wishlist">
+          <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-secondary/50 transition-colors group/icon" aria-label="View Wishlist">
             <Link href="/wishlist">
-              <Heart className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+              <Heart className="h-5 w-5 text-foreground/60 transition-colors group-hover/icon:text-rose-500" />
             </Link>
           </Button>
           
-          <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Shopping Cart">
-            <Link href="/cart">
-              <ShoppingBag className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+          <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-secondary/50 transition-colors group/icon relative" aria-label="Shopping Cart">
+            <Link href="/cart" className="relative">
+              <ShoppingBag className="h-5 w-5 text-foreground/60 transition-colors group-hover/icon:text-amber-600" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-600 px-1 text-[10px] font-bold leading-none text-white shadow-[0_0_8px_rgba(251,146,60,0.6)]">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
             </Link>
           </Button>
 
           {isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800">
-                  <User className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+                <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary/50 transition-colors group/icon">
+                  <User className="h-5 w-5 text-foreground/60 transition-colors group-hover/icon:text-amber-600" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -422,21 +439,21 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button asChild variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800">
+            <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-secondary/50 transition-colors group/icon">
               <Link href="/login">
-                <User className="h-5 w-5 text-gray-600 dark:text-gray-400 hover:text-primary" />
+                <User className="h-5 w-5 text-foreground/60 transition-colors group-hover/icon:text-amber-600" />
               </Link>
             </Button>
           )}
           
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Toggle Menu" className="hover:bg-gray-100 dark:hover:bg-gray-800">
-                <Menu className="h-6 w-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" />
+              <Button variant="ghost" size="icon" aria-label="Toggle Menu" className="rounded-full hover:bg-secondary/50 transition-colors">
+                <Menu className="h-6 w-6 text-foreground/70" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] p-0 bg-white dark:bg-gray-950">
-              <SheetHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-800">
+            <SheetContent side="right" className="w-[280px] p-0 bg-[hsl(40_60%_98%)] dark:bg-[hsl(24_22%_10%)]">
+              <SheetHeader className="p-6 pb-4 border-b border-border">
                   <SheetTitle>
                     <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
                       <Logo width={120} height={30} className="text-primary-foreground" />
