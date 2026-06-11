@@ -35,7 +35,7 @@ export default function LoginPage() {
       // login() throws on failure; the role check happens via context.
       // We can't see the new role until the next render; redirect optimistically
       // and let /admin/dashboard middleware enforce.
-      router.push("/admin/dashboard");
+      router.replace("/admin/dashboard");
     } catch (error) {
       toast({
         title: "Login failed",

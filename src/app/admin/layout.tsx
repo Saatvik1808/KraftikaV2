@@ -3,8 +3,7 @@
 
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { onAuthStateChanged, signOut, User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
 import { LogOut, ShoppingBag, LayoutDashboard, Tags, PanelLeft } from "lucide-react";
 import { Logo } from "@/components/logo";
 import Link from "next/link";
@@ -26,8 +25,9 @@ function AdminNavbar() {
     const router = useRouter();
     const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
-    const handleLogout = async () => {
-        await signOut(auth);
+    const { logout } = useAuth();
+    const handleLogout = () => {
+        logout();
         router.push("/admin/login");
     };
 
@@ -161,46 +161,46 @@ function AdminNavbar() {
 }
 
 function AdminRootLayout({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<User | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  // Auth lives in our backend (JWT in localStorage via AuthContext). The old
+  // code listened to Firebase Auth here, which was always empty after the
+  // migration — causing the dashboard <-> login render loop.
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const isLoginPage = pathname === "/admin/login";
 
   React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        if (pathname === '/admin/login') {
-          router.push("/admin/dashboard");
-        }
-      } else {
-        if (pathname !== '/admin/login') {
-          router.push("/admin/login");
-        }
-      }
-      setLoading(false);
-    });
+    if (isLoading) return;
+    if (!isAuthenticated && !isLoginPage) {
+      router.replace("/admin/login");
+    } else if (isAuthenticated && user?.role !== "ADMIN" && !isLoginPage) {
+      // Logged in as a customer — kick to home, not to login (avoids a loop).
+      router.replace("/");
+    } else if (isAuthenticated && user?.role === "ADMIN" && isLoginPage) {
+      router.replace("/admin/dashboard");
+    }
+  }, [isAuthenticated, isLoading, user, isLoginPage, router]);
 
-    return () => unsubscribe();
-  }, [router, pathname]);
-
-  if (loading) {
+  if (isLoading) {
     return <PageLoader text="Loading admin panel..." />;
   }
 
-  if (pathname === '/admin/login' || !user) {
-    return <>{children}</>;
+  // The login page renders its own layout (no admin chrome).
+  if (isLoginPage) return <>{children}</>;
+
+  // Block render until we know the caller is an admin (prevents flashing
+  // the dashboard before redirect kicks in).
+  if (!isAuthenticated || user?.role !== "ADMIN") {
+    return <PageLoader text="Checking access..." />;
   }
 
   return (
-      <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
-        <AdminNavbar />
-        <main className="flex-1 p-6 md:p-8">
-            <div className="container max-w-screen-2xl mx-auto">
-                 {children}
-            </div>
-        </main>
-      </div>
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
+      <AdminNavbar />
+      <main className="flex-1 p-6 md:p-8">
+        <div className="container max-w-screen-2xl mx-auto">{children}</div>
+      </main>
+    </div>
   );
 }
 
