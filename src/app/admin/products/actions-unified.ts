@@ -123,7 +123,8 @@ export async function addProductAction(formData: FormData): Promise<AddFormState
         scentCategoryId: categoryId,
       };
 
-      const result = await addProduct(springBootData);
+      const authTokenAdd = (formData.get('_authToken') as string) || undefined;
+            const result = await addProduct(springBootData, authTokenAdd);
       
       if (result.success) {
         return { 
@@ -297,7 +298,8 @@ export async function updateProductAction(id: string, formData: FormData): Promi
                 springBootData.videoUrl = finalVideoUrl;
             }
 
-            const result = await updateProduct(id, springBootData);
+            const authToken = (formData.get('_authToken') as string) || undefined;
+            const result = await updateProduct(id, springBootData, authToken);
             
             if (result.success) {
                 return {

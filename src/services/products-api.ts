@@ -140,9 +140,9 @@ export async function searchProducts(query: string): Promise<Candle[]> {
   }
 }
 
-export async function deleteProduct(id: string): Promise<boolean> {
+export async function deleteProduct(id: string, authToken?: string): Promise<boolean> {
   try {
-    await apiClient.delete(`/products/${id}`);
+    await apiClient.delete(`/products/${id}`, authToken);
     return true;
   } catch (error) {
     console.error("Error deleting product:", error);
@@ -150,7 +150,7 @@ export async function deleteProduct(id: string): Promise<boolean> {
   }
 }
 
-export async function addProduct(productData: any): Promise<{
+export async function addProduct(productData: any, authToken?: string): Promise<{
   success: boolean;
   productId?: string;
   error?: string;
@@ -171,12 +171,12 @@ export async function addProduct(productData: any): Promise<{
   }
 }
 
-export async function updateProduct(id: string, productData: any): Promise<{
+export async function updateProduct(id: string, productData: any, authToken?: string): Promise<{
   success: boolean;
   error?: string;
 }> {
   try {
-    await apiClient.put(`/products/${id}`, productData);
+    await apiClient.put(`/products/${id}`, productData, authToken);
     
     return { success: true };
   } catch (error) {

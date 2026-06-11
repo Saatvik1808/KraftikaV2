@@ -23,31 +23,31 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private getAuthHeaders(): HeadersInit {
+  private getAuthHeaders(explicitToken?: string): HeadersInit {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
-    
-    // Get JWT token from localStorage if available
-    // AuthContext stores it as 'kraftikaToken'
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('kraftikaToken') || sessionStorage.getItem('kraftikaToken');
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+
+    // Explicit token wins — needed for Next.js server actions, which run
+    // server-side and have no access to localStorage. Browser callers fall
+    // back to localStorage as before.
+    let token = explicitToken;
+    if (!token && typeof window !== 'undefined') {
+      token = localStorage.getItem('kraftikaToken') || sessionStorage.getItem('kraftikaToken') || undefined;
     }
-    
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
     return headers;
   }
 
-  async get<T>(endpoint: string): Promise<T> {
+  async get<T>(endpoint: string, authToken?: string): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     console.log(`🌐 API GET: ${url}`);
     
     try {
       const response = await fetch(url, {
         method: 'GET',
-        headers: this.getAuthHeaders(),
+        headers: this.getAuthHeaders(authToken),
       });
 
       console.log(`📡 Response status: ${response.status} ${response.statusText}`);
@@ -75,10 +75,10 @@ class ApiClient {
     }
   }
 
-  async post<T>(endpoint: string, data: any): Promise<T> {
+  async post<T>(endpoint: string, data: any, authToken?: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'POST',
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders(authToken),
       body: JSON.stringify(data),
     });
 
@@ -95,10 +95,10 @@ class ApiClient {
     return response.json();
   }
 
-  async put<T>(endpoint: string, data: any): Promise<T> {
+  async put<T>(endpoint: string, data: any, authToken?: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'PUT',
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders(authToken),
       body: JSON.stringify(data),
     });
 
@@ -115,10 +115,10 @@ class ApiClient {
     return response.json();
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
+  async delete<T>(endpoint: string, authToken?: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'DELETE',
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders(authToken),
     });
 
     if (!response.ok) {

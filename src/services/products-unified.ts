@@ -51,21 +51,21 @@ export async function searchProducts(query: string): Promise<Candle[]> {
   }
 }
 
-export async function deleteProduct(id: string): Promise<boolean> {
+export async function deleteProduct(id: string, authToken?: string): Promise<boolean> {
   if (useSpringBootAPI()) {
-    return springBootProducts.deleteProduct(id);
+    return springBootProducts.deleteProduct(id, authToken);
   } else {
     return firebaseProducts.deleteProduct(id);
   }
 }
 
-export async function addProduct(productData: any): Promise<{
+export async function addProduct(productData: any, authToken?: string): Promise<{
   success: boolean;
   productId?: string;
   error?: string;
 }> {
   if (useSpringBootAPI()) {
-    return springBootProducts.addProduct(productData);
+    return springBootProducts.addProduct(productData, authToken);
   } else {
     // Firebase doesn't have addProduct in the service, return error
     return {
@@ -75,12 +75,12 @@ export async function addProduct(productData: any): Promise<{
   }
 }
 
-export async function updateProduct(id: string, productData: any): Promise<{
+export async function updateProduct(id: string, productData: any, authToken?: string): Promise<{
   success: boolean;
   error?: string;
 }> {
   if (useSpringBootAPI()) {
-    return springBootProducts.updateProduct(id, productData);
+    return springBootProducts.updateProduct(id, productData, authToken);
   } else {
     // Firebase doesn't have updateProduct in the service, return error
     return {

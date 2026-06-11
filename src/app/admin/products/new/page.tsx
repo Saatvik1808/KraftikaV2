@@ -109,6 +109,7 @@ export default function AddProductPage() {
     }
 
     try {
+      formData.append('_authToken', localStorage.getItem('kraftikaToken') || '');
       const result = await addProductAction(formData);
 
       if (result.success) {

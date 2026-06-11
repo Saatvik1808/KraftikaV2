@@ -175,6 +175,7 @@ export default function EditProductPage() {
     }
 
     try {
+      formDataToSubmit.append('_authToken', localStorage.getItem('kraftikaToken') || '');
       const result = await updateProductAction(productId, formDataToSubmit);
       
       if (result && result.success) {
