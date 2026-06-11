@@ -120,7 +120,13 @@ export function AboutExtras() {
       <section className="w-full pb-20">
         <div className="container mx-auto max-w-4xl px-4 md:px-6">
           <ScrollReveal>
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-candlelight p-10 md:p-14 text-center">
+            <div
+              className="relative overflow-hidden rounded-3xl p-10 md:p-14 text-center"
+              style={{
+                backgroundImage:
+                  "radial-gradient(ellipse 80% 60% at 70% 20%, hsla(40,100%,64%,0.18), transparent 60%), linear-gradient(165deg, hsl(28,35%,12%) 0%, hsl(24,30%,9%) 55%, hsl(20,28%,7%) 100%)",
+              }}
+            >
               <div
                 className="absolute inset-0 animate-glow-breathe pointer-events-none"
                 style={{
