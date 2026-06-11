@@ -118,6 +118,20 @@ export default function FaqPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="glassmorphism p-6 md:p-10 border border-[hsl(var(--border)/0.2)]" // Glassmorphism container for accordion
         >
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: faqData.map((f) => ({
+                  "@type": "Question",
+                  name: f.question,
+                  acceptedAnswer: { "@type": "Answer", text: f.answer },
+                })),
+              }),
+            }}
+          />
           <Accordion type="single" collapsible className="w-full">
             {faqData.map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`} className="border-b border-primary/20 last:border-b-0">

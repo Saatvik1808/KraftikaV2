@@ -43,10 +43,12 @@ export function useCartCount(): number {
   React.useEffect(() => {
     const onUpdate = () => refresh();
     window.addEventListener("cart-updated", onUpdate);
+    window.addEventListener("cartUpdated", onUpdate);
     window.addEventListener("storage", onUpdate);
     window.addEventListener("focus", onUpdate);
     return () => {
       window.removeEventListener("cart-updated", onUpdate);
+      window.removeEventListener("cartUpdated", onUpdate);
       window.removeEventListener("storage", onUpdate);
       window.removeEventListener("focus", onUpdate);
     };

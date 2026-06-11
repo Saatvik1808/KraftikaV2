@@ -42,8 +42,11 @@ export default function BlogPage() {
           transition={{ duration: 0.5 }}
           className="mb-12 text-center"
         >
+          <span className="inline-block text-sm font-semibold tracking-wider uppercase text-amber-700 bg-secondary/40 rounded-full px-4 py-1 mb-4">
+            The Candle Journal
+          </span>
           <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-4">
-            Kraftika Blog
+            Stories from the <span className="text-gradient-flame">Studio</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover tips, guides, and insights about scented candles, aromatherapy, home decor, and sustainable living.
@@ -58,10 +61,10 @@ export default function BlogPage() {
         >
           {blogPosts.map((post, index) => (
             <motion.div key={post.slug} variants={itemVariants}>
-              <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300 border border-gray-200 dark:border-gray-800">
+              <Card className="h-full flex flex-col candle-card border border-border bg-card/80">
                 <CardHeader className="flex-1">
                   <div className="mb-2">
-                    <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">
+                    <span className="text-xs font-semibold text-amber-700 bg-secondary/50 px-2.5 py-1 rounded-full">
                       {post.category}
                     </span>
                   </div>

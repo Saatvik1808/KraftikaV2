@@ -1,7 +1,5 @@
 
 import { MetadataRoute } from 'next';
-import { db } from '@/lib/firebase-admin';
-import type { Candle } from '@/types/candle';
 import { getAllBlogPosts } from '@/lib/blog.posts';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -81,56 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Only fetch products if Firebase Admin is initialized
-  if (db) {
-    try {
-      // Fetch products from Firestore
-      const productsSnapshot = await db.collection('products').get();
-      const products: Candle[] = [];
-      
-      productsSnapshot.forEach((doc) => {
-        const data = doc.data();
-        products.push({
-          id: doc.id,
-          name: data.name || '',
-          description: data.description || '',
-          price: Number(data.price) || 0,
-          imageUrl: data.imageUrl || '',
-          scentCategory: data.scentCategory || '',
-          scentNotes: data.scentNotes || '',
-          burnTime: data.burnTime || '',
-          ingredients: data.ingredients || '',
-          popularity: Number(data.popularity) || 0,
-          createdAt: data.createdAt || new Date().toISOString(),
-        });
-      });
-
-      // Dynamic product routes from Firestore data - optimized for SEO
-      const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
-        url: `${siteUrl}/products/${product.id}`,
-        lastModified: product.updatedAt ? new Date(product.updatedAt) : new Date(),
-        changeFrequency: 'weekly', // Products may have price/stock updates
-        priority: 0.8, // High priority for product pages
-      }));
-
-      // Dynamic blog post routes
-      const blogPosts = getAllBlogPosts();
-      const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
-        url: `${siteUrl}/blog/${post.slug}`,
-        lastModified: new Date(post.date),
-        changeFrequency: 'monthly' as const,
-        priority: 0.7,
-      }));
-
-      return [...staticRoutes, ...productRoutes, ...blogRoutes];
-    } catch (error) {
-      console.error('Error fetching products for sitemap:', error);
-      // Return only static routes if there's an error
-      return staticRoutes;
-    }
-  }
-
-  // Return static routes + blog routes even if Firebase Admin is not initialized
+  // Blog post routes (static content, always available)
   const blogPosts = getAllBlogPosts();
   const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
     url: `${siteUrl}/blog/${post.slug}`,
@@ -139,5 +88,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...blogRoutes];
+  // Product routes from the live database (was Firestore — stale/dead source).
+  let productRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const { prisma } = await import('@/lib/prisma');
+    const products = await prisma.product.findMany({
+      where: { isActive: true },
+      select: { id: true, updatedAt: true },
+    });
+    productRoutes = products.map((p) => ({
+      url: `${siteUrl}/products/${p.id}`,
+      lastModified: p.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+  } catch (error) {
+    console.error('Sitemap: product fetch failed, serving without products:', error);
+  }
+
+  return [...staticRoutes, ...productRoutes, ...blogRoutes];
 }

@@ -1,6 +1,13 @@
 import { API_BASE_URL } from "./config";
 import { getValidToken, clearAuthData } from "@/lib/jwt-utils";
 
+/** Notify navbar badge + cart page after any cart mutation. */
+function emitCartUpdated() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("cartUpdated"));
+  }
+}
+
 export interface CartItem {
   id: string;
   productId: string;
@@ -79,6 +86,7 @@ export const cartApi = {
       throw new Error(error.message || "Failed to add item to cart");
     }
 
+    emitCartUpdated();
     return response.json();
   },
 
@@ -187,6 +195,8 @@ export const cartApi = {
       const error = await response.json();
       throw new Error(error.message || "Failed to clear cart");
     }
+
+    emitCartUpdated();
   },
 
   /**

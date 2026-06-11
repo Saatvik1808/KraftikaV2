@@ -1,0 +1,33 @@
+# Kraftika Studio
+
+> Kraftika Studio is an Indian direct-to-consumer brand making premium handcrafted scented candles. All candles are hand-poured in small batches using 100% natural soy wax, lead-free cotton wicks and fine fragrance oils, and are shipped across India (free shipping over ₹500). Founded by candlemaker Anamika Sinha.
+
+Key facts:
+- Products: scented soy candles in Sweet, Fresh, Floral and Woody scent families
+- Price range: roughly ₹300–₹600 per candle; burn time 40–45 hours typical
+- Made in: India, hand-poured in small batches
+- Materials: natural soy wax (no paraffin), cotton wicks, eco-friendly packaging
+- Shipping: pan-India; free above ₹500, ₹50 below
+- Returns: 7-day return window after delivery
+- Payments: UPI, cards (Razorpay) and Cash on Delivery
+- Contact: studiokraftika@gmail.com
+
+## Main pages
+- [Home](https://www.kraftikastudio.com/): brand overview and featured candles
+- [Products](https://www.kraftikastudio.com/products): full candle catalogue with prices and reviews
+- [About](https://www.kraftikastudio.com/about): brand story, craft process and values
+- [Candle Care](https://www.kraftikastudio.com/candle-care): how to burn and care for soy candles
+- [FAQ](https://www.kraftikastudio.com/faq): common questions about materials, shipping and returns
+- [Blog](https://www.kraftikastudio.com/blog): guides on scented candles, aromatherapy and home fragrance
+- [Contact](https://www.kraftikastudio.com/contact): reach the studio
+
+## Notable guides
+- [Best Scented Candles in India](https://www.kraftikastudio.com/blog/best-scented-candles-india-complete-guide-2025)
+- [Soy vs Paraffin Candles](https://www.kraftikastudio.com/blog/why-choose-soy-candles-over-paraffin)
+- [Candle Care Tips](https://www.kraftikastudio.com/blog/candle-care-tips-maximize-burn-time)
+- [Candle Gift Ideas for Every Occasion](https://www.kraftikastudio.com/blog/candle-gift-ideas-india-occasions-guide)
+- [How to Make Your Home Smell Amazing](https://www.kraftikastudio.com/blog/how-to-make-home-smell-amazing-naturally)
+
+## Data feeds
+- [Product feed (Google Merchant RSS)](https://www.kraftikastudio.com/api/merchant-feed)
+- [Sitemap](https://www.kraftikastudio.com/sitemap.xml)

@@ -1110,6 +1110,108 @@ By prioritizing natural materials, reusable packaging, ethical brands, and mindf
 
 A sustainable candle doesn't just light a room — it reflects the kind of future you want to live in.`
     },
+    {
+        slug: "candle-gift-ideas-india-occasions-guide",
+        title: "Candle Gift Ideas for Every Occasion: The Complete India Gifting Guide",
+        description: "Looking for the perfect gift? Discover why handcrafted scented candles make memorable gifts for birthdays, weddings, Diwali, housewarmings and corporate gifting in India — with scent pairing tips for every occasion.",
+        date: "2026-06-01",
+        readTime: "7 min read",
+        category: "Gifting",
+        image: "/candleImage.jpeg",
+        content: `There is a reason candles have become one of India's favourite gifts: they are personal without being intrusive, beautiful without being impractical, and they transform the recipient's everyday space into something special. A thoughtfully chosen scented candle says "I want your home to feel warmer" — and that message works for nearly every occasion.
+
+Why Candles Make Exceptional Gifts
+
+Unlike most gifts that are used once or stored away, a candle becomes part of someone's daily ritual. Every evening they light it, they think of you. Handcrafted soy candles in particular carry a story — small-batch making, natural ingredients, hand-poured care — that mass-produced gifts simply cannot match.
+
+Candles also solve the hardest gifting problem: not knowing someone's size, taste in clothing, or home decor style. Fragrance preferences are far more forgiving, and a well-chosen scent family almost always lands.
+
+Birthday Gifts: Match the Personality
+
+For birthdays, think about the person's energy. For someone warm and nurturing, vanilla and sweet gourmand scents like mocha or caramel feel like a hug in a jar. For the friend who loves freshness and the outdoors, citrus and green scents bring that brightness indoors. For the romantic, floral notes — rose, peony, jasmine — are timeless.
+
+A practical tip: if you are unsure, choose a sweet or vanilla-based scent. They have the broadest appeal across age groups in India.
+
+Wedding and Anniversary Gifts
+
+Candles carry deep symbolism for couples — light, warmth, and togetherness. A pair of complementary candles (one floral, one woody) makes an elegant his-and-hers style gift. For anniversaries, consider scents that evoke memory: many couples associate specific fragrances with their early days together.
+
+For wedding gifting at scale (favours for guests), small hand-poured candles are increasingly replacing traditional sweets in Indian weddings — they are elegant, useful, and travel well.
+
+Diwali and Festive Gifting
+
+Diwali is the festival of light, and candles are its most natural gift. Move beyond plain diyas: scented candles in festive notes — cinnamon, amber, marigold-inspired florals — bring both light and fragrance to the celebration. A handcrafted candle gift box stands out in the sea of dry fruit hampers, and supports small Indian makers rather than imported goods.
+
+Corporate gifting during the festive season is another area where candles shine. They are appropriate across cultures and genders, sit comfortably in most budgets, and feel premium without being extravagant.
+
+Housewarming Gifts
+
+A new home deserves a new signature scent. Housewarming is arguably the perfect candle occasion — you are literally helping someone make their house smell like home. Fresh and clean scents (cotton, linen, light citrus) are the safest choice for a new space, while warm woody scents suit homes with traditional decor.
+
+Pair the candle with a small care note about first burns (let the wax pool reach the edges) — it shows thought and helps the gift last longer.
+
+Choosing Quality: What to Look For
+
+Whatever the occasion, gift quality matters more than quantity. Look for: 100% natural soy wax (cleaner burn, no black soot on walls), cotton or wooden wicks (no metal cores), hand-poured small batches (better scent distribution), and burn times of 40+ hours for standard sizes.
+
+Handcrafted candles from Indian makers also support local artisans — a story your recipient will appreciate as much as the gift itself.
+
+Making It Personal
+
+The final touch is presentation. Add a handwritten note about why you chose that particular scent. "This reminded me of our trip to the hills" turns a lovely gift into an unforgettable one. Because in the end, the best gifts are not things — they are feelings, and few things carry feeling like fragrance does.`
+    },
+    {
+        slug: "how-to-make-home-smell-amazing-naturally",
+        title: "How to Make Your Home Smell Amazing Naturally: A Room-by-Room Guide",
+        description: "Simple, natural ways to make your home smell incredible — from soy candles and simmer pots to smart placement tricks. A practical room-by-room fragrance guide for Indian homes.",
+        date: "2026-06-05",
+        readTime: "8 min read",
+        category: "Home & Living",
+        image: "/candleImage.jpeg",
+        content: `Walk into a home that smells wonderful and something shifts in you immediately — shoulders drop, breathing slows, the space feels cared for. Scent is the fastest way to change how a home feels, and you do not need synthetic air fresheners to get there. Here is a practical, natural approach for every room.
+
+Why Natural Fragrance Beats Aerosol Sprays
+
+Conventional air fresheners do not remove odours — they mask them with synthetic chemicals, many of which trigger headaches and allergies. Natural alternatives like soy candles with essential-oil-based fragrances, simmer pots, and fresh botanicals actually improve the air experience without the chemical cloud. For homes with children, elderly family members, or pets, this matters even more.
+
+Start With the Source: A Clean Slate
+
+No fragrance can win against a hidden odour source. Before adding scent: empty bins regularly, leave kitchen chimney on for ten minutes after cooking, sun-dry cushion covers monthly (Indian sunlight is a free deodoriser), and keep a small bowl of baking soda in the fridge. Once the base is neutral, fragrance has room to shine.
+
+The Living Room: Your Signature Scent
+
+The living room deserves your "signature" — the scent guests will forever associate with your home. Warm, layered fragrances work best here: vanilla, sandalwood, amber, or coffee-toned gourmands. A quality soy candle burning for two to three hours in the evening fills a medium room beautifully.
+
+Placement trick: position the candle near (not in) the path of your fan or AC airflow. Moving air carries scent around the room instead of letting it pool in one corner.
+
+The Kitchen: Cut Through Cooking Smells
+
+Indian kitchens work hard — tadka, masalas, frying — and yesterday's dinner should not greet today's guests. Citrus is the kitchen's best friend: lemon and orange notes cut through food odours rather than fighting them. A simmer pot works wonders too: simmer water with lemon peels, a cinnamon stick, and a few cloves for twenty minutes while you clean up.
+
+Light a citrus or coffee-scented candle after cooking, not during — fragrance competes badly with active cooking smells.
+
+The Bedroom: Engineering Better Sleep
+
+The bedroom is where scent becomes wellness. Lavender is the most research-backed relaxing scent, but chamomile, soft vanilla, and gentle florals also signal the body toward rest. Light a candle thirty minutes before sleep and extinguish it before you turn in — the lingering scent does the work safely.
+
+Avoid energising scents here: citrus, peppermint, and strong fruity notes belong elsewhere.
+
+The Bathroom: Fresh, Always
+
+Small spaces need lighter touches. Eucalyptus and mint feel spa-like and clean; a small candle lit for twenty minutes after a shower keeps the space feeling fresh. Hanging a bundle of dried eucalyptus near (not in) the shower stream releases scent with every hot shower — an effortless trick.
+
+The Entryway: The First Impression
+
+The first three seconds inside a door form a guest's impression of the entire home. A subtle fresh or floral note here — even from a small candle on a console table lit before guests arrive — sets the tone for everything that follows.
+
+Layering: The Secret of Homes That Always Smell Good
+
+Homes that consistently smell amazing layer their fragrance: a neutral clean base (well-aired rooms, fresh textiles), a consistent signature scent in main areas, and occasion-based accents (richer scents for gatherings, lighter for daily life). Rotate two or three complementary scents rather than using one everywhere — your nose stops noticing a scent it lives with constantly, a phenomenon called olfactory adaptation.
+
+Quality Over Quantity
+
+One well-made soy candle with genuine fragrance oils outperforms five cheap paraffin candles — in scent throw, burn cleanliness, and how the room feels. Look for natural soy wax, 40+ hour burn times, and honest ingredient lists. Your home — and the people in it — deserve fragrance that is as healthy as it is beautiful.`
+    },
 ];
 
 // Function to get all blog posts
