@@ -24,15 +24,17 @@ const statusConfig: Record<OrderStatus, { label: string; icon: React.ReactNode; 
   CANCELLED: { label: "Cancelled", icon: <Package className="h-5 w-5" />, color: "text-red-600" },
 };
 
-export default function OrderConfirmationPage({ params }: { params: { id: string } }) {
+export default function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
+  // Next 15+: params is a Promise in client pages — unwrap with React.use().
+  // (Reading .id directly returned undefined -> bogus "Invalid Order ID".)
+  const { id } = React.use(params);
   const router = useRouter();
   const { toast } = useToast();
   const [order, setOrder] = React.useState<Order | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    // Validate params.id exists
-    if (!params.id || params.id === 'undefined') {
+    if (!id || id === 'undefined') {
       toast({
         title: "Invalid Order ID",
         description: "The order ID is missing or invalid.",
@@ -45,7 +47,7 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
     const loadOrder = async () => {
       try {
         setIsLoading(true);
-        const orderData = await getOrderById(params.id);
+        const orderData = await getOrderById(id);
         if (!orderData) {
           toast({
             title: "Order Not Found",
@@ -70,7 +72,7 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
     };
 
     loadOrder();
-  }, [params.id, router, toast]);
+  }, [id, router, toast]);
 
   if (isLoading) {
     return <PageLoader text="Loading order details..." />;
