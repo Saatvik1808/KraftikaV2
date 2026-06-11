@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBag, AlertTriangle, Trash2, Image as ImageIcon, Plus, Minus } from "lucide-react";
+import { ShoppingBag, Trash2, Image as ImageIcon, Plus, Minus, ArrowRight, Truck, ShieldCheck, Undo2, PartyPopper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -355,8 +355,11 @@ export default function CartPage() {
 
   const isEmpty = cartItems.length === 0;
   const subtotal = isEmpty ? 0 : cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingCost = subtotal > 500 || isEmpty ? 0 : 50; // Free shipping above ₹500
+  const FREE_SHIPPING_AT = 500;
+  const shippingCost = subtotal > FREE_SHIPPING_AT || isEmpty ? 0 : 50; // Free shipping above ₹500
   const total = subtotal + shippingCost;
+  const freeShippingGap = Math.max(0, FREE_SHIPPING_AT - subtotal);
+  const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_AT) * 100);
 
   return (
     <motion.div
@@ -378,17 +381,19 @@ export default function CartPage() {
       </div>
 
       {isEmpty ? (
-        <Card className="text-center p-10 glassmorphism border border-[hsl(var(--border)/0.2)]">
+        <Card className="text-center p-12 glassmorphism border border-[hsl(var(--border)/0.2)]">
           <CardHeader className="p-0 items-center">
-            <AlertTriangle className="mx-auto h-16 w-16 text-accent mb-4" />
-            <CardTitle className="text-2xl">Your Cart is Empty</CardTitle>
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-secondary/40">
+              <ShoppingBag className="h-9 w-9 text-amber-600" />
+            </div>
+            <CardTitle className="text-2xl">Your cart is waiting to be filled</CardTitle>
           </CardHeader>
           <CardContent className="p-0 mt-4">
-            <p className="text-muted-foreground mb-6">
-              Looks like you haven't added any scents to your cart yet.
+            <p className="text-muted-foreground mb-7 max-w-sm mx-auto">
+              Discover hand-poured soy candles that turn any evening into a warm one.
             </p>
-            <Button asChild size="lg" className="btn-primary">
-              <Link href="/products">Explore Products</Link>
+            <Button asChild size="lg" className="rounded-full px-8 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md">
+              <Link href="/products">Explore Candles <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </CardContent>
         </Card>
@@ -404,15 +409,15 @@ export default function CartPage() {
                 transition={{ duration: 0.3, delay: index * 0.1 }}
                 layout 
               >
-                <Card className="flex flex-col sm:flex-row items-center gap-4 p-4 glassmorphism border border-[hsl(var(--border)/0.15)]">
-                  <div className="relative h-24 w-20 sm:h-28 sm:w-24 rounded-md overflow-hidden shrink-0">
+                <Card className="flex flex-col sm:flex-row items-center gap-4 p-4 glassmorphism border border-[hsl(var(--border)/0.15)] candle-card">
+                  <Link href={`/products/${item.id}`} className="relative h-24 w-20 sm:h-28 sm:w-24 rounded-lg overflow-hidden shrink-0 group/img">
                     {item.imageUrl ? (
                       <Image
                         src={item.imageUrl}
                         alt={item.name}
                         fill
                         sizes="(max-width: 640px) 80px, 96px"
-                        className="object-cover"
+                        className="object-cover transition-transform duration-500 group-hover/img:scale-105"
                         data-ai-hint="handcrafted candle"
                       />
                     ) : (
@@ -420,15 +425,24 @@ export default function CartPage() {
                         <ImageIcon className="h-8 w-8 text-muted-foreground" />
                       </div>
                     )}
-                  </div>
+                  </Link>
                   <div className="flex-grow text-center sm:text-left">
-                    <h3 className="text-lg font-semibold text-foreground">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground">{item.scentCategory}</p>
-                    <p className="text-md font-semibold text-primary mt-1">₹{item.price.toFixed(2)}</p>
+                    <Link href={`/products/${item.id}`} className="hover:text-amber-700 transition-colors">
+                      <h3 className="text-lg font-semibold text-foreground">{item.name}</h3>
+                    </Link>
+                    {item.scentCategory && (
+                      <span className="inline-block text-xs font-medium text-amber-700 bg-secondary/50 rounded-full px-2 py-0.5 mt-1">
+                        {item.scentCategory}
+                      </span>
+                    )}
+                    <p className="text-sm text-muted-foreground mt-1.5">
+                      ₹{item.price.toFixed(2)} × {item.quantity} ={" "}
+                      <span className="font-semibold text-foreground">₹{(item.price * item.quantity).toFixed(2)}</span>
+                    </p>
                   </div>
                   <div className="flex items-center gap-3 mt-2 sm:mt-0 sm:ml-auto">
                     {/* Quantity Controls */}
-                    <div className="flex items-center gap-2 border rounded-md">
+                    <div className="flex items-center gap-1 border border-border rounded-full bg-card/60 px-1">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -477,6 +491,27 @@ export default function CartPage() {
                 <CardTitle className="text-xl">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="p-0 space-y-3">
+                {/* Free shipping nudge */}
+                {freeShippingGap > 0 ? (
+                  <div className="rounded-lg bg-secondary/30 border border-secondary p-3">
+                    <p className="text-sm font-medium flex items-center gap-1.5 mb-2">
+                      <Truck className="h-4 w-4 text-amber-700" />
+                      Add <span className="font-bold text-amber-700">₹{freeShippingGap.toFixed(0)}</span> more for FREE shipping
+                    </p>
+                    <div className="h-2 w-full rounded-full bg-border/60 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-700"
+                        style={{ width: `${freeShippingProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-lg bg-green-50 border border-green-200 p-3">
+                    <p className="text-sm font-medium text-green-700 flex items-center gap-1.5">
+                      <PartyPopper className="h-4 w-4" /> You've unlocked FREE shipping!
+                    </p>
+                  </div>
+                )}
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
                   <span>₹{subtotal.toFixed(2)}</span>
@@ -490,12 +525,15 @@ export default function CartPage() {
                   <span>Total</span>
                   <span>₹{total.toFixed(2)}</span>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Have a coupon? Apply it at checkout.
+                </p>
               </CardContent>
-              <CardFooter className="p-0 mt-6">
+              <CardFooter className="p-0 mt-6 flex-col gap-4">
                 <Button 
                   asChild 
                   size="lg" 
-                  className="w-full btn-primary"
+                  className="w-full text-base bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md hover:shadow-[0_0_24px_-4px_rgba(251,146,60,0.6)] transition-all"
                   onClick={() => {
                     // Track begin checkout
                     trackBeginCheckout(
@@ -511,9 +549,26 @@ export default function CartPage() {
                   }}
                 >
                   <Link href="/payment">
-                    Proceed to Checkout
+                    Proceed to Checkout <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
+                <Link href="/products" className="text-sm text-muted-foreground hover:text-amber-700 transition-colors">
+                  ← Continue shopping
+                </Link>
+                <div className="w-full grid grid-cols-3 gap-1 pt-3 border-t border-border/50 text-center">
+                  <div className="flex flex-col items-center gap-1">
+                    <ShieldCheck className="h-4 w-4 text-amber-700" />
+                    <span className="text-[11px] text-muted-foreground leading-tight">Secure payments</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <Truck className="h-4 w-4 text-amber-700" />
+                    <span className="text-[11px] text-muted-foreground leading-tight">COD available</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <Undo2 className="h-4 w-4 text-amber-700" />
+                    <span className="text-[11px] text-muted-foreground leading-tight">7-day returns</span>
+                  </div>
+                </div>
               </CardFooter>
             </Card>
           </div>
